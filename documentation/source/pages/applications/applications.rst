@@ -10,3 +10,4 @@ Applications
 
 .. include:: skeleton.rst
 .. include:: simple_diffusion.rst
+.. include:: mesh_tools.rst
