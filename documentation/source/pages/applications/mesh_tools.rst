@@ -7,20 +7,24 @@
 ******************
 Mesh Tools
 ******************
-Programs primarily for mesh generation. Generated meshes are in NetCDF(.nc) files which aim to be compliant with UGRID (v1.0) conventions.
-Additional mesh attributes are added within the UGRID convention to support informed application use cases not covered by the UGRID convention.
+Programs for the generation of 2D mesh topologies. Output aims to be formatted as UGRID (v1.0) compliant NetCDF(.nc) files. Development of these tools are driven by application requirements on the LFRic Core infrastructure.
+
+Generated meshes are two-dimensional, using quadrilateral cells arranged for a given use case. Additional mesh attributes not covered by the UGRID convention are added via NetCDF attributes in order to support specific use cases arising from application requirements.
 
 ******************
-Cubed-sphere
+Cubed-Sphere
 ******************
-Cubed-sphere mesh for applciations working with a global model.
-Topology = Cube
-Geometry = Spherical
+The Cubed-Sphere mesh topology's primary use case is for Global General Circulation Models (GCMs) as an alternative to the regular lon-lat grid. Cells in this mesh topology are connected as a gridded-cube as the name suggests, though the geographical location of the the nodes are such that the mesh geometry is spherical.
+
 
 ******************
 Planar mesh
 ******************
-Planar mesh for applciations working with a regional model.
-Topology = Grid
-Geometry = * Curved surface (spherical region used for LAMs) implicitly used with lon-lat coordinate system
-           * Flat surface (Flat region used for reasearch/idealised models)  implicitly used with cartesian coordinate system
+The planar mesh topology's use case is for Regional GCMs. The planar mesh topology is connected as a regular grid with nodes located on a:
+
+Curved plane
+    A gridded regional domain on a spherical surface used for Limited Area Models (LAMs). This mesh topology implicitly uses a spherical coordinate system (longitude-latitude) for the node locations. Full periodicity at the domain boundaries is not supported.
+
+Flat plane
+    A gridded regional domain on a flat plane, generally used for idealised modelling cases. This mesh topology implicity uses a cartesian coordinate system (xyz) for node locations. Full-periodicity at the domain boundaries is permitted.
+
