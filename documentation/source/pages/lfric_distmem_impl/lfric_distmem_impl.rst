@@ -1,3 +1,9 @@
+.. -----------------------------------------------------------------------------
+     (c) Crown copyright 2024 Met Office. All rights reserved.
+     The file LICENCE, distributed with this code, contains details of the terms
+     under which the code may be used.
+   -----------------------------------------------------------------------------
+
 Distributed Memory Documentation
 ################################
 
@@ -68,7 +74,8 @@ in memory:
    the data owned by the partition comes first, followed by increasingly
    deep halo data.
 
-For full details of the data model supported by the LFRic infrastructure see the Data Model documentation :ref:`[1] <references>`. 
+For full details of the data model supported by the LFRic infrastructure
+see the LFRic design documentation [LFRic_Design]_.
 
 Parallel implementation
 =======================
@@ -123,8 +130,9 @@ The global mesh object holds all the information that describes the
 topology and geometry of the two-dimensional (surface) mesh that the
 model will use. The data to fill the object is read from a file (the
 file uses a convention for holding unstructured data in netCDF format
-called UGRID). This is the mesh information for the whole un-partitioned
-domain. It, therefore, provides a global indexing of cells.
+called UGRID) [UGRID_Convention]_. This is the mesh information for the
+whole un-partitioned domain. It, therefore, provides a global indexing
+of cells.
 
 Mesh entities such as vertices or edges are located at the boundary
 between two cells. When the mesh is partitioned, the information held on
@@ -164,6 +172,8 @@ Computation within the science parts of the code is performed by
 iterating over cells. The order of the computation is determined by
 order the cells appear in the partition object, so it should be defined
 to support our chosen iteration strategy.
+
+.. _overlap comms compute:
 
 Overlapping Communications with Compute
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -247,6 +257,8 @@ parallel:
 
 -  A globally consistent index for each dof needs to be provided, so
    that halo dofs can be correctly associated with their owned dof.
+
+.. _dofmap generation:
 
 Generating the dofmap to support halo exchanges
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -460,11 +472,9 @@ data:
    | Calculate the global maximum of the scalar.
 
 
-.. _references:
-
 References
 ==========
 
-#. The LFRic Team, *The design, data model and implementation of the GungHo dynamical core for the Met Office.*, LFRic Documentation, 2016.
-#. Ford, R. and Porter, A., *PSyclone Documentation.*, LFRic Documentation, 2016.
-#. Jagers, B., *et al.*, *UGRID Conventions Version 1.0*, ``http://ugrid-conventions.github.io/ugrid-conventions``, 2016.
+.. [LFRic_Design] The LFRic Team, *The design, data model and implementation of the GungHo dynamical core for the Met Office.*, LFRic Documentation, 2016.
+
+.. [UGRID_Convention] Jagers, B., *et al.*, *UGRID Conventions Version 1.0*, http://ugrid-conventions.github.io/ugrid-conventions, 2016.
