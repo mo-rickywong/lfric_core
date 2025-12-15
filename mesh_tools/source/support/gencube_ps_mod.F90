@@ -56,6 +56,8 @@ module gencube_ps_mod
   private
 
   public :: set_partition_parameters
+  public :: stretch_mesh
+  public :: calc_cell_centres
 
 !-----------------------------------------------------------------------------
   ! Mesh Vertex directions: local aliases for reference_element_mod values
@@ -125,6 +127,8 @@ module gencube_ps_mod
     procedure :: get_coordinates
     procedure :: get_connectivity
     procedure :: get_global_mesh_maps
+    procedure :: get_equatorial_latitude
+    procedure :: get_rotate_mesh
     procedure :: write_mesh
 
     procedure :: clear
@@ -1119,25 +1123,30 @@ end subroutine calc_coords
 !>          resolution mesh.
 !>          (PRIVATE ROUTINE)
 !>
-!> @param[in,out] gen_cube  Generator strategy for a cubed-sphere
+!> @param[in] equatorial_latitude Location Cubed-Sphere "equator" after
+!>                                applying Schmit transform
+!> @param[in] coordinates         Coordinates to apply tranform to.
+!>                                [nodes, coordinates].
 !-------------------------------------------------------------------------------
-subroutine stretch_mesh(gen_cube)
+subroutine stretch_mesh( equatorial_latitude, coordinates )
 
   implicit none
 
-  class(gencube_ps_type), intent(inout)  :: gen_cube
+  real(r_def), intent(in)    :: equatorial_latitude
+  real(r_def), intent(inout) :: coordinates(:,:)
 
   real(r_def) :: stretching ! Holding variable for stretch function
-  real(r_def) :: lat
-  real(r_def) :: stretch_factor
+  real(r_def) :: stretch_factor, lat
+  real(r_def), allocatable :: latitude(:)
 
   integer(i_def) :: nverts, vert
 
-  nverts = size(gen_cube%vert_coords, dim=2)
+  nverts = size(coordinates, dim=2)
+  allocate(latitude, source=coordinates(2,:))
 
   ! Find stretch factor from equatorial latitude
-  stretch_factor = sqrt( (1.0_r_def - sin(gen_cube%equatorial_latitude)) &
-                         / (1.0_r_def + sin(gen_cube%equatorial_latitude)) )
+  stretch_factor = sqrt( (1.0_r_def - sin(equatorial_latitude)) / &
+                         (1.0_r_def + sin(equatorial_latitude)) )
 
   ! Apply Schmidt stretching transformation
   if ( stretch_factor > 0.0_r_def ) then
@@ -1147,12 +1156,14 @@ subroutine stretch_mesh(gen_cube)
 
     do vert = 1,nverts
 
-      lat = gen_cube%vert_coords(2, vert)
-      gen_cube%vert_coords(2, vert) = asin( (stretching + sin(lat)) &
-                                           /(1.0_r_def + stretching*sin(lat)) )
+      lat = latitude(vert)
+      coordinates(2, vert) = asin( (stretching + sin(lat)) / &
+                                   (1.0_r_def + stretching*sin(lat)) )
 
     end do
-
+  else
+    call log_event( 'Invalid stretch factor. Must be >= 0.0.', &
+                    LOG_LEVEL_ERROR )
   end if
 
 end subroutine stretch_mesh
@@ -1225,18 +1236,25 @@ subroutine get_coordinates(self, node_coordinates, &
 
   implicit none
 
-  class(gencube_ps_type), intent(in)  :: self
-  real(r_def),            intent(out) :: node_coordinates(:,:)
-  real(r_def),            intent(out) :: cell_coordinates(:,:)
-  real(r_def),            intent(out) :: domain_extents(:,:)
-  character(str_def),     intent(out) :: coord_units_x
-  character(str_def),     intent(out) :: coord_units_y
+  class(gencube_ps_type), intent(in) :: self
 
-  node_coordinates = self%vert_coords
-  cell_coordinates = self%cell_coords
-  domain_extents   = self%domain_extents
-  coord_units_x    = self%coord_units_x
-  coord_units_y    = self%coord_units_y
+  real(r_def), allocatable, intent(out) :: node_coordinates(:,:)
+  real(r_def), allocatable, intent(out) :: cell_coordinates(:,:)
+  real(r_def), allocatable, intent(out) :: domain_extents(:,:)
+
+  character(str_def), intent(out) :: coord_units_x
+  character(str_def), intent(out) :: coord_units_y
+
+  if (allocated(node_coordinates)) deallocate(node_coordinates)
+  if (allocated(cell_coordinates)) deallocate(cell_coordinates)
+  if (allocated(domain_extents))   deallocate(domain_extents)
+
+  allocate(node_coordinates, source=self%vert_coords)
+  allocate(cell_coordinates, source=self%cell_coords)
+  allocate(domain_extents,   source=self%domain_extents)
+
+  coord_units_x = self%coord_units_x
+  coord_units_y = self%coord_units_y
 
   return
 end subroutine get_coordinates
@@ -1260,15 +1278,20 @@ subroutine get_connectivity(self, face_node_connectivity, &
 
   class(gencube_ps_type), intent(in) :: self
 
-  integer(i_def), intent(out) :: face_node_connectivity(:,:)
-  integer(i_def), intent(out) :: face_edge_connectivity(:,:)
-  integer(i_def), intent(out) :: face_face_connectivity(:,:)
-  integer(i_def), intent(out) :: edge_node_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: face_node_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: face_edge_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: face_face_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: edge_node_connectivity(:,:)
 
-  face_node_connectivity = self%verts_on_cell
-  face_edge_connectivity = self%edges_on_cell
-  face_face_connectivity = self%cell_next
-  edge_node_connectivity = self%verts_on_edge
+  if (allocated(face_node_connectivity)) deallocate(face_node_connectivity)
+  if (allocated(face_edge_connectivity)) deallocate(face_edge_connectivity)
+  if (allocated(face_face_connectivity)) deallocate(face_face_connectivity)
+  if (allocated(edge_node_connectivity)) deallocate(edge_node_connectivity)
+
+  allocate(face_node_connectivity, source=self%verts_on_cell)
+  allocate(face_edge_connectivity, source=self%edges_on_cell)
+  allocate(face_face_connectivity, source=self%cell_next)
+  allocate(edge_node_connectivity, source=self%verts_on_edge)
 
   return
 end subroutine get_connectivity
@@ -1293,6 +1316,44 @@ function get_global_mesh_maps(self) result (global_mesh_maps)
 end function get_global_mesh_maps
 
 !-------------------------------------------------------------------------------
+!> @brief  Retruns the target latitude of the cubedsphere mesh (topology) mid-line.
+!> @description For a cubed-sphere mesh topology, the horizontal bisecting
+!>              plane would be along the equator by default. This latitude may
+!>              be shifted if the Schmit transform is applied.
+!> @return equatorial_latitude  Latitude of the cubedsphere mesh topology
+!>                              equator after applying the Schmit transform.
+!-------------------------------------------------------------------------------
+function get_equatorial_latitude(self) result (equatorial_latitude)
+
+  implicit none
+
+  class(gencube_ps_type), target, intent(in) :: self
+
+  real(r_def) :: equatorial_latitude
+
+  equatorial_latitude = self%equatorial_latitude
+
+  return
+end function get_equatorial_latitude
+
+!-------------------------------------------------------------------------------
+!> @brief  Returns whether the stratedgy will rotate the mesh.
+!> @return rotate-mesh  Retruns .true. if the mesh is to be rotated.
+!-------------------------------------------------------------------------------
+function get_rotate_mesh(self) result (rotate_mesh)
+
+  implicit none
+
+  class(gencube_ps_type), target, intent(in) :: self
+
+  logical :: rotate_mesh
+
+  rotate_mesh = self%rotate_mesh
+
+  return
+end function get_rotate_mesh
+
+!-------------------------------------------------------------------------------
 !> @brief   Generates the mesh and connectivity.
 !> @details Calls each of the instance methods which calculate the
 !>          specified mesh and populate the arrays.
@@ -1304,6 +1365,9 @@ subroutine generate(self)
   implicit none
 
   class(gencube_ps_type), intent(inout) :: self
+
+  real(r_def), parameter :: pio4 = PI*0.25_r_def ! 45 degrees in radians
+  real(r_def), parameter :: pio2 = PI*0.5_r_def  ! 90 degrees in radians
 
   call calc_adjacency(self, self%cell_next)
   call calc_face_to_vert(self, self%verts_on_cell)
@@ -1318,16 +1382,23 @@ subroutine generate(self)
 
   call orient_lfric(self, PANEL_ROTATIONS)
 
+  if (self%equatorial_latitude /= 0.0_r_def) then
+    call stretch_mesh( self%equatorial_latitude, self%vert_coords )
+  end if
+
   ! Stretching and smoothing of the mesh should be done before
   ! any rotations are done.
   if (self%nsmooth > 0_i_def) call smooth(self)
 
-  if (self%equatorial_latitude /= 0.0_r_def) call stretch_mesh(self)
 
-  if (self%rotate_mesh) call rotate_mesh_coords(self%vert_coords, &
-                                                self%north_pole)
+  if (self%rotate_mesh) then
+    call rotate_mesh_coords( self%north_pole, self%vert_coords )
+  end if
 
-  call calc_cell_centres(self)
+  call calc_cell_centres( self%verts_on_cell, &
+                          self%vert_coords,   &
+                          self%cell_coords )
+
 
   ! Convert coordinate units to degrees to be CF compliant
   if (trim(self%coord_units_x) == 'radians') then
@@ -1581,7 +1652,7 @@ subroutine orient_lfric(gen_cube, panel_rotation_array)
       ! verts
       gen_cube%verts_on_cell(:, p0:p1) = cshift(gen_cube%verts_on_cell(:, p0:p1), 1, 1)
       ! adj
-      gen_cube%cell_next(:, p0:p1) = cshift(gen_cube%cell_next(:, p0:p1), 1, 1)
+      gen_cube%cell_next(:, p0:p1)     = cshift(gen_cube%cell_next(:, p0:p1), 1, 1)
       ! edges
       gen_cube%edges_on_cell(:, p0:p1) = cshift(gen_cube%edges_on_cell(:, p0:p1), 1, 1)
 
@@ -1590,7 +1661,7 @@ subroutine orient_lfric(gen_cube, panel_rotation_array)
       ! verts
       gen_cube%verts_on_cell(:, p0:p1) = cshift(gen_cube%verts_on_cell(:, p0:p1), -1, 1)
       ! adj
-      gen_cube%cell_next(:, p0:p1) = cshift(gen_cube%cell_next(:, p0:p1), -1, 1)
+      gen_cube%cell_next(:, p0:p1)     = cshift(gen_cube%cell_next(:, p0:p1), -1, 1)
       ! edges
       gen_cube%edges_on_cell(:, p0:p1) = cshift(gen_cube%edges_on_cell(:, p0:p1), -1, 1)
 
@@ -1656,7 +1727,9 @@ subroutine smooth( gen_cube )
   end do
 
   ! Preliminary - Compute cell centre coordinates
-  call calc_cell_centres( gen_cube )
+  call calc_cell_centres( gen_cube%verts_on_cell, &
+                          gen_cube%vert_coords,   &
+                          gen_cube%cell_coords )
 
   do cell=1, ncells
     call ll2xyz( gen_cube%cell_coords(1,cell), &
@@ -1705,59 +1778,66 @@ end subroutine smooth
 !>          node coordinates. The node_cordinates are assumed to be in [lon, lat].
 !>          Resulting face centre coordinates are in [lon, lat].
 !>
-!> @param[in,out] gen_cube  Generator strategy for a cubed-sphere
+!> @param[in]  nodes_on_cell  Node ids connected to a given cell.
+!> @param[in]  node_coords    Coordinates of nodes
+!> @param[out] cell_coords    Coordinates of cell centre locations.
 !-------------------------------------------------------------------------------
-subroutine calc_cell_centres( gen_cube )
+subroutine calc_cell_centres( nodes_on_cell, &
+                              node_coords,   &
+                              cell_coords )
 
   implicit none
 
-  class(gencube_ps_type), intent(inout) :: gen_cube
+  integer(i_def), intent(in)  :: nodes_on_cell(:,:)
+  real(r_def),    intent(in)  :: node_coords(:,:)
 
-  integer(i_def) :: ncells
+  real(r_def), allocatable, intent(out) :: cell_coords(:,:)
+
+  integer(i_def) :: ncells, node_index
 
   real(r_def)    :: radius_ratio
 
-  integer(i_def), allocatable :: verts_on_cell(:)
-
-  real(r_def),    allocatable :: cell_vert_coords_xyz(:,:)
-  real(r_def),    allocatable :: cell_vert_coords_ll(:,:)
+  integer(i_def), allocatable :: node_id_on_cell(:)
+  real(r_def),    allocatable :: cell_node_coords_xyz(:,:)
+  real(r_def),    allocatable :: cell_node_coords_ll(:,:)
 
   real(r_def), allocatable :: cell_centre_xyz(:)
 
-  integer(i_def) :: nverts_per_cell = 4
+  integer(i_def) :: nnodes_per_cell = 4
 
   ! Counters
-  integer(i_def) :: cell, vert
+  integer(i_def) :: cell
 
-  ncells = NPANELS*gen_cube%edge_cells*gen_cube%edge_cells
+  ncells = size( nodes_on_cell,2 )
 
-  allocate( verts_on_cell(nverts_per_cell) )
-  allocate( cell_vert_coords_xyz(3,nverts_per_cell) )
-  allocate( cell_vert_coords_ll(2,nverts_per_cell) )
+  allocate( node_id_on_cell      (   nnodes_per_cell) )
+  allocate( cell_node_coords_xyz (3, nnodes_per_cell) )
+  allocate( cell_node_coords_ll  (2, nnodes_per_cell) )
   allocate( cell_centre_xyz(3) )
 
-  if (.not. allocated(gen_cube%cell_coords)) allocate( gen_cube%cell_coords(2,ncells) )
+  if (allocated(cell_coords)) deallocate( cell_coords )
+  allocate( cell_coords(2,ncells) )
 
-  gen_cube%cell_coords(:,:) = 0.0_r_def
+  cell_coords(:,:) = 0.0_r_def
 
   do cell=1, ncells
     cell_centre_xyz(:) = 0.0_r_def
 
     ! Get the vertex ids on the cell
-    verts_on_cell(:) = gen_cube%verts_on_cell(:,cell)
+    node_id_on_cell(:) = nodes_on_cell(:,cell)
 
-    do vert=1, nverts_per_cell
+    do node_index=1, nnodes_per_cell
       ! Get the vertex coords (in radians)
-      cell_vert_coords_ll(:,vert) = gen_cube%vert_coords(:,verts_on_cell(vert))
+      cell_node_coords_ll(:,node_index) = node_coords(:,node_id_on_cell(node_index))
 
       ! Get vertex coords as cartesian (x,y,z)
-      call ll2xyz( cell_vert_coords_ll(1,vert),  &
-                   cell_vert_coords_ll(2,vert),  &
-                   cell_vert_coords_xyz(1,vert), &
-                   cell_vert_coords_xyz(2,vert), &
-                   cell_vert_coords_xyz(3,vert) )
+      call ll2xyz( cell_node_coords_ll(1,node_index),  &
+                   cell_node_coords_ll(2,node_index),  &
+                   cell_node_coords_xyz(1,node_index), &
+                   cell_node_coords_xyz(2,node_index), &
+                   cell_node_coords_xyz(3,node_index) )
 
-      cell_centre_xyz(:) = cell_centre_xyz(:) + cell_vert_coords_xyz(:,vert)
+      cell_centre_xyz(:) = cell_centre_xyz(:) + cell_node_coords_xyz(:,node_index)
 
     end do
 
@@ -1768,11 +1848,11 @@ subroutine calc_cell_centres( gen_cube )
     cell_centre_xyz(:) = cell_centre_xyz(:) * radius_ratio
 
     ! Convert cell centre back to lat long
-    call xyz2ll( cell_centre_xyz(1),           & ! x
-                 cell_centre_xyz(2),           & ! y
-                 cell_centre_xyz(3),           & ! z
-                 gen_cube%cell_coords(1,cell), & ! longitude
-                 gen_cube%cell_coords(2,cell) )  ! latititude
+    call xyz2ll( cell_centre_xyz(1),  & ! x
+                 cell_centre_xyz(2),  & ! y
+                 cell_centre_xyz(3),  & ! z
+                 cell_coords(1,cell), & ! longitude
+                 cell_coords(2,cell) )  ! latititude
   end do
 
 end subroutine calc_cell_centres
@@ -1811,7 +1891,8 @@ end function get_number_of_panels
 !>                                           the this ugrid_generator_type
 !> @param[out]  nmaps              Optional, Number of maps to create with this mesh
 !>                                           as source mesh.
-!> @param[out]  rim_depth          Optional, Depth of LBC mesh rim (in cells)
+!> @param[out]  rim_depth          Optional, Rim depth in cells (rim-meshes)
+!> @param[out]  eave_depth         Optional, Eave depth in cells (eave-meshes))
 !> @param[out]  void_cell          Optional, Cell ID for null connectivity.
 !> @param[out]  target_mesh_names  Optional, Mesh names of the target meshes that
 !>                                           this mesh has maps for.
@@ -1837,6 +1918,7 @@ subroutine get_metadata( self,               &
                          constructor_inputs, &
                          nmaps,              &
                          rim_depth,          &
+                         eave_depth,         &
                          void_cell,          &
                          target_mesh_names,  &
                          maps_edge_cells_x,  &
@@ -1858,6 +1940,7 @@ subroutine get_metadata( self,               &
   integer(i_def),     optional, intent(out) :: edge_cells_y
   integer(i_def),     optional, intent(out) :: nmaps
   integer(i_def),     optional, intent(out) :: rim_depth
+  integer(i_def),     optional, intent(out) :: eave_depth
   integer(i_def),     optional, intent(out) :: void_cell
 
   character(str_longlong), optional, intent(out) :: constructor_inputs
@@ -1879,6 +1962,8 @@ subroutine get_metadata( self,               &
   if (present(edge_cells_y)) edge_cells_y   = self%edge_cells
   if (present(nmaps))        nmaps          = self%nmaps
   if (present(rim_depth))    rim_depth      = imdi
+  if (present(eave_depth))    eave_depth    = imdi
+
   if (present(void_cell))    void_cell      = VOID_ID
 
   if (present(north_pole))     north_pole(:)  = radians_to_degrees * self%north_pole(:)

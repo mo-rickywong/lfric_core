@@ -106,7 +106,8 @@ abstract interface
   !>                                            the this ugrid_generator_type.
   !> @param[out]  nmaps               Optional: Number of maps to create with this mesh
   !>                                            as source mesh.
-  !> @param[out]  rim_depth           Optional: Rim depth of LBC mesh (LAMs).
+  !> @param[out]  rim_depth           Optional: Rim depth in cells (Rim meshes only).
+  !> @param[out]  eave_depth          Optional: Eave depth in cells (Eave meshes only).
   !> @param[out]  void_cell           Optional: Cell ID to mark null cell connectivity.
   !> @param[out]  target_mesh_names   Optional: Mesh names of the target meshes that
   !>                                            this mesh has maps for.
@@ -120,13 +121,12 @@ abstract interface
   !>                                            island used for domain orientation (degrees).
   !> @param[out]  equatorial_latitude Optional: latitude of equator of mesh (degrees)
   !-----------------------------------------------------------------------------
-  subroutine get_metadata_interface ( self, mesh_name,                       &
-                                      geometry, topology, coord_sys,         &
-                                      periodic_xy,                           &
-                                      edge_cells_x, edge_cells_y,            &
-                                      constructor_inputs, nmaps, rim_depth,  &
-                                      void_cell, target_mesh_names,          &
-                                      maps_edge_cells_x, maps_edge_cells_y,  &
+  subroutine get_metadata_interface ( self, mesh_name,                          &
+                                      geometry, topology, coord_sys,            &
+                                      periodic_xy, edge_cells_x, edge_cells_y,  &
+                                      constructor_inputs, nmaps, rim_depth,     &
+                                      eave_depth, void_cell, target_mesh_names, &
+                                      maps_edge_cells_x, maps_edge_cells_y,     &
                                       north_pole, null_island, equatorial_latitude  )
 
     import :: ugrid_generator_type, i_def, str_def, str_longlong, l_def, r_def
@@ -152,6 +152,7 @@ abstract interface
 
     integer(i_def), optional, intent(out) :: nmaps
     integer(i_def), optional, intent(out) :: rim_depth
+    integer(i_def), optional, intent(out) :: eave_depth
     integer(i_def), optional, intent(out) :: edge_cells_x
     integer(i_def), optional, intent(out) :: edge_cells_y
 
@@ -219,9 +220,10 @@ abstract interface
 
     class(ugrid_generator_type), intent(in) :: self
 
-    real(r_def), intent(out)        :: node_coordinates(:,:)
-    real(r_def), intent(out)        :: cell_coordinates(:,:)
-    real(r_def), intent(out)        :: domain_extents(:,:)
+    real(r_def), allocatable, intent(out) :: node_coordinates(:,:)
+    real(r_def), allocatable, intent(out) :: cell_coordinates(:,:)
+    real(r_def), allocatable, intent(out) :: domain_extents(:,:)
+
     character(str_def), intent(out) :: coord_units_x
     character(str_def), intent(out) :: coord_units_y
 
@@ -232,14 +234,16 @@ abstract interface
   !> @brief Interface: Gets a selection of connectivity information from the
   !>                   mesh generator.
   !>
-  !> @param[out]    face_node_connectivity Nodes around each face
-  !> @param[out]    face_edge_connectivity Edges around each face.
-  !> @param[out]    face_face_connectivity Faces adjacent to each face.
-  !> @param[out]    edge_node_connectivity Nodes defining each edge
+  !> @param[out]  face_node_connectivity  Nodes around each face
+  !> @param[out]  face_edge_connectivity  Edges around each face.
+  !> @param[out]  face_face_connectivity  Faces adjacent to each face.
+  !> @param[out]  edge_node_connectivity  Nodes defining each edge
   !-----------------------------------------------------------------------------
-  subroutine get_connectivity_interface ( self,                        &
-                       face_node_connectivity, face_edge_connectivity, &
-                       face_face_connectivity, edge_node_connectivity )
+  subroutine get_connectivity_interface ( self,                   &
+                                          face_node_connectivity, &
+                                          face_edge_connectivity, &
+                                          face_face_connectivity, &
+                                          edge_node_connectivity )
 
     import :: ugrid_generator_type, i_def
 
@@ -247,10 +251,10 @@ abstract interface
 
     class(ugrid_generator_type), intent(in) :: self
 
-    integer(i_def), intent(out) :: face_node_connectivity(:,:)
-    integer(i_def), intent(out) :: face_edge_connectivity(:,:)
-    integer(i_def), intent(out) :: face_face_connectivity(:,:)
-    integer(i_def), intent(out) :: edge_node_connectivity(:,:)
+    integer(i_def), allocatable, intent(out) :: face_node_connectivity(:,:)
+    integer(i_def), allocatable, intent(out) :: face_edge_connectivity(:,:)
+    integer(i_def), allocatable, intent(out) :: face_face_connectivity(:,:)
+    integer(i_def), allocatable, intent(out) :: edge_node_connectivity(:,:)
 
   end subroutine get_connectivity_interface
 

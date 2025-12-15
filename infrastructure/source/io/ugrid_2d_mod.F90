@@ -51,9 +51,9 @@ type, public :: ugrid_2d_type
 
   character(str_longlong) :: constructor_inputs !< Inputs used to generate mesh.
 
-  character(str_def) :: coord_units_xy(2)   = cmdi
-  real(r_def)        :: domain_extents(2,4) = rmdi !< Principal coordinates that
-                                                   !< describe the domain shape.
+  character(str_def)       :: coord_units_xy(2) = cmdi
+  real(r_def), allocatable :: domain_extents(:,:) !< Principal coordinates that
+                                                  !< describe the domain shape.
 
   integer(i_def) :: edge_cells_xy(2) !< Number of cells on panel edge x/y-axes
 
@@ -68,8 +68,8 @@ type, public :: ugrid_2d_type
   integer(i_def) :: num_edges_per_face       !< Number of edges bordering each face.
   integer(i_def) :: max_num_faces_per_node   !< Maximum number of faces surrounding each node.
 
-  ! Variables for LBC mesh only.
-  integer(i_def) :: rim_depth = imdi         !< Depth (in cells) of rim in LBC meshes
+  integer(i_def) :: rim_depth  = imdi        !< Depth (in cells) of rim   ! Rim meshes only
+  integer(i_def) :: eave_depth = imdi        !< Depth (in cells) of eaves ! Eave meshes only
 
   ! Variables for Local meshes only.
   character(str_def) :: partition_of = cmdi  !< For local meshes, this is the name of
@@ -429,6 +429,7 @@ subroutine set_by_generator(self, generator_strategy)
         north_pole          = self%north_pole,          &
         null_island         = self%null_island,         &
         equatorial_latitude = self%equatorial_latitude, &
+        eave_depth          = self%eave_depth,          &
         rim_depth           = self%rim_depth,           &
         nmaps               = self%nmaps,               &
         void_cell           = self%void_cell )
@@ -453,12 +454,11 @@ subroutine set_by_generator(self, generator_strategy)
         coord_units_x    = self%coord_units_xy(1), &
         coord_units_y    = self%coord_units_xy(2) )
 
-  call generator_strategy%get_connectivity                    &
-      ( face_node_connectivity = self%face_node_connectivity, &
-        edge_node_connectivity = self%edge_node_connectivity, &
-        face_edge_connectivity = self%face_edge_connectivity, &
-        face_face_connectivity = self%face_face_connectivity )
-
+  call generator_strategy%get_connectivity &
+      ( self%face_node_connectivity,       &
+        self%face_edge_connectivity,       &
+        self%face_face_connectivity,       &
+        self%edge_node_connectivity )
   return
 end subroutine set_by_generator
 
@@ -524,6 +524,10 @@ subroutine set_from_file_read(self, mesh_name, filename)
 
   call allocate_arrays_for_file(self)
 
+  if (.not. allocated(self%domain_extents)) then
+    allocate(self%domain_extents(2,4))
+  end if
+
   call self%file_handler%read_mesh(                                 &
        self%mesh_name, self%geometry, self%coord_sys,               &
        self%north_pole, self%null_island, self%equatorial_latitude, &
@@ -533,7 +537,8 @@ subroutine set_from_file_read(self, mesh_name, filename)
        self%face_node_connectivity, self%face_edge_connectivity,    &
        self%face_face_connectivity, self%edge_node_connectivity,    &
        self%topology, self%periodic_xy, self%domain_extents,        &
-       self%npanels, self%rim_depth, self%constructor_inputs,       &
+       self%npanels, self%rim_depth, self%eave_depth,               &
+       self%constructor_inputs,                                     &
 
        self%partition_of, self%num_faces_global,                    &
        self%max_stencil_depth,                                      &
@@ -604,6 +609,7 @@ subroutine write_to_file(self, filename)
        domain_extents     = self%domain_extents,     &
        npanels            = self%npanels,            &
        rim_depth          = self%rim_depth,          &
+       eave_depth         = self%eave_depth,         &
        constructor_inputs = self%constructor_inputs, &
 
        ! Partition variables.
@@ -687,6 +693,7 @@ subroutine append_to_file(self, filename)
        domain_extents     = self%domain_extents,     &
        npanels            = self%npanels,            &
        rim_depth          = self%rim_depth,          &
+       eave_depth         = self%eave_depth,         &
        constructor_inputs = self%constructor_inputs, &
 
        ! Partition variables.
@@ -1467,7 +1474,8 @@ end subroutine set_partition_data
 !> @param[in]   max_stencil_depth  Optional: Maximum stencil depth supported (Local meshes).
 !> @param[in]   domain_extents     Optional: Principal coordinates that describe the
 !>                                           domain shape.
-!> @param[in]   rim_depth          Optional: Rim depth (in cells) for LBC meshes.
+!> @param[in]   rim_depth          Optional: Rim depth (in cells) for rim meshes.
+!> @param[in]   eave_depth         Optional: Eave depth (in cells) for eave meshes.
 !> @param[in]   periodic_xy        Optional: Model domain periodicity in x/y-axes.
 !> @param[in]   edge_cells_x       Optional: Number of cells on panel edge (x-axis).
 !> @param[in]   edge_cells_y       Optional: Number of cells on panel edge (y-axis).
@@ -1492,6 +1500,7 @@ subroutine set_metadata ( self,                &
                           max_stencil_depth,   &
                           domain_extents,      &
                           rim_depth,           &
+                          eave_depth,          &
                           periodic_xy,         &
                           edge_cells_x,        &
                           edge_cells_y,        &
@@ -1519,6 +1528,7 @@ subroutine set_metadata ( self,                &
   integer(i_def), optional, intent(in) :: last_ghost_cell
   integer(i_def), optional, intent(in) :: max_stencil_depth
   integer(i_def), optional, intent(in) :: rim_depth
+  integer(i_def), optional, intent(in) :: eave_depth
   integer(i_def), optional, intent(in) :: edge_cells_x
   integer(i_def), optional, intent(in) :: edge_cells_y
   real(r_def),    optional, intent(in) :: domain_extents(2,4)
@@ -1547,10 +1557,12 @@ subroutine set_metadata ( self,                &
   if (present(edge_cells_y)) self%edge_cells_xy(2) = edge_cells_y
 
   if (present(domain_extents)) then
-    self%domain_extents(:,:) = domain_extents(:,:)
+    if (allocated(self%domain_extents)) deallocate(self%domain_extents)
+    allocate(self%domain_extents, source=domain_extents)
   end if
 
-  if (present(rim_depth)) self%rim_depth = rim_depth
+  if (present(rim_depth))  self%rim_depth  = rim_depth
+  if (present(eave_depth)) self%eave_depth = eave_depth
 
   if (present(max_stencil_depth))  self%max_stencil_depth = max_stencil_depth
   if (present(ncells_global_mesh)) self%num_faces_global  = ncells_global_mesh
@@ -1612,6 +1624,7 @@ subroutine clear(self)
   if (allocated(self%target_mesh_names))      deallocate( self%target_mesh_names )
   if (allocated(self%target_edge_cells_x))    deallocate( self%target_edge_cells_x )
   if (allocated(self%target_edge_cells_y))    deallocate( self%target_edge_cells_y )
+  if (allocated(self%domain_extents))         deallocate( self%domain_extents )
 
   if (allocated(self%file_handler))           deallocate( self%file_handler )
 
@@ -1640,7 +1653,6 @@ subroutine clear(self)
 
   self%nmaps               = 0
   self%rim_depth           = imdi
-  self%domain_extents(:,:) = rmdi
   self%partition_of        = cmdi
   self%inner_depth         = imdi
   self%halo_depth          = imdi

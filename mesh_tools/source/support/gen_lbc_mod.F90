@@ -223,7 +223,8 @@ module gen_lbc_mod
     integer(i_def) :: rim_depth      !> Number of cells from LAM boundary to
                                      !> include in the LBC mesh
 
-    real(r_def)    :: domain_extents(2,4) !> Global domain extents of LAM parent
+    real(r_def), allocatable :: domain_extents(:,:)
+                                     !> Global domain extents of LAM parent
 
     character(str_longlong) :: constructor_inputs
 
@@ -570,11 +571,20 @@ subroutine get_coordinates( self,             &
 
   class(gen_lbc_type), intent(in)  :: self
 
-  real(r_def),         intent(out) :: node_coordinates(:,:)
-  real(r_def),         intent(out) :: cell_coordinates(:,:)
-  real(r_def),         intent(out) :: domain_extents(:,:)
+  real(r_def), allocatable, intent(out) :: node_coordinates(:,:)
+  real(r_def), allocatable, intent(out) :: cell_coordinates(:,:)
+  real(r_def), allocatable, intent(out) :: domain_extents(:,:)
+
   character(str_def),  intent(out) :: coord_units_x
   character(str_def),  intent(out) :: coord_units_y
+
+  if (allocated(node_coordinates)) deallocate(node_coordinates)
+  if (allocated(cell_coordinates)) deallocate(cell_coordinates)
+  if (allocated(domain_extents))   deallocate(domain_extents)
+
+  allocate(node_coordinates, source=self%node_coords)
+  allocate(cell_coordinates, source=self%cell_coords)
+  allocate(domain_extents,   source=self%domain_extents)
 
   node_coordinates = self%node_coords
   cell_coordinates = self%cell_coords
@@ -607,15 +617,20 @@ subroutine get_connectivity( self,                   &
 
   class(gen_lbc_type), intent(in) :: self
 
-  integer(i_def), intent(out) :: face_node_connectivity(:,:)
-  integer(i_def), intent(out) :: face_edge_connectivity(:,:)
-  integer(i_def), intent(out) :: face_face_connectivity(:,:)
-  integer(i_def), intent(out) :: edge_node_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: face_node_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: face_edge_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: face_face_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: edge_node_connectivity(:,:)
 
-  face_node_connectivity = self%nodes_on_cell
-  face_edge_connectivity = self%edges_on_cell
-  face_face_connectivity = self%cell_next
-  edge_node_connectivity = self%nodes_on_edge
+  if (allocated(face_node_connectivity)) deallocate(face_node_connectivity)
+  if (allocated(face_edge_connectivity)) deallocate(face_edge_connectivity)
+  if (allocated(face_face_connectivity)) deallocate(face_face_connectivity)
+  if (allocated(edge_node_connectivity)) deallocate(edge_node_connectivity)
+
+  allocate(face_node_connectivity, source=self%nodes_on_cell)
+  allocate(face_edge_connectivity, source=self%edges_on_cell)
+  allocate(face_face_connectivity, source=self%cell_next)
+  allocate(edge_node_connectivity, source=self%nodes_on_edge)
 
   return
 end subroutine get_connectivity
@@ -789,6 +804,7 @@ subroutine get_metadata( self,               &
                          constructor_inputs, &
                          nmaps,              &
                          rim_depth,          &
+                         eave_depth,         &
                          void_cell,          &
                          target_mesh_names,  &
                          maps_edge_cells_x,  &
@@ -811,6 +827,7 @@ subroutine get_metadata( self,               &
   integer(i_def),     optional, intent(out) :: nmaps
 
   integer(i_def), optional, intent(out) :: rim_depth
+  integer(i_def), optional, intent(out) :: eave_depth
   integer(i_def), optional, intent(out) :: void_cell
 
   character(str_longlong), optional, intent(out) :: constructor_inputs
@@ -832,6 +849,7 @@ subroutine get_metadata( self,               &
   if (present(edge_cells_y)) edge_cells_y   = self%outer_cells_y
   if (present(nmaps))        nmaps          = self%nmaps
   if (present(rim_depth))    rim_depth      = self%rim_depth
+  if (present(eave_depth))   eave_depth     = imdi
   if (present(void_cell))    void_cell      = VOID_ID
 
   if (present(constructor_inputs)) constructor_inputs = self%constructor_inputs

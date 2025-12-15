@@ -8,9 +8,9 @@
 !-------------------------------------------------------------------------------
 module ncdf_quad_mod
 
-use constants_mod,  only: r_def, i_def, l_def, str_def, str_long,         &
-                          str_longlong, str_max_filename, r_ncdf, i_ncdf, &
-                          rmdi, imdi, cmdi
+use constants_mod, only: r_def, i_def, l_def, str_def, str_long,         &
+                         str_longlong, str_max_filename, r_ncdf, i_ncdf, &
+                         rmdi, imdi, cmdi
 
 use global_mesh_map_collection_mod, only: global_mesh_map_collection_type
 use global_mesh_map_mod,            only: global_mesh_map_type
@@ -133,6 +133,7 @@ type, extends(ugrid_file_type), public :: ncdf_quad_type
   ! Global metadata
   character(str_def) :: global_var     = cmdi
   integer(i_def)     :: rim_depth      = imdi
+  integer(i_def)     :: eave_depth     = imdi
   logical(l_def)     :: periodic_xy(2) = .false.
   real(r_def)        :: domain_extents(2,4) = rmdi
 
@@ -982,6 +983,17 @@ subroutine assign_attributes(self)
     cmess   = 'Adding attribute "'//trim(attname)// &
               '" to variable "'//trim(var_name)//'"'
     ierr = nf90_put_att( self%ncid, id, trim(attname), self%rim_depth )
+    call check_err(ierr, routine, cmess)
+
+  end if
+
+  if ( self%model_extents == REGION_MODEL_FLAG .and. &
+       self%eave_depth >= 0 ) then
+
+    attname = 'eave_depth'
+    cmess   = 'Adding attribute "'//trim(attname)// &
+              '" to variable "'//trim(var_name)//'"'
+    ierr = nf90_put_att( self%ncid, id, trim(attname), self%eave_depth )
     call check_err(ierr, routine, cmess)
 
   end if
@@ -2032,7 +2044,8 @@ subroutine read_mesh( self,                                              &
 
                       ! Global mesh info.
                       topology, periodic_xy, domain_extents,             &
-                      npanels, rim_depth, constructor_inputs,            &
+                      npanels, rim_depth, eave_depth,                    &
+                      constructor_inputs,                                &
 
                       ! Partition info.
                       partition_of, num_faces_global, max_stencil_depth, &
@@ -2049,29 +2062,30 @@ subroutine read_mesh( self,                                              &
   implicit none
 
   ! Arguments
-  class(ncdf_quad_type),  intent(inout) :: self
+  class(ncdf_quad_type), intent(inout) :: self
 
-  character(str_def),  intent(in)  :: mesh_name
-  character(str_def),  intent(out) :: geometry
-  character(str_def),  intent(out) :: coord_sys
-  real(r_def),         intent(out) :: north_pole(2)
-  real(r_def),         intent(out) :: null_island(2)
-  real(r_def),         intent(out) :: equatorial_latitude
-  real(r_def),         intent(out) :: node_coordinates(:,:)
-  real(r_def),         intent(out) :: face_coordinates(:,:)
-  character(str_def),  intent(out) :: coord_units_x
-  character(str_def),  intent(out) :: coord_units_y
-  integer(i_def),      intent(out) :: void_cell
-  integer(i_def),      intent(out) :: face_node_connectivity(:,:)
-  integer(i_def),      intent(out) :: face_edge_connectivity(:,:)
-  integer(i_def),      intent(out) :: face_face_connectivity(:,:)
-  integer(i_def),      intent(out) :: edge_node_connectivity(:,:)
+  character(str_def), intent(in)  :: mesh_name
+  character(str_def), intent(out) :: geometry
+  character(str_def), intent(out) :: coord_sys
+  real(r_def),        intent(out) :: north_pole(2)
+  real(r_def),        intent(out) :: null_island(2)
+  real(r_def),        intent(out) :: equatorial_latitude
+  real(r_def),        intent(out) :: node_coordinates(:,:)
+  real(r_def),        intent(out) :: face_coordinates(:,:)
+  character(str_def), intent(out) :: coord_units_x
+  character(str_def), intent(out) :: coord_units_y
+  integer(i_def),     intent(out) :: void_cell
+  integer(i_def),     intent(out) :: face_node_connectivity(:,:)
+  integer(i_def),     intent(out) :: face_edge_connectivity(:,:)
+  integer(i_def),     intent(out) :: face_face_connectivity(:,:)
+  integer(i_def),     intent(out) :: edge_node_connectivity(:,:)
 
-  character(str_def),  intent(out) :: topology
-  logical(l_def),      intent(out) :: periodic_xy(2)
-  real(r_def),         intent(out) :: domain_extents(2,4)
-  integer(i_def),      intent(out) :: npanels
-  integer(i_def),      intent(out) :: rim_depth
+  character(str_def), intent(out) :: topology
+  logical(l_def),     intent(out) :: periodic_xy(2)
+  real(r_def),        intent(out) :: domain_extents(2,4)
+  integer(i_def),     intent(out) :: npanels
+  integer(i_def),     intent(out) :: rim_depth
+  integer(i_def),     intent(out) :: eave_depth
 
   character(str_longlong), intent(out) :: constructor_inputs
 
@@ -2471,6 +2485,11 @@ subroutine read_mesh( self,                                              &
                          self%rim_depth )
     if (ierr == NF90_NOERR) rim_depth = self%rim_depth
 
+    attname = 'eave_depth'
+    ierr = nf90_get_att( self%ncid, id, trim(attname), &
+                         self%eave_depth )
+    if (ierr == NF90_NOERR) eave_depth = self%eave_depth
+
     attname = 'ncells'
     ierr = nf90_get_att( self%ncid, id, trim(attname), &
                          self%nmesh_faces_global )
@@ -2760,8 +2779,8 @@ subroutine write_mesh( self,                                              &
                        face_face_connectivity, edge_node_connectivity,    &
 
                        ! Global mesh only variables.
-                       topology, periodic_xy, domain_extents,             &
-                       npanels, rim_depth, constructor_inputs,            &
+                       topology, periodic_xy, domain_extents, npanels,    &
+                       rim_depth, eave_depth, constructor_inputs,         &
 
                        ! Partition variables.
                        partition_of, num_faces_global, max_stencil_depth, &
@@ -2779,34 +2798,35 @@ subroutine write_mesh( self,                                              &
   implicit none
 
   ! Arguments.
-  class(ncdf_quad_type),  intent(inout) :: self
+  class(ncdf_quad_type), intent(inout) :: self
 
   ! Common mesh variables.
-  character(str_def),  intent(in) :: mesh_name
-  character(str_def),  intent(in) :: geometry
-  character(str_def),  intent(in) :: coord_sys
-  real(r_def),         intent(in) :: north_pole(2)
-  real(r_def),         intent(in) :: null_island(2)
-  real(r_def),         intent(in) :: equatorial_latitude
-  integer(i_def),      intent(in) :: num_nodes
-  integer(i_def),      intent(in) :: num_edges
-  integer(i_def),      intent(in) :: num_faces
-  real(r_def),         intent(in) :: node_coordinates(:,:)
-  real(r_def),         intent(in) :: face_coordinates(:,:)
-  character(str_def),  intent(in) :: coord_units_x
-  character(str_def),  intent(in) :: coord_units_y
-  integer(i_def),      intent(in) :: void_cell
-  integer(i_def),      intent(in) :: face_node_connectivity(:,:)
-  integer(i_def),      intent(in) :: face_edge_connectivity(:,:)
-  integer(i_def),      intent(in) :: face_face_connectivity(:,:)
-  integer(i_def),      intent(in) :: edge_node_connectivity(:,:)
+  character(str_def), intent(in) :: mesh_name
+  character(str_def), intent(in) :: geometry
+  character(str_def), intent(in) :: coord_sys
+  real(r_def),        intent(in) :: north_pole(2)
+  real(r_def),        intent(in) :: null_island(2)
+  real(r_def),        intent(in) :: equatorial_latitude
+  integer(i_def),     intent(in) :: num_nodes
+  integer(i_def),     intent(in) :: num_edges
+  integer(i_def),     intent(in) :: num_faces
+  real(r_def),        intent(in) :: node_coordinates(:,:)
+  real(r_def),        intent(in) :: face_coordinates(:,:)
+  character(str_def), intent(in) :: coord_units_x
+  character(str_def), intent(in) :: coord_units_y
+  integer(i_def),     intent(in) :: void_cell
+  integer(i_def),     intent(in) :: face_node_connectivity(:,:)
+  integer(i_def),     intent(in) :: face_edge_connectivity(:,:)
+  integer(i_def),     intent(in) :: face_face_connectivity(:,:)
+  integer(i_def),     intent(in) :: edge_node_connectivity(:,:)
 
   ! Global mesh variables.
-  character(str_def),  intent(in) :: topology
-  logical(l_def),      intent(in) :: periodic_xy(2)
-  real(r_def),         intent(in) :: domain_extents(2,4)
-  integer(i_def),      intent(in) :: npanels
-  integer(i_def),      intent(in) :: rim_depth
+  character(str_def), intent(in) :: topology
+  logical(l_def),     intent(in) :: periodic_xy(2)
+  real(r_def),        intent(in) :: domain_extents(2,4)
+  integer(i_def),     intent(in) :: npanels
+  integer(i_def),     intent(in) :: rim_depth
+  integer(i_def),     intent(in) :: eave_depth
 
   character(str_longlong), intent(in) :: constructor_inputs
 
@@ -2914,6 +2934,7 @@ subroutine write_mesh( self,                                              &
   self%nmesh_edges = num_edges
   self%nmesh_faces = num_faces
   self%rim_depth   = rim_depth
+  self%eave_depth  = eave_depth
 
   ! Partition info
   self%nmesh_faces_global = num_faces_global
@@ -3299,8 +3320,8 @@ subroutine append_mesh( self,                                              &
                         face_face_connectivity, edge_node_connectivity,    &
 
                         ! Global mesh variables.
-                        topology, periodic_xy, domain_extents,             &
-                        npanels, rim_depth, constructor_inputs,            &
+                        topology, periodic_xy, domain_extents, npanels,    &
+                        rim_depth, eave_depth, constructor_inputs,         &
 
                         ! Partition variables.
                         partition_of, num_faces_global, max_stencil_depth, &
@@ -3318,35 +3339,36 @@ subroutine append_mesh( self,                                              &
   implicit none
 
   ! Arguments
-  class(ncdf_quad_type),  intent(inout) :: self
+  class(ncdf_quad_type), intent(inout) :: self
 
   ! Common mesh variables.
-  character(str_def),  intent(in) :: mesh_name
-  character(str_def),  intent(in) :: geometry
-  character(str_def),  intent(in) :: coord_sys
-  real(r_def),         intent(in) :: north_pole(2)
-  real(r_def),         intent(in) :: null_island(2)
-  real(r_def),         intent(in) :: equatorial_latitude
+  character(str_def), intent(in) :: mesh_name
+  character(str_def), intent(in) :: geometry
+  character(str_def), intent(in) :: coord_sys
+  real(r_def),        intent(in) :: north_pole(2)
+  real(r_def),        intent(in) :: null_island(2)
+  real(r_def),        intent(in) :: equatorial_latitude
 
-  integer(i_def),      intent(in) :: num_nodes
-  integer(i_def),      intent(in) :: num_edges
-  integer(i_def),      intent(in) :: num_faces
-  real(r_def),         intent(in) :: node_coordinates(:,:)
-  real(r_def),         intent(in) :: face_coordinates(:,:)
-  character(str_def),  intent(in) :: coord_units_x
-  character(str_def),  intent(in) :: coord_units_y
-  integer(i_def),      intent(in) :: void_cell
-  integer(i_def),      intent(in) :: face_node_connectivity(:,:)
-  integer(i_def),      intent(in) :: face_edge_connectivity(:,:)
-  integer(i_def),      intent(in) :: face_face_connectivity(:,:)
-  integer(i_def),      intent(in) :: edge_node_connectivity(:,:)
+  integer(i_def),     intent(in) :: num_nodes
+  integer(i_def),     intent(in) :: num_edges
+  integer(i_def),     intent(in) :: num_faces
+  real(r_def),        intent(in) :: node_coordinates(:,:)
+  real(r_def),        intent(in) :: face_coordinates(:,:)
+  character(str_def), intent(in) :: coord_units_x
+  character(str_def), intent(in) :: coord_units_y
+  integer(i_def),     intent(in) :: void_cell
+  integer(i_def),     intent(in) :: face_node_connectivity(:,:)
+  integer(i_def),     intent(in) :: face_edge_connectivity(:,:)
+  integer(i_def),     intent(in) :: face_face_connectivity(:,:)
+  integer(i_def),     intent(in) :: edge_node_connectivity(:,:)
 
   ! Global mesh only variables
-  character(str_def),  intent(in) :: topology
-  logical(l_def),      intent(in) :: periodic_xy(2)
-  real(r_def),         intent(in) :: domain_extents(2,4)
-  integer(i_def),      intent(in) :: npanels
-  integer(i_def),      intent(in) :: rim_depth
+  character(str_def), intent(in) :: topology
+  logical(l_def),     intent(in) :: periodic_xy(2)
+  real(r_def),        intent(in) :: domain_extents(2,4)
+  integer(i_def),     intent(in) :: npanels
+  integer(i_def),     intent(in) :: rim_depth
+  integer(i_def),     intent(in) :: eave_depth
 
   character(str_longlong), intent(in) :: constructor_inputs
 
@@ -3420,6 +3442,7 @@ subroutine append_mesh( self,                                              &
        domain_extents     = domain_extents,     &
        npanels            = npanels,            &
        rim_depth          = rim_depth,          &
+       eave_depth         = eave_depth,         &
        constructor_inputs = constructor_inputs, &
 
        ! Partition info

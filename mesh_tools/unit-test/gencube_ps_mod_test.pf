@@ -63,13 +63,14 @@ contains
     integer(i_def), parameter :: nmaps = 0
     integer(i_def), parameter :: ncells = 6
 
-    integer(i_def) :: faces_on_face(4, 6*edge_cells*edge_cells)
-    integer(i_def) :: nodes_on_face(4, 6*edge_cells*edge_cells)
-    integer(i_def) :: edges_on_face(4, 6*edge_cells*edge_cells)
-    integer(i_def) :: nodes_on_edge(2, 2*6*edge_cells*edge_cells)
-    real(r_def) :: coords(2, 6*edge_cells*edge_cells+2)
-    real(r_def) :: face_coords(2, 6*edge_cells*edge_cells)
-    real(r_def) :: domain_extents(2,4)
+    integer(i_def), allocatable :: faces_on_face(:,:)
+    integer(i_def), allocatable :: nodes_on_face(:,:)
+    integer(i_def), allocatable :: edges_on_face(:,:)
+    integer(i_def), allocatable :: nodes_on_edge(:,:)
+
+    real(r_def), allocatable :: coords(:, :)
+    real(r_def), allocatable :: face_coords(:, :)
+    real(r_def), allocatable :: domain_extents(:, :)
 
     csgen = gencube_ps_type( mesh_name, edge_cells, nsmooth, coord_sys=coord_sys_ll )
 
@@ -99,9 +100,9 @@ contains
     ! Generate the mesh and connectivity
     call csgen%generate()
     ! Retrieve calculated dimensions
-    call csgen%get_dimensions(nodes, edges, faces, nodes_per_face, &
-                              edges_per_face, nodes_per_edge,      &
-                              max_faces_per_node )
+    call csgen%get_dimensions( nodes, edges, faces, nodes_per_face, &
+                               edges_per_face, nodes_per_edge,      &
+                               max_faces_per_node )
 
     ! Mesh has correct dimensions for arguments
     @assertEqual(nodes, 6*edge_cells*edge_cells+2, "Incorrect number of vertices for mesh dimensions")
@@ -221,13 +222,14 @@ contains
     integer(i_def), parameter :: nmaps = 0
     integer(i_def), parameter :: ncells = 24
 
-    integer(i_def) :: faces_on_face(4, 6*edge_cells*edge_cells)
-    integer(i_def) :: nodes_on_face(4, 6*edge_cells*edge_cells)
-    integer(i_def) :: edges_on_face(4, 6*edge_cells*edge_cells)
-    integer(i_def) :: nodes_on_edge(2, 2*6*edge_cells*edge_cells)
-    real(r_def) :: coords(2, 6*edge_cells*edge_cells+2)
-    real(r_def) :: face_coords(2, 6*edge_cells*edge_cells)
-    real(r_def) :: domain_extents(2,4)
+    integer(i_def), allocatable :: faces_on_face(:,:)
+    integer(i_def), allocatable :: nodes_on_face(:,:)
+    integer(i_def), allocatable :: edges_on_face(:,:)
+    integer(i_def), allocatable :: nodes_on_edge(:,:)
+
+    real(r_def), allocatable :: coords(:, :)
+    real(r_def), allocatable :: face_coords(:, :)
+    real(r_def), allocatable :: domain_extents(:, :)
 
     csgen = gencube_ps_type( mesh_name, edge_cells, nsmooth, coord_sys=coord_sys_ll )
 
@@ -379,8 +381,9 @@ contains
     character(str_def), parameter :: target_mesh_names(nmaps) = ['unit_test_target']
     integer(i_def),     parameter :: target_edge_cells(nmaps) = [6]
 
-    real(r_def) :: coords_rot(2, 6*edge_cells*edge_cells+2)
-    real(r_def) :: face_coords(2, 6*edge_cells*edge_cells)
+    real(r_def), allocatable :: coords_rot(:, :)
+    real(r_def), allocatable :: face_coords(:, :)
+    real(r_def), allocatable :: domain_extents(:,:)
 
     ! Testing mesh when pole is rotated
     real(r_def) :: lon_north = 0.0_r_def
@@ -388,7 +391,6 @@ contains
     real(r_def) :: lon_null
     real(r_def) :: lat_null
 
-    real(r_def) :: domain_extents(2,4)
     real(r_def) :: north_pole(2)
     real(r_def) :: null_island(2)
 
@@ -414,11 +416,11 @@ contains
     call csgen_rot%generate()
 
     ! Retrieve rotated mesh coordinates
-    call csgen_rot%get_coordinates(coords_rot,         &
-                                   face_coords,        &
-                                   domain_extents,     &
-                                   test_coord_units_x, &
-                                   test_coord_units_y)
+    call csgen_rot%get_coordinates( coords_rot,         &
+                                    face_coords,        &
+                                    domain_extents,     &
+                                    test_coord_units_x, &
+                                    test_coord_units_y )
 
     ! Mesh coordinates have expected values at specified points
     ! (1,1) should go from  lon = -45              -> 0 - acos(sqrt(2/3))
@@ -459,11 +461,11 @@ contains
     call csgen_rot%generate()
 
     ! Retrieve rotated mesh coordinates
-    call csgen_rot%get_coordinates(coords_rot,         &
-                                   face_coords,        &
-                                   domain_extents,     &
-                                   test_coord_units_x, &
-                                   test_coord_units_y)
+    call csgen_rot%get_coordinates( coords_rot,         &
+                                    face_coords,        &
+                                    domain_extents,     &
+                                    test_coord_units_x, &
+                                    test_coord_units_y )
 
     ! Mesh coordinates have expected values at specified points
     ! (1,1) should go from  lon =-45             -> 0
@@ -505,10 +507,11 @@ contains
     integer(i_def), parameter :: npanels = 6
     integer(i_def), parameter :: nmaps = 1
 
-    real(r_def) :: coords(2, 6*edge_cells*edge_cells+2)
-    real(r_def) :: face_coords(2, 6*edge_cells*edge_cells)
+    real(r_def), allocatable :: coords(:,:)
+    real(r_def), allocatable :: face_coords(:,:)
+    real(r_def), allocatable :: domain_extents(:,:)
+
     real(r_def) :: equatorial_latitude, stretch_factor
-    real(r_def) :: domain_extents(2,4)
 
     ! Testing a stretched mesh with 0.5 stretch factor.
     stretch_factor = 0.5_r_def

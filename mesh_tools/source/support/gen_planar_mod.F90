@@ -326,7 +326,7 @@ function gen_planar_constructor( reference_element,          &
                     LOG_LEVEL_ERROR )
   end if
 
-  if (present(rotate_mesh)) then
+  if (present(rotate_mesh) .and. (coord_sys == coord_sys_ll)) then
     self%rotate_mesh = rotate_mesh
   else
     self%rotate_mesh = .false.
@@ -358,7 +358,6 @@ function gen_planar_constructor( reference_element,          &
     self%dx = self%domain_size(1) / self%edge_cells_x
     self%dy = self%domain_size(2) / self%edge_cells_y
 
-    self%rotate_mesh   = rotate_mesh
     self%coord_units_x = 'radians'
     self%coord_units_y = 'radians'
 
@@ -1858,17 +1857,24 @@ subroutine get_coordinates(self, node_coordinates, &
   implicit none
 
   class(gen_planar_type), intent(in)  :: self
-  real(r_def),            intent(out) :: node_coordinates(:,:)
-  real(r_def),            intent(out) :: cell_coordinates(:,:)
-  real(r_def),            intent(out) :: domain_extents(:,:)
-  character(str_def),     intent(out) :: coord_units_x
-  character(str_def),     intent(out) :: coord_units_y
 
-  node_coordinates = self%vert_coords
-  cell_coordinates = self%cell_coords
-  domain_extents   = self%domain_extents
-  coord_units_x    = self%coord_units_x
-  coord_units_y    = self%coord_units_y
+  real(r_def), allocatable, intent(out) :: node_coordinates(:,:)
+  real(r_def), allocatable, intent(out) :: cell_coordinates(:,:)
+  real(r_def), allocatable, intent(out) :: domain_extents(:,:)
+
+  character(str_def), intent(out) :: coord_units_x
+  character(str_def), intent(out) :: coord_units_y
+
+  if (allocated(node_coordinates)) deallocate(node_coordinates)
+  if (allocated(cell_coordinates)) deallocate(cell_coordinates)
+  if (allocated(domain_extents))   deallocate(domain_extents)
+
+  allocate(node_coordinates, source=self%vert_coords)
+  allocate(cell_coordinates, source=self%cell_coords)
+  allocate(domain_extents,   source=self%domain_extents)
+
+  coord_units_x = self%coord_units_x
+  coord_units_y = self%coord_units_y
 
   return
 end subroutine get_coordinates
@@ -1885,25 +1891,30 @@ end subroutine get_coordinates
 !> @param[out]  face_face_connectivity  Face-face connectivity.
 !> @param[out]  edge_node_connectivity  Edge-node connectivity.
 !-------------------------------------------------------------------------------
-subroutine get_connectivity( self,                   &
-                             face_node_connectivity, &
-                             face_edge_connectivity, &
-                             face_face_connectivity, &
-                             edge_node_connectivity )
+subroutine get_connectivity(self,                   &
+                            face_node_connectivity, &
+                            face_edge_connectivity, &
+                            face_face_connectivity, &
+                            edge_node_connectivity)
 
   implicit none
 
   class(gen_planar_type), intent(in) :: self
 
-  integer(i_def), intent(out) :: face_node_connectivity(:,:)
-  integer(i_def), intent(out) :: face_edge_connectivity(:,:)
-  integer(i_def), intent(out) :: face_face_connectivity(:,:)
-  integer(i_def), intent(out) :: edge_node_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: face_node_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: face_edge_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: face_face_connectivity(:,:)
+  integer(i_def), allocatable, intent(out) :: edge_node_connectivity(:,:)
 
-  face_node_connectivity = self%verts_on_cell
-  face_edge_connectivity = self%edges_on_cell
-  face_face_connectivity = self%cell_next
-  edge_node_connectivity = self%verts_on_edge
+  if (allocated(face_node_connectivity)) deallocate(face_node_connectivity)
+  if (allocated(face_edge_connectivity)) deallocate(face_edge_connectivity)
+  if (allocated(face_face_connectivity)) deallocate(face_face_connectivity)
+  if (allocated(edge_node_connectivity)) deallocate(edge_node_connectivity)
+
+  allocate(face_node_connectivity, source=self%verts_on_cell)
+  allocate(face_edge_connectivity, source=self%edges_on_cell)
+  allocate(face_face_connectivity, source=self%cell_next)
+  allocate(edge_node_connectivity, source=self%verts_on_edge)
 
   return
 end subroutine get_connectivity
@@ -1938,9 +1949,9 @@ subroutine generate(self)
   call calc_cell_centres(self)
 
   if (self%rotate_mesh)then
-    call rotate_mesh_coords(self%vert_coords,    self%north_pole)
-    call rotate_mesh_coords(self%cell_coords,    self%north_pole)
-    call rotate_mesh_coords(self%domain_extents, self%north_pole)
+    call rotate_mesh_coords( self%north_pole, self%vert_coords )
+    call rotate_mesh_coords( self%north_pole, self%cell_coords )
+    call rotate_mesh_coords( self%north_pole, self%domain_extents )
   end if
 
   ! Convert coordinate units to degrees to be CF compliant.
@@ -2054,7 +2065,8 @@ end function get_number_of_panels
 !>                                            the mesh_generator.
 !> @param[out, optional]  nmaps               Number of maps to create with this mesh
 !>                                            as source mesh.
-!> @param[out, optional]  rim_depth           Rim depth of LBC mesh (LAMs).
+!> @param[out, optional]  rim_depth           Rim depth in cells (rim-meshes).
+!> @param[out, optional]  eave_depth          Eave depth in cells (eave-meshes).
 !> @param[out, optional]  target_mesh_names   Mesh names of the target meshes that
 !>                                            this mesh has maps for.
 !> @param[out, optional]  maps_edge_cells_x   Number of panel edge cells (x-axis) of
@@ -2080,6 +2092,7 @@ subroutine get_metadata( self,               &
                          constructor_inputs, &
                          nmaps,              &
                          rim_depth,          &
+                         eave_depth,         &
                          void_cell,          &
                          target_mesh_names,  &
                          maps_edge_cells_x,  &
@@ -2100,6 +2113,7 @@ subroutine get_metadata( self,               &
   integer(i_def),      optional, intent(out) :: edge_cells_y
   integer(i_def),      optional, intent(out) :: nmaps
   integer(i_def),      optional, intent(out) :: rim_depth
+  integer(i_def),      optional, intent(out) :: eave_depth
   integer(i_def),      optional, intent(out) :: void_cell
 
   character(str_longlong), optional, intent(out) :: constructor_inputs
@@ -2123,6 +2137,7 @@ subroutine get_metadata( self,               &
   if (present(edge_cells_y)) edge_cells_y   = self%edge_cells_y
   if (present(nmaps))        nmaps          = self%nmaps
   if (present(rim_depth))    rim_depth      = imdi
+  if (present(eave_depth))   eave_depth     = imdi
   if (present(void_cell))    void_cell    = VOID_ID
 
   if (present(constructor_inputs)) constructor_inputs = trim(self%constructor_inputs)

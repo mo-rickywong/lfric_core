@@ -49,9 +49,12 @@ program summarise_ugrid
   character(str_long)     :: target_mesh_names_str
   character(str_def), allocatable :: target_mesh_names(:)
 
-  real(r_def)    :: north_pole(2)
-  real(r_def)    :: null_island(2)
-  real(r_def)    :: equatorial_latitude
+  real(r_def) :: north_pole(2)
+  real(r_def) :: null_island(2)
+  real(r_def) :: domain_extents(2,4)
+  real(r_def) :: equatorial_latitude
+  real(r_def) :: min_x, max_x
+  real(r_def) :: min_y, max_y
 
   character(str_def) :: fmt_str
   character(str_def) :: tmp_str
@@ -61,8 +64,8 @@ program summarise_ugrid
   integer(i_def) :: nodes_per_edge, max_faces_per_node
 
   integer(i_def) :: total_ranks, local_rank, nmaps
-  type(lfric_comm_type) :: comm
 
+  type(lfric_comm_type) :: comm
 
   ! Start up
   call create_comm(comm)
@@ -112,6 +115,7 @@ program summarise_ugrid
                       nmaps               = nmaps,              &
                       target_mesh_names   = target_mesh_names,  &
                       periodic_xy         = periodic_xy,        &
+                      domain_extents      = domain_extents,     &
                       north_pole          = north_pole,         &
                       null_island         = null_island,        &
                       equatorial_latitude = equatorial_latitude )
@@ -126,6 +130,11 @@ program summarise_ugrid
     call infile%get_dimensions( nodes, edges, faces,            &
                                 nodes_per_face, edges_per_face, &
                                 nodes_per_edge, max_faces_per_node )
+
+    min_x = minval(domain_extents(1,:))
+    max_x = maxval(domain_extents(1,:))
+    min_y = minval(domain_extents(2,:))
+    max_y = maxval(domain_extents(2,:))
 
     ! Write extracted data and log output
     write (log_scratch_space, '(A)') &
@@ -143,6 +152,14 @@ program summarise_ugrid
 
     write ( log_scratch_space, fmt_str ) &
         '  Co-ordinate system: ', trim(coord_sys)
+    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+
+    fmt_str='(A,T24,2(A,F9.4),A)'
+    write ( log_scratch_space, fmt_str ) &
+        '  Range [x-axis]: ', '[',min_x,':',max_x,']'
+    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    write ( log_scratch_space, fmt_str ) &
+        '  Range [y-axis]: ', '[',min_y,':',max_y,']'
     call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
 
     fmt_str='(A,T24,L1)'

@@ -25,15 +25,14 @@
 !     respectively.
 !===================================================================
 &mesh
-  mesh_file_prefix  = 'cubedsphere_mesh'
+  mesh_file_prefix  = 'cs_eaves'
   geometry       = 'spherical'
   topology       = 'periodic'
-  n_meshes       = 2
-  mesh_names     = 'mesh_A','mesh_B'
-  mesh_maps      = 'mesh_A:mesh_B'
-  partition_mesh = .true.
+  n_meshes       = 1
+  mesh_names     = 'C9'
+  partition_mesh = .false.
   coord_sys      = 'll'
-  rotate_mesh    = .true.
+  rotate_mesh    = .false.
 /
 
 !==================================================================
@@ -48,10 +47,10 @@
 ! intergrid mesh maps) is advised to be left as 0 for general use.
 
 &cubedsphere_mesh
-  create_eave_mesh    = .false.
-  edge_cells          = 16, 8
-  equatorial_latitude = 0.0
+  edge_cells          = 9
   smooth_passes       = 0
+  equatorial_latitude = 0.0
+  create_eave_mesh    = .true.
 /
 
 &partitions
@@ -70,6 +69,6 @@
 /
 
 &eave_mesh
-  parent_mesh = "mesh_A"
-  eave_depth  = 0
+  parent_mesh = 'C9'
+  eave_depth  = 3
 /

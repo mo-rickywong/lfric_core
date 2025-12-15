@@ -32,23 +32,21 @@ module rotation_mod
   contains
   !-------------------------------------------------------------------------------
   !> @brief   Rotates mesh coordinates
-  !> @details Rotates the coordinates to give a new pole.
+  !> @details Rotates the coordinates to give a new pole.  The rotation is achieved
+  !>          by rotating about the vector rot_vec and by an angle alpha_vec.
   !>
-  !> The rotation is achieved by rotating about the vector rot_vec and
-  !> by an angle alpha_vec.
-  !>
-  !> @param[in,out] vert_coords       Array of (lon,lat) coordinates to be rotated
   !> @param[in]     target_north_pole The target north pole (lon,lat) to rotate to.
+  !> @param[in,out] vert_coords       Array of (lon,lat) coordinates to be rotated
   !-------------------------------------------------------------------------------
-  subroutine rotate_mesh_coords(vert_coords, target_north_pole)
+  subroutine rotate_mesh_coords( target_north_pole, vert_coords )
 
     use coord_transform_mod, only: xyz2ll, ll2xyz, rodrigues_rotation
     use cross_product_mod,   only: cross_product
 
     implicit none
 
-    real(r_def), intent(inout) :: vert_coords(:,:)
     real(r_def), intent(in)    :: target_north_pole(2)
+    real(r_def), intent(inout) :: vert_coords(:,:)
 
     real(r_def)    :: x_vec(3)     ! Cartesian vector of points
     real(r_def)    :: rot_vec(3)   ! Cartesian axis of rotation

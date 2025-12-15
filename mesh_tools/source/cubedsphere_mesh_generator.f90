@@ -19,21 +19,22 @@ program cubedsphere_mesh_generator
                                  cmdi, imdi, emdi, str_max_filename
   use configuration_mod,   only: read_configuration, final_configuration
   use coord_transform_mod, only: rebase_longitude_range
+  use gen_eave_mod,        only: gen_eave_type
   use gencube_ps_mod,      only: gencube_ps_type, &
                                  set_partition_parameters
 
   use generate_global_objects_mod, only: generate_global_objects
   use generate_local_objects_mod,  only: generate_local_objects
 
-  use global_mesh_collection_mod,     only: global_mesh_collection, &
-                                            global_mesh_collection_type
-  use halo_comms_mod,                 only: initialise_halo_comms, &
-                                            finalise_halo_comms
-  use io_utility_mod,                 only: open_file, close_file
-  use namelist_collection_mod,        only: namelist_collection_type
-  use lfric_mpi_mod,                  only: global_mpi, create_comm, &
-                                            destroy_comm, lfric_comm_type
-  use local_mesh_collection_mod,      only: local_mesh_collection_type
+  use global_mesh_collection_mod,  only: global_mesh_collection, &
+                                         global_mesh_collection_type
+  use halo_comms_mod,              only: initialise_halo_comms, &
+                                         finalise_halo_comms
+  use io_utility_mod,              only: open_file, close_file
+  use namelist_collection_mod,     only: namelist_collection_type
+  use lfric_mpi_mod,               only: global_mpi, create_comm, &
+                                         destroy_comm, lfric_comm_type
+  use local_mesh_collection_mod,   only: local_mesh_collection_type
 
   use log_mod,       only: initialise_logging, finalise_logging, &
                            log_event, log_set_level,             &
@@ -85,6 +86,9 @@ program cubedsphere_mesh_generator
   class(ugrid_file_type), allocatable :: ugrid_file
 
   class(panel_decomposition_type), allocatable :: decomposition
+
+  type(gen_eave_type) :: eave_gen
+  type(ugrid_2d_type) :: eave_ugrid_2d
 
   integer(i_def) :: fsize
   integer(i_def) :: max_res
@@ -169,6 +173,14 @@ program cubedsphere_mesh_generator
   integer(i_def) :: thread_id
   character(9), parameter :: timer_file = 'timer.txt'
 
+  logical :: create_eave_mesh
+  logical :: found
+
+  character(str_def):: eave_parent_mesh
+  character(str_def):: cs_mesh_name
+  integer(i_def)    :: eave_depth
+  integer(i_def)    :: panel_id
+
   nullify(partitioner_ptr)
   nullify(nml_obj)
 
@@ -230,9 +242,17 @@ program cubedsphere_mesh_generator
 
   if (configuration%namelist_exists('cubedsphere_mesh')) then
     nml_obj => configuration%get_namelist('cubedsphere_mesh')
-    call nml_obj%get_value( 'edge_cells',     edge_cells )
-    call nml_obj%get_value( 'smooth_passes',  smooth_passes )
+    call nml_obj%get_value( 'edge_cells', edge_cells )
+    call nml_obj%get_value( 'smooth_passes', smooth_passes )
     call nml_obj%get_value( 'equatorial_latitude', equatorial_latitude )
+    call nml_obj%get_value( 'create_eave_mesh', create_eave_mesh )
+  end if
+
+  if (create_eave_mesh) then
+    nml_obj => configuration%get_namelist('eave_mesh')
+    call nml_obj%get_value( 'parent_mesh', eave_parent_mesh )
+    call nml_obj%get_value( 'eave_depth', eave_depth )
+    nml_obj => null()
   end if
 
   call init_timer(timer_file)
@@ -498,6 +518,12 @@ program cubedsphere_mesh_generator
 
   end if ! partition_mesh
 
+  if (partition_mesh .and. create_eave_mesh) then
+    write( log_scratch_space,'(A,I0)' ) &
+        'Inconsistent settings: Eave meshes map to ' // &
+        'non-partitioned Cubed-Sphere meshes.'
+    call log_event( log_scratch_space, log_level_error )
+  end if
 
   !===================================================================
   ! Create unique list of requested mesh maps.
@@ -733,6 +759,20 @@ program cubedsphere_mesh_generator
 
   output_basename = trim(mesh_file_prefix)
 
+  if (create_eave_mesh) then
+    found = .false.
+    do i=1, n_meshes
+      call mesh_gen(i)%get_metadata(mesh_name=cs_mesh_name)
+      if (trim(cs_mesh_name) == trim(eave_parent_mesh)) then
+        found = .true.
+        eave_gen = gen_eave_type(mesh_gen(i), eave_depth)
+        call eave_gen%generate()
+        call eave_gen%compare_eave(mesh_gen(i))
+      end if
+      if (found) exit
+    end do
+  end if
+
   if (partition_mesh) then
 
     call timer('Partition meshes')
@@ -815,7 +855,7 @@ program cubedsphere_mesh_generator
       end if
 
       inquire(file=trim(output_file), size=fsize)
-      write( log_scratch_space,'(A,I0,A)' )               &
+      write( log_scratch_space,'(2(A,I0))' )              &
           'Adding mesh (' // trim(mesh_names(i)) //       &
           ') to ' // trim(adjustl(output_file)) // ' - ', &
           fsize, ' bytes written.'
@@ -825,6 +865,38 @@ program cubedsphere_mesh_generator
       if (allocated(ugrid_file)) deallocate(ugrid_file)
 
     end do  ! n_meshes
+
+    !===================================================================
+    ! Add requested Eave meshes to output
+    !===================================================================
+    ! An eave mesh is created from a parent planar mesh strategy that has
+    ! been generated. The name of the resulting eave mesh(es) will be:
+    !
+    !    <parent mesh name>-eave-<panel number>
+    !
+    if (create_eave_mesh) then
+
+      if (.not. allocated(ugrid_file)) allocate(ncdf_quad_type::ugrid_file)
+      call eave_ugrid_2d%set_file_handler(ugrid_file)
+      if (eave_gen%is_generated()) then
+
+        do panel_id=1, 6
+          call eave_gen%populate_ugrid_2d( eave_ugrid_2d, panel_id  )
+          call eave_ugrid_2d%append_to_file( trim(output_file) )
+
+          inquire(file=output_file, size=fsize)
+          write( log_scratch_space,'(2(A,I0),A)' )            &
+              'Adding panel ', panel_id, ' eave mesh for ' // &
+              trim(eave_parent_mesh) // ' to ' //             &
+              trim(adjustl(output_file)) // ' - ', fsize,     &
+              ' bytes written.'
+          call log_event( log_scratch_space, LOG_LEVEL_INFO )
+
+          if (allocated(ugrid_file)) deallocate(ugrid_file)
+
+        end do
+      end if ! generated?
+    end if ! create_eave_mesh
 
   end if ! partition_mesh
 

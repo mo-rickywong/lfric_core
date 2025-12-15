@@ -278,14 +278,14 @@ contains
 
     integer(i_def), pointer  :: edge_cell_ids(:) => null()
 
-    integer(i_def) :: faces_on_face(4, context%x_size * context%y_size)
-    integer(i_def) :: nodes_on_face(4, context%x_size * context%y_size)
-    integer(i_def) :: edges_on_face(4, context%x_size * context%y_size)
-    integer(i_def) :: nodes_on_edge(2, context%edges)
+    integer(i_def), allocatable :: faces_on_face(:,:)
+    integer(i_def), allocatable :: nodes_on_face(:,:)
+    integer(i_def), allocatable :: edges_on_face(:,:)
+    integer(i_def), allocatable :: nodes_on_edge(:,:)
 
-    real(r_def) :: face_coords(2, context%x_size * context%y_size)
-    real(r_def) :: coords(2, context%nodes)
-    real(r_def) :: domain_extents(2,4)
+    real(r_def), allocatable :: face_coords(:,:)
+    real(r_def), allocatable :: coords(:,:)
+    real(r_def), allocatable :: domain_extents(:,:)
 
     character(str_def)      :: test_str(5)
     character(str_longlong) :: big_test_str

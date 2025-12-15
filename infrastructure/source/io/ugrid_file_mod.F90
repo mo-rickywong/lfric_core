@@ -228,7 +228,8 @@ abstract interface
 
                        ! Variables referring to global mesh types
                        topology, periodic_xy, domain_extents,             &
-                       npanels, rim_depth, constructor_inputs,            &
+                       npanels, rim_depth, eave_depth,                    &
+                       constructor_inputs,                                &
 
                        ! Partition variables
                        partition_of, num_faces_global, max_stencil_depth, &
@@ -273,6 +274,7 @@ abstract interface
     real(r_def),        intent(out) :: domain_extents(2,4)
     integer(i_def),     intent(out) :: npanels
     integer(i_def),     intent(out) :: rim_depth
+    integer(i_def),     intent(out) :: eave_depth
 
     character(str_longlong), intent(out) :: constructor_inputs
 
@@ -339,7 +341,8 @@ abstract interface
   !> @param[in]  domain_extents           Principal coordinates that
   !>                                      describe the domain shape.
   !> @param[in]  npanels                  Number of panels in global mesh.
-  !> @param[in]  rim_depth                Depth in cells of global mesh rim (LBC meshes).
+  !> @param[in]  rim_depth                Rim depth in cells (Rim meshes only).
+  !> @param[in]  eave_depth               Eave depth in cells (Eave meshes only).
   !> @param[in]  constructor_inputs       Inputs used to generate global mesh.
   !> @param[in]  partition_of             The mesh name of global mesh that
   !>                                      local mesh is a partition of.
@@ -381,8 +384,8 @@ abstract interface
                        face_face_connectivity, edge_node_connectivity,    &
 
                        ! Global mesh variables.
-                       topology, periodic_xy, domain_extents,             &
-                       npanels, rim_depth, constructor_inputs,            &
+                       topology, periodic_xy, domain_extents, npanels,    &
+                       rim_depth, eave_depth, constructor_inputs,         &
 
                        ! Partition variables.
                        partition_of, num_faces_global, max_stencil_depth, &
@@ -432,6 +435,7 @@ abstract interface
     real(r_def),        intent(in) :: domain_extents(2,4)
     integer(i_def),     intent(in) :: npanels
     integer(i_def),     intent(in) :: rim_depth
+    integer(i_def),     intent(in) :: eave_depth
 
     character(str_longlong), intent(in) :: constructor_inputs
 
