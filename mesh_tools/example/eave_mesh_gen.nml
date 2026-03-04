@@ -17,7 +17,7 @@
 !  *  "dynamics" mesh (source) object mapping to "physics"  (target)
 !  *  "physics"  mesh (source) object mapping to "dynamics" (target)
 !
-! Notes: 
+! Notes:
 !  *  Only the first "n_meshes" listed in <mesh_names> will be
 !     output in the mesh file.
 !  *  All spherical co-ordinates are given the order
@@ -29,7 +29,7 @@
   geometry       = 'spherical'
   topology       = 'periodic'
   n_meshes       = 1
-  mesh_names     = 'C9'
+  mesh_names     = 'C24'
   partition_mesh = .false.
   coord_sys      = 'll'
   rotate_mesh    = .false.
@@ -47,7 +47,7 @@
 ! intergrid mesh maps) is advised to be left as 0 for general use.
 
 &cubedsphere_mesh
-  edge_cells          = 9
+  edge_cells          = 24
   smooth_passes       = 0
   equatorial_latitude = 0.0
   create_eave_mesh    = .true.
@@ -69,6 +69,6 @@
 /
 
 &eave_mesh
-  parent_mesh = 'C9'
+  parent_mesh = 'C24'
   eave_depth  = 3
 /

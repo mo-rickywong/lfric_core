@@ -16,7 +16,7 @@
 program summarise_ugrid
 
   use, intrinsic :: iso_fortran_env, only : output_unit
-  use cli_mod,         only : get_initial_filename
+  use cli_mod,         only : parse_command_line
   use constants_mod,   only : i_def, r_def, str_def, str_long, str_longlong, &
                               l_def
   use lfric_mpi_mod,   only : global_mpi, create_comm, destroy_comm, &
@@ -29,6 +29,8 @@ program summarise_ugrid
   use ugrid_file_mod,  only : ugrid_file_type
 
   implicit none
+
+  type(lfric_comm_type) :: communicator
 
   character(:), allocatable :: filename
 
@@ -65,17 +67,15 @@ program summarise_ugrid
 
   integer(i_def) :: total_ranks, local_rank, nmaps
 
-  type(lfric_comm_type) :: comm
+  ! Get filename from command line
+  call parse_command_line( filename, description='UGRID mesh file' )
 
   ! Start up
-  call create_comm(comm)
-  call global_mpi%initialise(comm)
+  call create_comm(communicator)
+  call global_mpi%initialise(communicator)
   total_ranks = global_mpi%get_comm_size()
   local_rank  = global_mpi%get_comm_rank()
-  call initialise_logging( comm%get_comm_mpi_val(), "summarise" )
-
-  ! Get filename from command line
-  call get_initial_filename( filename, description='UGRID mesh file' )
+  call initialise_logging( communicator%get_comm_mpi_val(), "summarise" )
 
   ! Create object to manipulate UGRID conforming NetCDF file
   allocate(ncdf_quad_type::ugrid_file)
