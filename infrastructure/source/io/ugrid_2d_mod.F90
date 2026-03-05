@@ -539,7 +539,6 @@ subroutine set_from_file_read(self, mesh_name, filename)
        self%topology, self%periodic_xy, self%domain_extents,        &
        self%npanels, self%rim_depth, self%eave_depth,               &
        self%constructor_inputs,                                     &
-
        self%partition_of, self%num_faces_global,                    &
        self%max_stencil_depth,                                      &
        self%inner_depth, self%num_inner, self%last_inner_cell,      &

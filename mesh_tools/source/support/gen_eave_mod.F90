@@ -1,11 +1,11 @@
-!-----------------------------------------------------------------------------
-! Copyright (c) 2017,  Met Office, on behalf of HMSO and Queen's Printer
-! For further details please refer to the file LICENCE.original which you
-! should have received as part of this distribution.
-!-----------------------------------------------------------------------------
+! ***************************COPYRIGHT*****************************
+! (C) Crown copyright Met Office. All rights reserved.
+! For further details please refer to the file COPYRIGHT.txt
+! which you should have received as part of this distribution.
+! ***************************COPYRIGHT*****************************
 !> @brief   Module to derive eave mesh(es) from a given gencube_ps_type
 !>          generation stragtegy.
-!> @details Type implements the ugrid_generator_type interface to
+!> @details Gen_eave_type extends the ugrid_generator_type interface to
 !>          construct eave meshes derived from a given cubed-sphere mesh.
 !>
 !>      +---+                       +---------+
@@ -43,7 +43,6 @@ module gen_eave_mod
   use rotation_mod,                   only: rotate_mesh_coords, &
                                             TRUE_NORTH_POLE_LL, &
                                             TRUE_NULL_ISLAND_LL
-
   use ugrid_generator_mod,            only: ugrid_generator_type
 
   use mesh_config_mod, only: coord_sys_ll,       &
@@ -53,7 +52,6 @@ module gen_eave_mod
                              key_from_coord_sys, &
                              geometry_spherical, &
                              topology_periodic
-
 
   implicit none
 
@@ -71,10 +69,10 @@ module gen_eave_mod
   integer(i_def), parameter :: PANEL_ROTATIONS(NPANELS) = (/ 0, 0, 1, 1, -1, 0 /)
 
   ! Prefix for error messages
-  character(*),       parameter :: PREFIX = "[Cubed-Sphere Mesh] "
+  character(*),   parameter :: PREFIX = "[Cubed-Sphere Mesh] "
 
   ! flag to print out mesh data for debugging purposes
-  logical(l_def),     parameter :: DEBUG = .false.
+  logical(l_def), parameter :: DEBUG = .false.
 
   !-------------------------------------------------------------------------------
 
@@ -114,24 +112,23 @@ module gen_eave_mod
 
     ! Intergrid maps
     ! Only 1 map to the parent cubed-sphere
-    integer(i_def)     :: nmaps = 1
     character(str_def) :: parent_mesh_name
-    integer(i_def)     :: parent_edge_cells
 
-    integer(i_def)     :: eave_depth = imdi
-    integer(i_def)     :: eave_edge_cells
-    integer(i_def)     :: cpp
-    integer(i_def)     :: npp
-    integer(i_def)     :: epp
-
-    integer(i_def), allocatable :: cell_maps(:,:)
-    integer(i_def)     :: void_id
-
-    type(global_mesh_map_collection_type), allocatable :: global_mesh_maps
-
+    integer(i_def) :: nmaps = 1
+    integer(i_def) :: parent_edge_cells
+    integer(i_def) :: eave_depth = imdi
+    integer(i_def) :: eave_edge_cells
+    integer(i_def) :: cpp
+    integer(i_def) :: npp
+    integer(i_def) :: epp
+    integer(i_def) :: void_id
     integer(i_def) :: max_num_faces_per_node
 
+    integer(i_def), allocatable :: cell_maps(:,:)
+
     logical :: generated = .false.
+
+    type(global_mesh_map_collection_type), allocatable :: global_mesh_maps
 
   contains
     procedure :: generate
@@ -161,34 +158,12 @@ contains
 !> @brief   Constructor for gen_cs_eave_type.
 !> @details Accepts mesh dimension for initialisation and validation.
 !>
-!> @param[in] mesh_name          Name of this mesh topology
-!> @param[in] edge_cells         Number of cells per panel edge of the cubed-sphere.
-!>                               Each panel will contain edge_cells*edge_cells faces.
-!> @param[in] nsmooth            Number of smoothing passes to be performed on mesh nodes.
-!>                               Each panel will contain edge_cells*edge_cells faces.
-!> @param[in] coord_sys          Coordinate system to position nodes.
-!> @param[in, optional] rotate_mesh
-!>                               Logical to indicate rotation of the resulting mesh
-!> @param[in, optional] target_north_pole
-!>                               If rotating the cubed-sphere, then these are the target
-!>                               coordinates [longitude, latitude] (degrees)
-!>                               to move the reference north pole.
-!> @param[in, optional] target_null_island
-!>                               If rotating the cubed-sphere, then these are the target
-!>                               coordinates [longitude, latitude] (degrees)
-!>                               to move the reference null island.
-!> @param[in, optional] target_mesh_names
-!>                               Names of meshes to map to.
-!> @param[in, optional] target_edge_cells
-!>                               Number of cells per panel edge of the meshes to map to.
-!> @param[in, optional] stretch_factor
-!>                               Attracts points to the North (< 1) or South (> 1) to give
-!>                               a variable resolution mesh
-!>
-!> @return    self               Instance of gen_cs_eave_type
+!> @param[in] gen_cs      Cubed-Sphere generation strategy to derive eaves meshes.
+!> @param[in] eave_depth  Depth of eaves (in cells) for each eave-mesh.
+!> @return    self   Eave mesh generation strategy
 !-------------------------------------------------------------------------------
- function gen_eave_constructor( gen_cs, eave_depth ) &
-                                    result( self )
+function gen_eave_constructor( gen_cs, eave_depth ) &
+                       result( self )
 
   use gencube_ps_mod,  only: gencube_ps_type
   use mesh_config_mod, only: coord_sys_from_key, &
@@ -203,7 +178,7 @@ contains
   type( gen_eave_type ) :: self
 
   character(str_def) :: geometry_str
-  character(str_def)     :: coord_sys_str
+  character(str_def) :: coord_sys_str
 
   call gen_cs%get_metadata( mesh_name    = self%parent_mesh_name, &
                             edge_cells_x = self%edge_cells,       &
@@ -219,26 +194,27 @@ contains
   self%north_pole  = self%north_pole*degrees_to_radians
   self%null_island = self%null_island*degrees_to_radians
 
-  self%mesh_name  = trim(self%parent_mesh_name)//'_eave'
+  self%mesh_name = trim(self%parent_mesh_name)//'_eave'
 
-  self%nsmooth    = 0
-  self%nmaps      = 1
-  self%coord_sys  = coord_sys_from_key(coord_sys_str)
-  self%topology   = topology_non_periodic
-  self%geometry   = geometry_from_key(geometry_str)
+  self%nsmooth   = 0
+  self%nmaps     = 1
+  self%coord_sys = coord_sys_from_key(coord_sys_str)
+  self%topology  = topology_non_periodic
+  self%geometry  = geometry_from_key(geometry_str)
 
-  self%eave_depth = eave_depth
-  self%eave_edge_cells = self%edge_cells + 2* self%eave_depth
+  self%eave_depth      = eave_depth
+  self%eave_edge_cells = self%edge_cells + (2 * self%eave_depth)
+
   self%cpp = self%eave_edge_cells**2
   self%npp = (self%eave_edge_cells+1)**2
-  self%epp = 2*(self%eave_edge_cells**2 + self%eave_edge_cells)
+  self%epp = 2 * (  self%eave_edge_cells**2 + self%eave_edge_cells )
 
   ! There are a maximum of 4 faces around a node in this type of mesh
   self%max_num_faces_per_node = 4
   self%nmaps = 1
 
   write(self%constructor_inputs,'(A,I0)')  &
-      'cs_strategy=<gencube_ps_type,"'//   &
+      'cs_strategy=<gencube_ps_type,"'//        &
       trim(self%parent_mesh_name)//'">;'// &
       'eave_depth=', self%eave_depth
 
@@ -255,12 +231,14 @@ end function gen_eave_constructor
 !> @param[out]  cell_next  A rank 2 (4,ncells)-sized array containing the
 !>                         adjacency map.
 !-------------------------------------------------------------------------------
-subroutine calc_adjacency(self, cell_next)
+function calc_adjacency( gen_eave ) &
+                 result( cell_next )
 
   implicit none
 
-  class(gen_eave_type),    intent(in)  :: self
-  integer(i_def), allocatable, intent(out) :: cell_next(:,:,:)
+  class(gen_eave_type), intent(in) :: gen_eave
+
+  integer(i_def), allocatable :: cell_next(:,:,:)
 
   integer(i_def) :: edge_cells, ncells, cpp, i
   integer(i_def) :: cell, astat, panel_number
@@ -276,8 +254,8 @@ subroutine calc_adjacency(self, cell_next)
   integer(i_def) :: eave_depth
   integer(i_def) :: eave_edge_cells
 
-  edge_cells = self%edge_cells
-  eave_depth = self%eave_depth
+  edge_cells = gen_eave%edge_cells
+  eave_depth = gen_eave%eave_depth
 
   eave_edge_cells = edge_cells + 2*eave_depth
   cpp             = eave_edge_cells**2
@@ -352,24 +330,22 @@ subroutine calc_adjacency(self, cell_next)
   do i=1, eave_edge_cells
     ! Top edge
     cell = panel_edge_cells(i, N, panel_number )
-    cell_next(N, cell, panel_number) = self%VOID_ID
+    cell_next(N, cell, panel_number) = gen_eave%void_id
 
     ! Right edge
     cell = panel_edge_cells(i, E, panel_number )
-    cell_next(E, cell, panel_number) = self%VOID_ID
+    cell_next(E, cell, panel_number) = gen_eave%void_id
 
     ! Bottom edge
     cell = panel_edge_cells(i, S, panel_number )
-    cell_next(S, cell, panel_number) = self%VOID_ID
+    cell_next(S, cell, panel_number) = gen_eave%void_id
 
     ! Left edge
     cell = panel_edge_cells(i, W, panel_number )
-    cell_next(W, cell, panel_number) = self%VOID_ID
+    cell_next(W, cell, panel_number) = gen_eave%void_id
   end do
 
-
-  return
-end subroutine calc_adjacency
+end function calc_adjacency
 
 !-------------------------------------------------------------------------------
 !> @brief   For each cell, calculates the four vertices which comprise it.
@@ -381,12 +357,14 @@ end subroutine calc_adjacency
 !> @param[out]  verts_on_cell  A rank 2 (4,ncells)-sized integer array of vertices
 !>                             which constitute each cell.
 !-------------------------------------------------------------------------------
-subroutine calc_face_to_node(self, nodes_on_cell)
+function calc_face_to_node( gen_eave ) &
+                    result( nodes_on_cell )
 
   implicit none
 
-  class(gen_eave_type),    intent(in)  :: self
-  integer(i_def), allocatable, intent(out) :: nodes_on_cell(:,:,:)
+  class(gen_eave_type), intent(in) :: gen_eave
+
+  integer(i_def), allocatable :: nodes_on_cell(:,:,:)
 
   integer(i_def) :: edge_cells, ncells, cpp
   integer(i_def) :: cell,  nxf, astat
@@ -398,10 +376,8 @@ subroutine calc_face_to_node(self, nodes_on_cell)
   integer(i_def) :: panel_id
   integer(i_def) :: eave_depth,  eave_edge_cells
 
-
-
-  edge_cells = self%edge_cells
-  eave_depth = self%eave_depth
+  edge_cells = gen_eave%edge_cells
+  eave_depth = gen_eave%eave_depth
 
   eave_edge_cells = edge_cells + 2*eave_depth
   cpp        = eave_edge_cells**2
@@ -459,71 +435,71 @@ subroutine calc_face_to_node(self, nodes_on_cell)
         cell_id = cell_id + 1
         node_id = node_id + 1
 
-        if (self%cell_next(E, cell_id, panel_id) /= self%void_id) then
+        if (gen_eave%cell_next(E, cell_id, panel_id) /= gen_eave%void_id) then
 
           if (nodes_on_cell(NE, cell_id, panel_id) == 0_i_def) then
-            if (nodes_on_cell( NW, self%cell_next(E, cell_id, panel_id), &
+            if (nodes_on_cell( NW, gen_eave%cell_next(E, cell_id, panel_id), &
                                panel_id ) /= 0_i_def ) then
               nodes_on_cell(NE, cell_id, panel_id) =                        &
                        nodes_on_cell( NW,                                   &
-                                      self%cell_next(E, cell_id, panel_id), &
+                                      gen_eave%cell_next(E, cell_id, panel_id), &
                                       panel_id )
             end if
           end if
 
           if (nodes_on_cell(SE, cell_id, panel_id) == 0_i_def) then
-            if (nodes_on_cell( SW, self%cell_next(E, cell_id, panel_id), &
+            if (nodes_on_cell( SW, gen_eave%cell_next(E, cell_id, panel_id), &
                                panel_id ) /= 0_i_def ) then
               nodes_on_cell(SE, cell_id, panel_id) =                        &
                        nodes_on_cell( SW,                                   &
-                                      self%cell_next(E, cell_id, panel_id), &
+                                      gen_eave%cell_next(E, cell_id, panel_id), &
                                       panel_id )
             end if
           end if
 
         end if
 
-        if (self%cell_next(S, cell_id, panel_id) /= self%void_id) then
+        if (gen_eave%cell_next(S, cell_id, panel_id) /= gen_eave%void_id) then
           if (nodes_on_cell(SE, cell_id, panel_id) == 0_i_def) then
-            if (nodes_on_cell( NE, self%cell_next(S, cell_id, panel_id), &
+            if (nodes_on_cell( NE, gen_eave%cell_next(S, cell_id, panel_id), &
                                panel_id ) /= 0_i_def ) then
               nodes_on_cell(SE, cell_id, panel_id) =                        &
                        nodes_on_cell( NE,                                   &
-                                      self%cell_next(S, cell_id, panel_id), &
+                                      gen_eave%cell_next(S, cell_id, panel_id), &
                                       panel_id )
             end if
           end if
 
           if (nodes_on_cell(SW, cell_id, panel_id) == 0_i_def) then
-            if (nodes_on_cell( NW, self%cell_next(S, cell_id, panel_id), &
+            if (nodes_on_cell( NW, gen_eave%cell_next(S, cell_id, panel_id), &
                                panel_id ) /= 0_i_def ) then
               nodes_on_cell(SW, cell_id, panel_id) =                        &
                        nodes_on_cell( NW,                                   &
-                                      self%cell_next(S, cell_id, panel_id), &
+                                      gen_eave%cell_next(S, cell_id, panel_id), &
                                       panel_id )
             end if
           end if
         end if
 
 
-        if (self%cell_next(N, cell_id, panel_id) /= self%void_id) then
+        if (gen_eave%cell_next(N, cell_id, panel_id) /= gen_eave%void_id) then
 
           if (nodes_on_cell(NW, cell_id, panel_id) == 0_i_def) then
-            if (nodes_on_cell( SW, self%cell_next(N, cell_id, panel_id), &
+            if (nodes_on_cell( SW, gen_eave%cell_next(N, cell_id, panel_id), &
                                panel_id ) /= 0_i_def ) then
               nodes_on_cell(NW, cell_id, panel_id) =                        &
                        nodes_on_cell( SW,                                   &
-                                      self%cell_next(N, cell_id, panel_id), &
+                                      gen_eave%cell_next(N, cell_id, panel_id), &
                                       panel_id )
             end if
           end if
 
           if (nodes_on_cell(NE, cell_id, panel_id) == 0_i_def) then
-            if (nodes_on_cell( SE, self%cell_next(N, cell_id, panel_id), &
+            if (nodes_on_cell( SE, gen_eave%cell_next(N, cell_id, panel_id), &
                                panel_id ) /= 0_i_def ) then
               nodes_on_cell(NE, cell_id, panel_id) =                        &
                        nodes_on_cell( SE,                                   &
-                                      self%cell_next(N, cell_id, panel_id), &
+                                      gen_eave%cell_next(N, cell_id, panel_id), &
                                       panel_id )
             end if
           end if
@@ -531,26 +507,26 @@ subroutine calc_face_to_node(self, nodes_on_cell)
 
 
 
-        if (self%cell_next(W, cell_id, panel_id) /= self%void_id) then
+        if (gen_eave%cell_next(W, cell_id, panel_id) /= gen_eave%void_id) then
 
           if (nodes_on_cell(NW, cell_id, panel_id) == 0_i_def) then
-            if (nodes_on_cell( NE, self%cell_next(W, cell_id, panel_id), &
+            if (nodes_on_cell( NE, gen_eave%cell_next(W, cell_id, panel_id), &
                                panel_id ) /= 0_i_def ) then
 
               nodes_on_cell(NW, cell_id, panel_id) =                        &
                        nodes_on_cell( NE,                                   &
-                                      self%cell_next(W, cell_id, panel_id), &
+                                      gen_eave%cell_next(W, cell_id, panel_id), &
                                       panel_id )
 
             end if
           end if
 
           if (nodes_on_cell(SW, cell_id, panel_id) == 0_i_def) then
-            if (nodes_on_cell( SE, self%cell_next(W, cell_id, panel_id), &
+            if (nodes_on_cell( SE, gen_eave%cell_next(W, cell_id, panel_id), &
                                panel_id ) /= 0_i_def ) then
               nodes_on_cell(SW, cell_id, panel_id) =                        &
                        nodes_on_cell( SE,                                   &
-                                      self%cell_next(W, cell_id, panel_id), &
+                                      gen_eave%cell_next(W, cell_id, panel_id), &
                                       panel_id )
             end if
           end if
@@ -560,8 +536,7 @@ subroutine calc_face_to_node(self, nodes_on_cell)
     end do ! rows
   end do ! loops
 
-  return
-end subroutine calc_face_to_node
+end function calc_face_to_node
 
 !-------------------------------------------------------------------------------
 !> @brief   Calculates the edges which are found on each cell and the
@@ -576,11 +551,12 @@ end subroutine calc_face_to_node
 !> @param[out]  verts_on_edge  A rank-2 (2,2*ncells)-sized integer array
 !>                             of the vertices found on each edge.
 !-------------------------------------------------------------------------------
-subroutine calc_edges( self, edges_on_cell, nodes_on_edge)
+subroutine calc_edges( gen_eave, edges_on_cell, nodes_on_edge)
 
   implicit none
 
-  class(gen_eave_type),    intent(in)  :: self
+  class(gen_eave_type), intent(in)  :: gen_eave
+
   integer(i_def), allocatable, intent(out) :: edges_on_cell(:,:,:)
   integer(i_def), allocatable, intent(out) :: nodes_on_edge(:,:,:)
 
@@ -594,8 +570,8 @@ subroutine calc_edges( self, edges_on_cell, nodes_on_edge)
   integer(i_def) :: panel_id
   integer(i_def) :: eave_edge_cells
 
-  edge_cells      = self%edge_cells
-  eave_edge_cells = self%eave_edge_cells
+  edge_cells      = gen_eave%edge_cells
+  eave_edge_cells = gen_eave%eave_edge_cells
 
   cpp        = eave_edge_cells**2
   n_edges    = 2*(eave_edge_cells**2 + eave_edge_cells)
@@ -612,8 +588,8 @@ subroutine calc_edges( self, edges_on_cell, nodes_on_edge)
       call log_event( PREFIX//"Failure to allocate nodes_on_edge.", &
                       LOG_LEVEL_ERROR )
 
-  edges_on_cell = self%VOID_ID
-  nodes_on_edge = self%VOID_ID
+  edges_on_cell = gen_eave%void_id
+  nodes_on_edge = gen_eave%void_id
   cell = 1
   nxf = 1
   panel_id = 1
@@ -625,25 +601,25 @@ subroutine calc_edges( self, edges_on_cell, nodes_on_edge)
     edges_on_cell(W, cell, panel_id) = nxf+1
     edges_on_cell(S, cell, panel_id) = nxf+2
 
-    nodes_on_edge(1, nxf, panel_id)   = self%nodes_on_cell(NW, cell, panel_id)
-    nodes_on_edge(2, nxf, panel_id)   = self%nodes_on_cell(NE, cell, panel_id)
-    nodes_on_edge(1, nxf+1, panel_id) = self%nodes_on_cell(SW, cell, panel_id)
-    nodes_on_edge(2, nxf+1, panel_id) = self%nodes_on_cell(NW, cell, panel_id)
-    nodes_on_edge(1, nxf+2, panel_id) = self%nodes_on_cell(SE, cell, panel_id)
-    nodes_on_edge(2, nxf+2, panel_id) = self%nodes_on_cell(SW, cell, panel_id)
+    nodes_on_edge(1, nxf, panel_id)   = gen_eave%nodes_on_cell(NW, cell, panel_id)
+    nodes_on_edge(2, nxf, panel_id)   = gen_eave%nodes_on_cell(NE, cell, panel_id)
+    nodes_on_edge(1, nxf+1, panel_id) = gen_eave%nodes_on_cell(SW, cell, panel_id)
+    nodes_on_edge(2, nxf+1, panel_id) = gen_eave%nodes_on_cell(NW, cell, panel_id)
+    nodes_on_edge(1, nxf+2, panel_id) = gen_eave%nodes_on_cell(SE, cell, panel_id)
+    nodes_on_edge(2, nxf+2, panel_id) = gen_eave%nodes_on_cell(SW, cell, panel_id)
 
     if ( cell == eave_edge_cells ) then
       edges_on_cell(E, cell, panel_id)  = nxf+3
-      nodes_on_edge(1, nxf+3, panel_id) = self%nodes_on_cell(SE, cell, panel_id)
-      nodes_on_edge(2, nxf+3, panel_id) = self%nodes_on_cell(NE, cell, panel_id)
+      nodes_on_edge(1, nxf+3, panel_id) = gen_eave%nodes_on_cell(SE, cell, panel_id)
+      nodes_on_edge(2, nxf+3, panel_id) = gen_eave%nodes_on_cell(NE, cell, panel_id)
       nxf = nxf + 4
     else
       nxf = nxf + 3
     end if
 
     ! Push W edge to W neighbour
-    if ( self%cell_next(W, cell, panel_id) /= self%VOID_ID ) then
-      edges_on_cell(E, self%cell_next(W, cell, panel_id), panel_id) = &
+    if ( gen_eave%cell_next(W, cell, panel_id) /= gen_eave%void_id ) then
+      edges_on_cell(E, gen_eave%cell_next(W, cell, panel_id), panel_id) = &
            edges_on_cell(W, cell, panel_id)
     end if
   end do
@@ -656,26 +632,26 @@ subroutine calc_edges( self, edges_on_cell, nodes_on_edge)
       cell = cell+1
       edges_on_cell(W, cell, panel_id)  = nxf
       edges_on_cell(S, cell, panel_id)  = nxf+1
-      nodes_on_edge(1, nxf, panel_id)   = self%nodes_on_cell(SW, cell, panel_id)
-      nodes_on_edge(2, nxf, panel_id)   = self%nodes_on_cell(NW, cell, panel_id)
-      nodes_on_edge(1, nxf+1, panel_id) = self%nodes_on_cell(SE, cell, panel_id)
-      nodes_on_edge(2, nxf+1, panel_id) = self%nodes_on_cell(SW, cell, panel_id)
+      nodes_on_edge(1, nxf, panel_id)   = gen_eave%nodes_on_cell(SW, cell, panel_id)
+      nodes_on_edge(2, nxf, panel_id)   = gen_eave%nodes_on_cell(NW, cell, panel_id)
+      nodes_on_edge(1, nxf+1, panel_id) = gen_eave%nodes_on_cell(SE, cell, panel_id)
+      nodes_on_edge(2, nxf+1, panel_id) = gen_eave%nodes_on_cell(SW, cell, panel_id)
 
       if ( col == eave_edge_cells ) then
         edges_on_cell(E, cell, panel_id) = nxf+2
-        nodes_on_edge(1, nxf+2, panel_id) = self%nodes_on_cell(SE, cell, panel_id)
-        nodes_on_edge(2, nxf+2, panel_id) = self%nodes_on_cell(NE, cell, panel_id)
+        nodes_on_edge(1, nxf+2, panel_id) = gen_eave%nodes_on_cell(SE, cell, panel_id)
+        nodes_on_edge(2, nxf+2, panel_id) = gen_eave%nodes_on_cell(NE, cell, panel_id)
         nxf = nxf + 3
       else
         nxf = nxf + 2
       end if
 
       ! Copy N edge from N cell
-      edges_on_cell(N, cell, panel_id) = edges_on_cell(S, self%cell_next(N, cell, panel_id), panel_id)
+      edges_on_cell(N, cell, panel_id) = edges_on_cell(S, gen_eave%cell_next(N, cell, panel_id), panel_id)
 
       ! Push W edge to W neighbour
-      if ( self%cell_next(W, cell, panel_id) /= self%VOID_ID ) then
-        edges_on_cell(E, self%cell_next(W, cell, panel_id), panel_id) = edges_on_cell(W, cell, panel_id)
+      if ( gen_eave%cell_next(W, cell, panel_id) /= gen_eave%void_id ) then
+        edges_on_cell(E, gen_eave%cell_next(W, cell, panel_id), panel_id) = edges_on_cell(W, cell, panel_id)
       end if
 
     end do ! columns
@@ -1022,14 +998,13 @@ subroutine generate(self)
   class(gen_eave_type), intent(inout) :: self
 
   integer(i_def) :: panel_id
-!  integer(i_def) :: shift_value
 
   integer(i_def), allocatable :: nodes_on_cell(:,:)
   real(r_def),    allocatable :: node_coords(:,:)
   real(r_def),    allocatable :: cell_coords(:,:)
 
-  call calc_adjacency(self, self%cell_next)
-  call calc_face_to_node(self, self%nodes_on_cell)
+  self%cell_next     = calc_adjacency(self)
+  self%nodes_on_cell = calc_face_to_node(self)
   call calc_edges(self, self%edges_on_cell, self%nodes_on_edge)
 
   do panel_id=2,6
@@ -1053,7 +1028,8 @@ subroutine generate(self)
   ! Apply stretch transform
   if (self%equatorial_latitude /= 0.0_r_def) then
     do panel_id=1, npanels
-      call stretch_mesh( self%equatorial_latitude, self%node_coords(:,:, panel_id) )
+      call stretch_mesh( self%equatorial_latitude, &
+                         self%node_coords(:,:, panel_id) )
     end do
   end if
 
@@ -1106,14 +1082,19 @@ subroutine orient_lfric(self, panel_rotation_array)
   do panel_id=1, size(panel_rotation_array)
 
     shift_value = panel_rotation_array(panel_id)
-    self%domain_extents(:,:,panel_id) = cshift( self%domain_extents(:, :, panel_id), &
-                                                shift_value, 2 )
-    self%nodes_on_cell(:,:,panel_id)  = cshift( self%nodes_on_cell(:,:,panel_id),    &
-                                                shift_value, 1 )
-    self%cell_next(:,:,panel_id)      = cshift( self%cell_next(:,:,panel_id),        &
-                                                shift_value, 1 )
-    self%edges_on_cell(:,:,panel_id)  = cshift( self%edges_on_cell(:,:,panel_id),    &
-                                                shift_value, 1 )
+
+    self%domain_extents(:,:,panel_id) = &
+                cshift(self%domain_extents(:,:,panel_id), shift_value, 2)
+
+    self%nodes_on_cell(:,:,panel_id) = &
+                cshift(self%nodes_on_cell(:,:,panel_id), shift_value, 1)
+
+    self%cell_next(:,:,panel_id) = &
+                cshift(self%cell_next(:,:,panel_id), shift_value, 1)
+
+    self%edges_on_cell(:,:,panel_id) = &
+                cshift(self%edges_on_cell(:,:,panel_id), shift_value, 1)
+
   end do
 
   return
@@ -1213,24 +1194,33 @@ subroutine get_metadata( self,               &
   real(r_def), optional, intent(out) :: null_island(2)
   real(r_def), optional, intent(out) :: equatorial_latitude
 
-  if (present(mesh_name))    mesh_name      = trim(self%mesh_name)
-  if (present(geometry))     geometry       = key_from_geometry(self%geometry)
-  if (present(topology))     topology       = key_from_topology(self%topology)
-  if (present(coord_sys))    coord_sys      = key_from_coord_sys(self%coord_sys)
-  if (present(periodic_xy))  periodic_xy    = .true.
-  if (present(edge_cells_x)) edge_cells_x   = self%edge_cells
-  if (present(edge_cells_y)) edge_cells_y   = self%edge_cells
-  if (present(nmaps))        nmaps          = self%nmaps
-  if (present(rim_depth))    rim_depth      = imdi
-  if (present(eave_depth))   eave_depth     = self%eave_depth
-  if (present(void_cell))    void_cell      = self%VOID_ID
+  if (present(mesh_name))    mesh_name    = trim(self%mesh_name)
+  if (present(geometry))     geometry     = key_from_geometry(self%geometry)
+  if (present(topology))     topology     = key_from_topology(self%topology)
+  if (present(coord_sys))    coord_sys    = key_from_coord_sys(self%coord_sys)
+  if (present(periodic_xy))  periodic_xy  = .true.
+  if (present(edge_cells_x)) edge_cells_x = self%edge_cells
+  if (present(edge_cells_y)) edge_cells_y = self%edge_cells
+  if (present(nmaps))        nmaps        = self%nmaps
+  if (present(rim_depth))    rim_depth    = imdi
+  if (present(eave_depth))   eave_depth   = self%eave_depth
+  if (present(void_cell))    void_cell    = self%void_id
 
-  if (present(north_pole))     north_pole(:)  = radians_to_degrees * self%north_pole(:)
-  if (present(null_island))    null_island(:) = radians_to_degrees * self%null_island(:)
-  if (present(equatorial_latitude)) &
-                          equatorial_latitude = radians_to_degrees * self%equatorial_latitude
+  if (present(north_pole)) then
+    north_pole(:)  = radians_to_degrees * self%north_pole(:)
+  end if
 
-  if (present(constructor_inputs)) constructor_inputs = trim(self%constructor_inputs)
+  if (present(null_island)) then
+    null_island(:) = radians_to_degrees * self%null_island(:)
+  end if
+
+  if (present(equatorial_latitude)) then
+    equatorial_latitude = radians_to_degrees * self%equatorial_latitude
+  end if
+
+  if (present(constructor_inputs)) then
+    constructor_inputs = trim(self%constructor_inputs)
+  end if
 
   if (self%nmaps > 0) then
     if (present(target_mesh_names)) target_mesh_names = self%parent_mesh_name
@@ -1311,6 +1301,7 @@ subroutine get_panel_edge_cell_ids( edge_cells, panel_edge_cells )
       panel_edge_cells(i,N,panel) = (panel-1)*cpp + i
     end do
   end do
+
 end subroutine get_panel_edge_cell_ids
 
 subroutine calc_cell_maps(self)
