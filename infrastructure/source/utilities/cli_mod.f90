@@ -27,13 +27,14 @@ contains
   !>                         not specified, master namelist is assumed.
   !> @param [inout] component_name Optional component-component name
   !>
-  subroutine parse_command_line( filename, description, component_name )
+  subroutine parse_command_line( filename, description, component_name, filename2 )
 
     implicit none
 
     character(:), allocatable,           intent(inout) :: filename
     character(*), optional,              intent(in)    :: description
     character(:), allocatable, optional, intent(inout) :: component_name
+    character(:), allocatable, optional, intent(inout) :: filename2
 
     character(:), allocatable :: oname
     character(:), allocatable :: arg
@@ -46,6 +47,7 @@ contains
     integer      :: status
     integer      :: argument_tally
     integer      :: iarg
+    integer      :: files_read, nfiles_to_read
     logical      :: filename_set
     logical      :: file_exists
 
@@ -74,6 +76,13 @@ contains
 
     iarg = 1
     filename_set=.false.
+    files_read = 0
+
+    if (present(filename2)) then
+      nfiles_to_read = 2
+    else
+      nfiles_to_read = 1
+    end if
 
     do
       if( iarg > argument_tally ) exit
@@ -97,24 +106,35 @@ contains
         allocate(oname, source=arg(18:) )
         iarg = iarg + 1
       else
-        if(.not.filename_set)then
-          if(allocated(filename)) deallocate(filename)
-          allocate(filename,source=arg)
-          iarg = iarg + 1
-          filename_set = .true.
-        else
-          write( error_unit, '("Too many arguments supplied")' )
-          write( error_unit, '()' )
-          call print_usage( error_unit, program_name, filename_description )
-          stop 2
-        end if
+
+        select case (files_read)
+          case(0)
+            if (allocated(filename)) deallocate(filename)
+            allocate(filename,source=arg)
+            iarg = iarg + 1
+            filename_set = .true.
+            files_read = files_read +1
+          case(1)
+            if (present(filename2)) then
+              if (allocated(filename2)) deallocate(filename2)
+              allocate(filename2,source=arg)
+            files_read = files_read +1
+            end if
+            iarg = iarg + 1
+          case default
+            write( error_unit, '("Too many arguments supplied")' )
+            write( error_unit, '()' )
+            call print_usage( error_unit, program_name, filename_description )
+            stop 2
+        end select
+
       end if
     end do
 
     deallocate( program_name )
 
-    if(present(component_name))then
-      if(allocated(oname))allocate(component_name,source=oname)
+    if (present(component_name)) then
+      if (allocated(oname)) allocate(component_name,source=oname)
     end if
 
     ! Check if the provided filename exists

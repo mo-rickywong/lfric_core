@@ -1,0 +1,215 @@
+!-----------------------------------------------------------------------------
+! (C) Crown copyright 2022 Met Office. All rights reserved.
+! The file LICENCE, distributed with this code, contains details of the terms
+! under which the code may be used.
+!-----------------------------------------------------------------------------
+!
+!> @brief Provides finite element constants for use in the JediBones.
+!>
+!> @details This module controls the set-up of finite element objects that
+!>          do not change during a run, such as mass matrices and differential
+!>          operators. These objects are  accessed from this module through
+!>          appropriate 'get' functions.
+!-------------------------------------------------------------------------------
+
+module JediBones_constants_mod
+
+  ! Infrastructure
+  use constants_mod,                      only: str_def, i_def, l_def
+  use driver_modeldb_mod,                 only: modeldb_type
+  use field_mod,                          only: field_type
+  use fs_continuity_mod,                  only: W0, W1, W2, W2broken, &
+                                                W2H, W2V, W3, Wtheta
+  use function_space_collection_mod,      only: function_space_collection
+  use function_space_mod,                 only: function_space_type
+  use inventory_by_mesh_mod,              only: inventory_by_mesh_type
+  use log_mod,                            only: log_event, LOG_LEVEL_INFO, &
+                                                LOG_LEVEL_ERROR
+  use mesh_mod,                           only: mesh_type
+  use operator_mod,                       only: operator_type
+  use quadrature_xyoz_mod,                only: quadrature_xyoz_type
+  use quadrature_rule_gaussian_mod,       only: quadrature_rule_gaussian_type
+  use timing_mod,                         only: start_timing, stop_timing, &
+                                                tik, LPROF
+
+  ! Kernels
+  use sci_compute_derham_matrices_kernel_mod, only: compute_derham_matrices_kernel_type
+
+  implicit none
+
+  private
+
+  ! Variables private to this module that can only be accessed by public
+  ! functions returning pointers to them
+
+  ! Mass matrices
+  type(inventory_by_mesh_type) :: mm_w0_inventory
+  type(inventory_by_mesh_type) :: mm_w1_inventory
+  type(inventory_by_mesh_type) :: mm_w2_inventory
+  type(inventory_by_mesh_type) :: mm_w2b_inventory
+  type(inventory_by_mesh_type) :: mm_w3_inventory
+  type(inventory_by_mesh_type) :: mm_wtheta_inventory
+
+  ! Differential operators
+  type(inventory_by_mesh_type) :: div_inventory
+  type(inventory_by_mesh_type) :: grad_inventory
+  type(inventory_by_mesh_type) :: curl_inventory
+  type(inventory_by_mesh_type) :: broken_div_inventory
+
+  ! Quadrature objects
+  type(quadrature_xyoz_type), target  :: qr
+  type(quadrature_rule_gaussian_type) :: quadrature_rule
+
+  ! Public functions to create and access the module contents
+
+  public :: create_JediBones_constants
+  public :: final_JediBones_constants
+  public :: get_div
+
+contains
+
+  !> @brief Subroutine to create the finite element constants
+  !> @param[in] modeldb   Application state object
+  !> @param[in] mesh      The prime model mesh
+  !> @param[in] chi       Coordinate fields
+  !> @param[in] panel_id  Panel_id field
+  subroutine create_JediBones_constants( modeldb, mesh, &
+                                        chi, panel_id )
+    implicit none
+
+    ! Arguments
+    type(modeldb_type), intent(in) :: modeldb
+
+    type(mesh_type),  pointer, intent(in) :: mesh
+    type(field_type),  target, intent(in) :: chi(:)
+    type(field_type),  target, intent(in) :: panel_id
+
+    type(operator_type), pointer :: mm_w0
+    type(operator_type), pointer :: mm_w1
+    type(operator_type), pointer :: mm_w2
+    type(operator_type), pointer :: mm_w2b
+    type(operator_type), pointer :: mm_w3
+    type(operator_type), pointer :: mm_wtheta
+
+    ! Differential operators
+    type(operator_type), pointer :: div
+    type(operator_type), pointer :: grad
+    type(operator_type), pointer :: curl
+    type(operator_type), pointer :: broken_div
+
+    ! Internal variables
+    type(function_space_type), pointer :: w0_fs
+    type(function_space_type), pointer :: w1_fs
+    type(function_space_type), pointer :: w2_fs
+    type(function_space_type), pointer :: w2b_fs
+    type(function_space_type), pointer :: w2h_fs
+    type(function_space_type), pointer :: w2v_fs
+    type(function_space_type), pointer :: w3_fs
+    type(function_space_type), pointer :: wtheta_fs
+
+    integer(i_def) :: order_h, order_v
+    integer(i_def) :: nqp_h_exact, nqp_v_exact
+
+    integer(tik) :: id
+
+    if ( LPROF ) call start_timing( id, 'JediBones_constants_alg' )
+
+    call log_event( "JediBones: creating runtime constants", LOG_LEVEL_INFO )
+
+    order_h     = modeldb%config%finite_element%element_order_h()
+    order_v     = modeldb%config%finite_element%element_order_v()
+    nqp_h_exact = modeldb%config%finite_element%nqp_h_exact()
+    nqp_v_exact = modeldb%config%finite_element%nqp_v_exact()
+
+    !=========== Create function spaces required for setup ==================!
+
+    w0_fs  => function_space_collection%get_fs( mesh, order_h, order_v, W0 )
+    w1_fs  => function_space_collection%get_fs( mesh, order_h, order_v, W1 )
+    w2_fs  => function_space_collection%get_fs( mesh, order_h, order_v, W2 )
+    w2v_fs => function_space_collection%get_fs( mesh, order_h, order_v, W2V )
+    w2h_fs => function_space_collection%get_fs( mesh, order_h, order_v, W2H )
+    w3_fs  => function_space_collection%get_fs( mesh, order_h, order_v, W3 )
+
+    w2b_fs    => function_space_collection%get_fs( mesh, order_h, order_v, &
+                                                   W2broken )
+    wtheta_fs => function_space_collection%get_fs( mesh, order_h, order_v, &
+                                                   Wtheta )
+
+    !======================== Create quadrature object ========================!
+
+    qr = quadrature_xyoz_type( nqp_h_exact, nqp_h_exact, nqp_v_exact, &
+                               quadrature_rule )
+
+    !======================== Initialise inventories ==========================!
+
+    call mm_w0_inventory%initialise(name="mm_w0", table_len=5)
+    call mm_w1_inventory%initialise(name="mm_w1", table_len=5)
+    call mm_w2_inventory%initialise(name="mm_w2", table_len=5)
+    call mm_w2b_inventory%initialise(name="mm_w2b", table_len=5)
+    call mm_w3_inventory%initialise(name="mm_w3", table_len=5)
+    call mm_wtheta_inventory%initialise(name="mm_wtheta", table_len=5)
+    call div_inventory%initialise(name="div", table_len=5)
+    call grad_inventory%initialise(name="grad", table_len=5)
+    call curl_inventory%initialise(name="curl", table_len=5)
+    call broken_div_inventory%initialise(name="broken_div", table_len=5)
+
+    !=================== Create de Rham cochain operators ===================!
+
+    ! Set up all mass matrices and operators
+    call mm_w0_inventory%add_operator( mm_w0, w0_fs, w0_fs, mesh )
+    call mm_w1_inventory%add_operator( mm_w1, w1_fs, w1_fs, mesh )
+    call mm_w2_inventory%add_operator( mm_w2, w2_fs, w2_fs, mesh )
+    call mm_w2b_inventory%add_operator( mm_w2b, w2b_fs, w2b_fs, mesh )
+    call mm_w3_inventory%add_operator( mm_w3, w3_fs, w3_fs, mesh )
+    call mm_wtheta_inventory%add_operator( mm_wtheta, wtheta_fs, wtheta_fs, mesh )
+    call div_inventory%add_operator( div, w3_fs, w2_fs, mesh )
+    call grad_inventory%add_operator( grad, w1_fs, w0_fs, mesh )
+    call curl_inventory%add_operator( curl, w2_fs, w1_fs, mesh )
+    call broken_div_inventory%add_operator( broken_div, w3_fs, w2b_fs, mesh )
+
+    call invoke( name = "create_de_rham_matrices",                      &
+                 compute_derham_matrices_kernel_type(mm_w0, mm_w1,      &
+                                                     mm_w2, mm_w2b,     &
+                                                     mm_w3, mm_wtheta,  &
+                                                     grad, curl,        &
+                                                     div, broken_div,   &
+                                                     chi, panel_id, qr) )
+
+    !===================== Add operators to inventories =======================!
+
+    nullify( wtheta_fs, w3_fs, w2v_fs, w2h_fs, w2b_fs, w2_fs, w1_fs, w0_fs,  &
+             mm_w0, mm_w1, mm_w2, mm_w2b, mm_w3, mm_wtheta, grad, curl, div, &
+             broken_div )
+
+    if ( LPROF ) call stop_timing( id, 'JediBones_constants_alg' )
+    call log_event( "JediBones: created FEM constants", LOG_LEVEL_INFO )
+
+  end subroutine create_JediBones_constants
+
+  !> @brief Returns a pointer to the div operator
+  !> @return The div operator
+  function get_div(mesh) result(div_op)
+    implicit none
+    type(mesh_type),       intent(in) :: mesh
+    type(operator_type),   pointer    :: div_op
+
+    call div_inventory%get_operator(mesh, div_op)
+
+    if (.not. div_op%is_initialised()) then
+      call log_event("Divergence operator not initialised", LOG_LEVEL_ERROR)
+    end if
+
+  end function get_div
+
+  !> @brief Explicitly reclaim memory from module scope variables
+  !
+  subroutine final_JediBones_constants()
+
+    implicit none
+
+    ! Quadrature
+    call qr%quadrature_final()
+
+  end subroutine final_JediBones_constants
+
+end module JediBones_constants_mod
