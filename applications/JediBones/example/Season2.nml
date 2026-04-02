@@ -64,13 +64,13 @@ coord_system='native'
   scaling_factor=125.0,
 /
 
-&master
-name='Curly'
-age=27
-height=2.4
-street_cred=1
-ownseries=.true.
-/
+!&master
+!name='Curly'
+!age=27
+!height=2.4
+!street_cred=1
+!ownseries=.true.
+!/
 
 &sith
 name='Beasty'
@@ -81,10 +81,10 @@ ownseries=.true.
 /
 
 &donkey
-name='The Donkey'
-age=2
-fuel='batteries'
-capacity=10.3
+name='bill'
+age=26
+fuel='turnips'
+capacity=20.3
 weight=4.5
 /
 

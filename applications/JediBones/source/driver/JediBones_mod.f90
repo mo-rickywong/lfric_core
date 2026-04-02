@@ -12,27 +12,23 @@ module JediBones_mod
   private
 
   character(*), public, parameter ::                   &
-      JediBones_S1_namelists(10) = [ 'base_mesh     ', &
+      JediBones_S1_namelists(8) = [ 'base_mesh     ', &
                                      'extrusion     ', &
                                      'finite_element', &
                                      'partitioning  ', &
                                      'planet        ', &
                                      'master        ', &
                                      'sith          ', &
-                                     'donkey        ', &
-                                     'pleb          ', &
                                      'weapon        ' ]
 
   character(*), public, parameter ::                   &
-      JediBones_S2_namelists(10) = [ 'base_mesh     ', &
+      JediBones_S2_namelists(8) = [ 'base_mesh     ', &
                                      'extrusion     ', &
                                      'finite_element', &
                                      'partitioning  ', &
                                      'planet        ', &
-                                     'master        ', &
                                      'sith          ', &
                                      'donkey        ', &
-                                     'pleb          ', &
                                      'weapon        ' ]
 
 
