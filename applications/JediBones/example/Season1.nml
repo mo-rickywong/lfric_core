@@ -1,0 +1,100 @@
+&base_mesh
+f_lat_deg=45.0,
+file_prefix='mesh_C24',
+fplane=.false.,
+geometry='spherical',
+prepartitioned=.false.,
+prime_mesh_name='C24',
+topology='fully_periodic',
+/
+
+&extrusion
+planet_radius=6371229.0,
+domain_height=1000.0,
+method='uniform',
+number_of_layers=1,
+/
+
+&finite_element
+cellshape='quadrilateral',
+element_order_h=0,
+element_order_v=0,
+rehabilitate=.true.,
+coord_order=1
+coord_system='native'
+/
+
+&io
+  use_xios_io           = .false.
+  write_diag            = .false.
+  diagnostic_frequency  = 1
+  subroutine_timers     = .false.
+  timer_output_path     = 'timer.txt'
+  subroutine_counters   = .false.
+  counter_output_suffix = 'counter.txt'
+  checkpoint_read       = .false.
+  checkpoint_write      = .false.
+  file_convention       = 'UGRID'
+/
+
+&logging
+  run_log_level='info'
+/
+
+&time
+  calendar = 'timestep'
+  timestep_start = '1'
+  timestep_end = '10'
+  calendar_type='gregorian'
+  calendar_start='2016-01-01 15:00:00'
+  calendar_origin='2016-01-01 15:00:00'
+/
+
+&timestepping
+  dt=1.0
+  spinup_period=0.0
+/
+
+&partitioning
+  partitioner='cubedsphere',
+  panel_decomposition = 'auto',
+/
+
+&planet
+  scaling_factor=125.0,
+/
+
+&master
+name='bob'
+age=23
+height=3.4
+street_cred=2
+ownseries=.true.
+/
+&sith
+name='bill'
+age=26
+height=53.4
+street_cred=20
+ownseries=.false.
+/
+&donkey
+name='The Rush'
+age=34
+fuel='snickers'
+capacity=2.75
+weight=6.0
+/
+&pleb
+name='redshirt'
+age=26
+race='not turnips'
+for_fodder=.false.
+/
+&weapon
+name='lemon'
+onehanded=.true.
+defensive=.false.
+strike_damage=20
+special_move='pancake pickle'
+/

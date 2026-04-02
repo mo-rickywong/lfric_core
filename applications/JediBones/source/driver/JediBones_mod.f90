@@ -17,11 +17,11 @@ module JediBones_mod
                                      'finite_element', &
                                      'partitioning  ', &
                                      'planet        ', &
-                                     'Master        ', &
-                                     'Sith          ', &
-                                     'Donkey        ', &
-                                     'Pleb          ', &
-                                     'Weapon        ' ]
+                                     'master        ', &
+                                     'sith          ', &
+                                     'donkey        ', &
+                                     'pleb          ', &
+                                     'weapon        ' ]
 
   character(*), public, parameter ::                   &
       JediBones_S2_namelists(10) = [ 'base_mesh     ', &
@@ -29,11 +29,11 @@ module JediBones_mod
                                      'finite_element', &
                                      'partitioning  ', &
                                      'planet        ', &
-                                     'Master        ', &
-                                     'Sith          ', &
-                                     'Donkey        ', &
-                                     'Pleb          ', &
-                                     'Weapon        ' ]
+                                     'master        ', &
+                                     'sith          ', &
+                                     'donkey        ', &
+                                     'pleb          ', &
+                                     'weapon        ' ]
 
 
 end module JediBones_mod
