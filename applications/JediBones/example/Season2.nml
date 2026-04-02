@@ -65,26 +65,26 @@ coord_system='native'
 /
 
 &master
-name='bob'
-age=23
-height=3.4
-street_cred=2
+name='Curly'
+age=27
+height=2.4
+street_cred=1
 ownseries=.true.
 /
 
 &sith
-name='bill'
-age=26
-height=5.4
-street_cred=20
-ownseries=.false.
+name='Beasty'
+age=230
+height=4.4
+street_cred=15
+ownseries=.true.
 /
 
 &donkey
-name='bill'
-age=26
-fuel='turnips'
-capacity=20.3
+name='The Donkey'
+age=2
+fuel='batteries'
+capacity=10.3
 weight=4.5
 /
 
