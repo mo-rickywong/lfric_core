@@ -1,0 +1,32 @@
+&mesh
+  mesh_file_prefix  = 'JediMeshyBones'
+  geometry       = 'spherical'
+  topology       = 'periodic'
+  n_meshes       = 5
+  mesh_names     = 'C896','C224','C112','C56','C28'
+  mesh_maps      = 'C224:C112', 'C112:C56', 'C56:C28'
+  partition_mesh = .true.
+  coord_sys      = 'll'
+  rotate_mesh    = .false.
+/
+
+&cubedsphere_mesh
+  edge_cells          = 896, 224, 112, 56, 28
+  equatorial_latitude = 0.0
+  smooth_passes       = 0
+/
+
+&partitions
+  panel_decomposition = 'auto'
+  panel_xproc         = 1
+  panel_yproc         = 1
+  max_stencil_depth   = 1
+  n_partitions        = 6
+  partition_range     = 0, 5
+/
+
+&rotation
+  rotation_target    = "null_island"
+  target_null_island = 0.0, 45.0
+  target_north_pole  = 0.0, 45.0
+/
