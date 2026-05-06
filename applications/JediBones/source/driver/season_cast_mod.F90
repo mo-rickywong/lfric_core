@@ -46,7 +46,7 @@ module season_cast_mod
       print*, 'Height: '//trim(log_scratch_space)
       write(log_scratch_space,'(I0)') Season1%master%street_cred()
       print*, 'Reputation: '//trim(log_scratch_space)
-      write(log_scratch_space,'(L1)') Season1%master%ownseries()
+      write(log_scratch_space,'(L1)') Season1%master%own_series()
       print*, 'Own Series: '//trim(log_scratch_space)
     end if
 
@@ -60,7 +60,7 @@ module season_cast_mod
       print*, 'Height: ', trim(log_scratch_space)
       write(log_scratch_space,'(I0)') Season1%sith%street_cred()
       print*, 'Reputation: ', trim(log_scratch_space)
-      write(log_scratch_space,'(L1)') Season1%sith%ownseries()
+      write(log_scratch_space,'(L1)') Season1%sith%own_series()
       print*, 'Own Series: ', trim(log_scratch_space)
     end if
 
@@ -113,7 +113,7 @@ module season_cast_mod
       print*, 'Height: ', trim(log_scratch_space)
       write(log_scratch_space,'(I0)') Season2%master%street_cred()
       print*, 'Reputation: ', trim(log_scratch_space)
-      write(log_scratch_space,'(L1)') Season2%master%ownseries()
+      write(log_scratch_space,'(L1)') Season2%master%own_series()
       print*, 'Own Series: ', trim(log_scratch_space)
     end if
 
@@ -127,7 +127,7 @@ module season_cast_mod
       print*, 'Height: ', trim(log_scratch_space)
       write(log_scratch_space,'(I0)') Season2%sith%street_cred()
       print*, 'Reputation: ', trim(log_scratch_space)
-      write(log_scratch_space,'(L1)') Season2%sith%ownseries()
+      write(log_scratch_space,'(L1)') Season2%sith%own_series()
       print*, 'Own Series: ', trim(adjustl(log_scratch_space))
     end if
 

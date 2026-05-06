@@ -761,6 +761,11 @@ class NamelistConfigDescription:  # pylint: disable=too-few-public-methods
                 multiple_instances_allowed = namelist_config[listname][
                     "multiple_instances_allowed"
                 ]
+
+            if (
+                "instance_key_member"
+                in namelist_config[listname].keys()
+            ):
                 instance_key_member = namelist_config[listname][
                     "instance_key_member"
                 ]

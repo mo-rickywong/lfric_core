@@ -59,7 +59,10 @@ def main():
         module_file = args.directory / leafname
         description.write_module(module_file)
 
-        if description._multiple_instances_allowed:
+#       if description._multiple_instances_allowed:
+        print('Turkey', description._instance_key_member )
+        print('Waffle', description._multiple_instances_allowed )
+        if description._instance_key_member and description._multiple_instances_allowed:
             duplicate_list.append(description._listname)
 
 

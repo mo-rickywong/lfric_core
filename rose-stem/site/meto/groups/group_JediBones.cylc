@@ -1,0 +1,98 @@
+{# ########################################################################### #}
+{# (c) Crown copyright 2024 Met Office. All rights reserved. #}
+{# The file LICENCE, distributed with this code, contains details of the terms #}
+{# under which the code may be used. #}
+{# ########################################################################### #}
+{% do LOG.debug("Entered site/meto/groups/group_JediBones.cylc") %}
+
+{# Azspice Groups #}
+{% do site_groups.update({
+    "JediBones_azspice_developer": [
+        "JediBones_azspice_canned",
+        "JediBones_default-C24_azspice_gnu_full-debug-64bit",
+        "JediBones_azspice_unit_tests",
+    ],
+    "JediBones_azspice": [
+        "JediBones_azspice_developer"
+    ],
+    "JediBones_azspice_unit_tests": [
+        "JediBones_unit_tests_azspice_gnu_64bit"
+    ],
+    "JediBones_azspice_canned": [
+        "JediBones_canned_azspice_gnu_fast-debug-64bit",
+    ],
+    "JediBones_azspice_build": [
+        "build_JediBones_azspice_gnu_fast-debug-64bit",
+        "build_JediBones_azspice_gnu_full-debug-64bit",
+    ]
+    }) %}
+
+
+{# EX1A Groups #}
+{% do site_groups.update({
+    "JediBones_ex1a_developer": [
+        "JediBones_ex1a_canned",
+        "JediBones_default-C24_ex1a_gnu_full-debug-64bit",
+        "JediBones_default-C24_ex1a_cce_full-debug-64bit",
+        "JediBones_ex1a_unit_tests",
+    ],
+    "JediBones_ex1a": [
+        "JediBones_ex1a_developer"
+    ],
+    "JediBones_ex1a_unit_tests": [
+        "JediBones_unit_tests_ex1a_gnu_64bit",
+    ],
+    "JediBones_ex1a_canned": [
+        "JediBones_canned_ex1a_gnu_fast-debug-64bit",
+    ],
+    "JediBones_ex1a_build": [
+        "build_JediBones_ex1a_gnu_fast-debug-64bit",
+        "build_JediBones_ex1a_gnu_full-debug-64bit",
+    ]
+    }) %}
+
+{# Platform Generic Groups #}
+{% do site_groups.update({
+    "JediBones_developer": [
+        "scripts",
+        "JediBones_azspice_developer",
+        "JediBones_ex1a_developer",
+    ],
+    "JediBones": [
+        "JediBones_developer",
+        "JediBones_azspice",
+        "JediBones_ex1a",
+    ],
+    "JediBones_unit_tests": [
+        "JediBones_azspice_unit_tests",
+        "JediBones_ex1a_unit_tests",
+    ],
+    "JediBones_build": [
+        "JediBones_azspice_build",
+        "JediBones_ex1a_build",
+    ],
+    "JediBones_canned": [
+        "JediBones_azspice_canned",
+        "JediBones_ex1a_canned",
+    ],
+    }) %}
+
+{# Platform Generic Extends #}
+{% do site_groups.developer.extend(site_groups.JediBones_developer) %}
+{% do site_groups.all.extend(site_groups.JediBones) %}
+{% do site_groups.unit_tests.extend(site_groups.JediBones_unit_tests) %}
+{% do site_groups.build.extend(site_groups.JediBones_build) %}
+
+{# Azspice Extends #}
+{% do site_groups.azspice_developer.extend(site_groups.JediBones_azspice_developer) %}
+{% do site_groups.azspice.extend(site_groups.JediBones_azspice) %}
+{% do site_groups.azspice_unit_tests.extend(site_groups.JediBones_azspice_unit_tests) %}
+{% do site_groups.azspice_build.extend(site_groups.JediBones_azspice_build) %}
+
+{# EX1A Extends #}
+{% do site_groups.ex1a_developer.extend(site_groups.JediBones_ex1a_developer) %}
+{% do site_groups.ex1a.extend(site_groups.JediBones_ex1a) %}
+{% do site_groups.ex1a_unit_tests.extend(site_groups.JediBones_ex1a_unit_tests) %}
+{% do site_groups.ex1a_build.extend(site_groups.JediBones_ex1a_build) %}
+
+{% do LOG.debug("Finished in site/meto/groups/group_JediBones.cylc") %}

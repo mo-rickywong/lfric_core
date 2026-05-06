@@ -28,8 +28,8 @@ else
 	                -directory $(CONFIG_DIR)        \
 	                -include_dirs $(CORE_ROOT_DIR)/rose-meta
 endif
-	# It's not clear why this is needed but as of 5/2/20 the diagnostic
-	# application test suite fails without it.
+        # It's not clear why this is needed but as of 5/2/20 the diagnostic
+        # application test suite fails without it.
 	$(Q)sleep 20
 
 .INTERMEDIATE: $(CONFIG_DIR)/build_config_loaders

@@ -90,14 +90,14 @@ class cli_mod_too_many_test(Test):
 
     def __init__(self):
         super().__init__(
-            [sys.argv[1], "resources/cli_test.nml", "2"]
+            [sys.argv[1], "resources/cli_test.nml", "resources/cli_test.nml", "3"]
         )
 
     def test(self, returncode, out, err):
         if returncode == 0:
-            raise TestFailed("Unexpected success with 2 arguments")
+            raise TestFailed("Unexpected success with 3 arguments")
 
-        return "Command line with 2 arguments returned with error"
+        return "Command line with 3 arguments returned with error"
 
 
 ##############################################################################

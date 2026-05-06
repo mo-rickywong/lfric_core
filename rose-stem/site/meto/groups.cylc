@@ -68,5 +68,6 @@
 {% include "site/meto/groups/group_skeleton.cylc" %}
 {% include "site/meto/groups/group_simple_diffusion.cylc" %}
 {% include "site/meto/groups/group_lbc_demo.cylc" %}
+{% include "site/meto/groups/group_JediBones.cylc" %}
 
 {% do LOG.debug("Finished in site/meto/groups.cylc") %}

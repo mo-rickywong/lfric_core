@@ -69,14 +69,14 @@ name='bob'
 age=23
 height=3.4
 street_cred=2
-ownseries=.true.
+own_series=.true.
 /
 &sith
 name='bill'
 age=26
 height=3.4
 street_cred=20
-ownseries=.false.
+own_series=.false.
 /
 &donkey
 name='The Rush'

@@ -9,37 +9,34 @@
 !>
 module JediBones_driver_mod
 
-  use add_mesh_map_mod,           only : assign_mesh_maps
-  use sci_checksum_alg_mod,       only : checksum_alg
-  use constants_mod,              only : i_def, str_def, &
-                                         r_def, r_second
-  use convert_to_upper_mod,       only : convert_to_upper
-  use config_mod,                 only : config_type
-  use create_mesh_mod,            only : create_extrusion, create_mesh
-  use driver_mesh_mod,            only : init_mesh
-  use driver_modeldb_mod,         only : modeldb_type
-  use driver_fem_mod,             only : init_fem, final_fem
-  use extrusion_mod,              only : extrusion_type,         &
-                                         uniform_extrusion_type, &
-                                         PRIME_EXTRUSION, TWOD
-  use field_collection_mod,       only : field_collection_type
-  use field_mod,                  only : field_type
-  use init_JediBones_mod,          only : init_JediBones
-  use inventory_by_mesh_mod,      only : inventory_by_mesh_type
-  use lfric_mpi_mod,              only : lfric_mpi_type
-  use log_mod,                    only : log_event, log_scratch_space, &
-                                         LOG_LEVEL_ALWAYS,             &
-                                         LOG_LEVEL_ERROR,              &
-                                         LOG_LEVEL_INFO
-  use mesh_mod,                   only : mesh_type
-  use mesh_collection_mod,        only : mesh_collection
-  use JediBones_alg_mod,           only : JediBones_alg
+  use add_mesh_map_mod,      only: assign_mesh_maps
+  use constants_mod,         only: i_def, str_def, r_def, r_second
+  use config_mod,            only: config_type
+  use create_mesh_mod,       only: create_extrusion, create_mesh
+  use driver_mesh_mod,       only: init_mesh
+  use driver_modeldb_mod,    only: modeldb_type
+  use driver_fem_mod,        only: init_fem, final_fem
+  use extrusion_mod,         only: extrusion_type,         &
+                                   uniform_extrusion_type, &
+                                   prime_extrusion, twod
+  use field_collection_mod,  only: field_collection_type
+  use field_mod,             only: field_type
+  use init_JediBones_mod,    only: init_JediBones
+  use inventory_by_mesh_mod, only: inventory_by_mesh_type
+  use lfric_mpi_mod,         only: lfric_mpi_type
+  use log_mod,               only: log_event, log_scratch_space, &
+                                   log_level_always,             &
+                                   log_level_error,              &
+                                   log_level_info
+  use mesh_mod,              only: mesh_type
+  use mesh_collection_mod,   only: mesh_collection
+  use JediBones_alg_mod,     only: JediBones_alg
 
   !------------------------------------
   ! Configuration modules
   !------------------------------------
-  use base_mesh_config_mod, only: GEOMETRY_SPHERICAL, &
-                                  GEOMETRY_PLANAR
+  use base_mesh_config_mod, only: geometry_spherical, &
+                                  geometry_planar
 
   implicit none
 
@@ -123,18 +120,18 @@ contains
       domain_bottom = scaled_radius
     case default
       call log_event("Invalid geometry for mesh initialisation", &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
     end select
 
     allocate( extrusion, source=create_extrusion( method,           &
                                                   domain_height,    &
                                                   domain_bottom,    &
                                                   number_of_layers, &
-                                                  PRIME_EXTRUSION ) )
+                                                  prime_extrusion ) )
 
     extrusion_2d = uniform_extrusion_type( domain_bottom, &
                                            domain_bottom, &
-                                           one_layer, TWOD )
+                                           one_layer, twod )
 
     !-----------------------------------------------------------------------
     ! Create the required meshes
@@ -196,9 +193,6 @@ contains
     ! Call an algorithm
     call JediBones_alg(modeldb, field_1)
 
-    ! Write out output file
-    call log_event(program_name//": Writing diagnostic output", LOG_LEVEL_INFO)
-
   end subroutine step
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -212,20 +206,10 @@ contains
     character(*),       intent(in)    :: program_name
     type(modeldb_type), intent(inout) :: modeldb
 
-    type( field_collection_type ), pointer :: depository
-    type( field_type ),            pointer :: field_1
-
-    depository => modeldb%fields%get_field_collection("depository")
-    call depository%get_field("field_1", field_1)
-
     !--------------------------------------------------------------------------
     ! Model finalise
     !--------------------------------------------------------------------------
-
-    ! Write checksums to file
-    call checksum_alg(program_name, field_1, 'JediBones_field_1')
-
-    call log_event( program_name//': Miniapp completed', LOG_LEVEL_INFO )
+    call log_event( program_name//': miniapp completed', log_level_info )
 
     !-------------------------------------------------------------------------
     ! Driver layer finalise

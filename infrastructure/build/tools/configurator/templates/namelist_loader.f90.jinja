@@ -67,7 +67,7 @@ module {{listname}}_config_mod
   character(*), parameter :: listname = '{{listname}}'
   character(str_def) :: profile_name = cmdi
 
-{%- if multiple_instances_allowed %}{{ '\n' }}
+{%- if instance_key_member and multiple_instances_allowed %}{{ '\n' }}
   logical, parameter :: multiples_allowed = .true.
 {%- else %}{{ '\n' }}
   logical, parameter :: multiples_allowed = .false.
@@ -353,7 +353,7 @@ contains
 {{-   ', 0 )' }}
 {%- endfor %}
 
-{%- if multiple_instances_allowed %}{{ '\n' }}
+{%- if instance_key_member and multiple_instances_allowed %}{{ '\n' }}
     profile_name = {{instance_key_member}}
 {%- endif %}
 
