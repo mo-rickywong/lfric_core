@@ -66,13 +66,13 @@ coord_system='native'
   scaling_factor=125.0,
 /
 
-!&master
-!name='Curly'
-!age=27
-!height=2.4
-!street_cred=1
-!own_series=.true.
-!/
+&master
+name='Curly'
+age=27
+height=2.4
+street_cred=1
+own_series=.true.
+/
 
 &sith
 name='Beasty'
