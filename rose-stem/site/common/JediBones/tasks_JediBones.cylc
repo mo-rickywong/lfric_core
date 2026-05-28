@@ -12,6 +12,7 @@
         "resolution": "C24",
         "configuration_file": "Season1.nml Season2.nml",
         "kgo_checks": [],
+	"log_level": "info",
     }) %}
 
 {% elif task_ns.conf_name == "unit_tests" %}
