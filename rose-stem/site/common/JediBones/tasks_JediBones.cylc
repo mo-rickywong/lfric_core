@@ -8,31 +8,31 @@
 {% if task_ns.conf_name == "default-C24" %}
 
     {% do task_dict.update({
-        "opt_confs": ["default"],
-        "resolution": "C24",
-        "configuration_file": "Season1.nml Season2.nml",
-        "kgo_checks": [],
+	"opt_confs": ["default"],
+	"resolution": "C24",
+	"configuration_file": "Season1.nml Season2.nml",
+	"kgo_checks": [],
 	"log_level": "info",
     }) %}
 
 {% elif task_ns.conf_name == "unit_tests" %}
 
     {% do task_dict.update({
-        "placeholder": true,
+	"placeholder": true,
     }) %}
 
 {% elif task_ns.conf_name == "canned" %}
 
     {% do task_dict.update({
-        "app_name": "canned_test",
-        "configuration_file": "Season1.nml Season2.nml",
-        "kgo_checks": [],
+	"app_name": "canned_test",
+	"configuration_file": "Season1.nml Season2.nml",
+	"kgo_checks": [],
     }) %}
 
 {% elif task.startswith("build") %}
 
     {% do task_dict.update({
-        "placeholder": true,
+	"placeholder": true,
     }) %}
 
 {% endif %}
@@ -41,10 +41,10 @@
 {% if task_dict %}
     {% do task_dict.update({"application_dir": "lfric_core/applications/JediBones"}) %}
     {% if "app_name" not in task_dict %}
-        {% do task_dict.update({"app_name": "JediBones"}) %}
+	{% do task_dict.update({"app_name": "JediBones"}) %}
     {% endif %}
     {% if "kgo_checks" not in task_dict %}
-        {% do task_dict.update({"kgo_checks": ["checksum"]}) %}
+	{% do task_dict.update({"kgo_checks": ["checksum"]}) %}
     {% endif %}
 {% endif %}
 
