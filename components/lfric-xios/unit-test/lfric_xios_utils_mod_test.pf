@@ -89,6 +89,7 @@ module lfric_xios_utils_mod_test
 
       class(utils_test_type), intent(inout) :: this
 
+      character(*), parameter :: utc_input = "2026-08-24T10:32:47Z"
       character(19)   :: simple_input
       character(21)   :: long_input
       type(xios_date) :: output
@@ -98,6 +99,15 @@ module lfric_xios_utils_mod_test
       output = parse_date_as_xios( simple_input )
       @assertEqual( output%year  , 2022 )
       @assertEqual( output%month , 3    )
+      @assertEqual( output%day   , 24   )
+      @assertEqual( output%hour  , 10   )
+      @assertEqual( output%minute, 32   )
+      @assertEqual( output%second, 47   )
+
+      ! UTC case
+      output = parse_date_as_xios( utc_input )
+      @assertEqual( output%year  , 2026 )
+      @assertEqual( output%month , 8    )
       @assertEqual( output%day   , 24   )
       @assertEqual( output%hour  , 10   )
       @assertEqual( output%minute, 32   )
