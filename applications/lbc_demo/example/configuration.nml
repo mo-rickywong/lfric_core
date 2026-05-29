@@ -63,8 +63,8 @@ scaling_factor=125.0,
 
 &time
 calendar='timestep'
-calendar_origin='2016-01-01 15:00:00'
-calendar_start='2016-01-01 15:00:00'
+calendar_origin='2016-01-01T15:00:00Z'
+calendar_start='2016-01-01T15:00:00Z'
 calendar_type='gregorian'
 timestep_end='2'
 timestep_start='1'

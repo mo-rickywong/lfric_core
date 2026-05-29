@@ -25,8 +25,8 @@ module lfric_xios_utils_mod
                                       xios_date_convert_to_seconds,    &
                                       operator(<), operator(+)
 
-
   implicit none
+
   private
   public :: parse_date_as_xios, seconds_from_date, &
             set_prime_io_mesh, prime_io_mesh_is,   &
@@ -34,32 +34,100 @@ module lfric_xios_utils_mod
 
   integer(i_def), private, allocatable :: prime_io_mesh_ids(:)
 
-  contains
+contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !> Interpret a string as an XIOS date object.
-  !> Expected format is yyyy-mm-dd hh:mm:ss
-  !>
+  !> @brief Interpret a string as an XIOS date object.
+  !> @description Reccomended to use ISO 8601 Meteorological Format,
+  !>              yyyy-mm-ddThh:mm:ssZ
   !> @param [in] date_str The string representation of the date
   !> @result     date_obj The xios_date object represented by the input string
   !>
   function parse_date_as_xios( date_str ) result( date_obj )
+
     implicit none
+
     character(*), intent(in) :: date_str
     type(xios_date)          :: date_obj
-    integer(i_def)           :: y, mo, d, h, mi, s, size
 
-    size = len(date_str)
+    integer(i_def) :: year, month, day
+    integer(i_def) :: hours, minutes, seconds
+    integer(i_def) :: offset_hrs, offset_mins, offset_sign
 
-    ! Indexing from end to support arbitrarily long year
-    read( date_str(1      :size-15), * ) y
-    read( date_str(size-13:size-12), * ) mo
-    read( date_str(size-10:size-9 ), * ) d
-    read( date_str(size-7 :size-6 ), * ) h
-    read( date_str(size-4 :size-3 ), * ) mi
-    read( date_str(size-1 :size   ), * ) s
+    integer(i_def) :: date_index
+    integer(i_def) :: time_index
 
-    date_obj = xios_date( y, mo, d, h, mi, s )
+    character(str_def) :: str_date
+    character(str_def) :: str_time
+    character(str_def) :: str_zone
+
+    logical ::  time_zone_out_of_range
+
+    date_index   = index(date_str,'-')
+    time_index   = index(date_str,':')
+
+    str_date = trim(adjustl(date_str(:date_index+5)))
+    str_time = trim(adjustl(date_str(time_index-2:time_index+5)))
+    str_zone = trim(adjustl(date_str(time_index:)))
+
+    if (scan(str_zone,"+-") == 0) then
+      str_zone = 'Z'
+    else
+      str_zone = trim(adjustl(date_str(time_index+6:)))
+    end if
+
+    ! Read the date
+    date_index = index(str_date,'-')
+    read(str_date(           1:date_index-1),*) year
+    read(str_date(date_index+1:date_index+2),*) month
+    read(str_date(date_index+4:date_index+5),*) day
+
+    ! Read the time
+    read(str_time(1:2),*) hours
+    read(str_time(4:5),*) minutes
+    read(str_time(7:8),*) seconds
+
+    ! Read the time-zone
+    if (scan(str_zone,'Z') == 0) then
+      ! Time zone is non-Z format
+      read(str_zone(2:3),*) offset_hrs
+      read(str_zone(5:6),*) offset_mins
+      if (index(str_zone,'-') == 0) then
+        offset_sign = 1
+      else
+        offset_sign = -1
+      end if
+    else
+      ! Time zone is UTC format
+      offset_hrs  = 0
+      offset_mins = 0
+      offset_sign = 1
+    end if
+
+    ! Range check on time zone
+    time_zone_out_of_range = .false.
+    if (offset_mins > 0) then
+
+      select case (offset_hrs*offset_sign)
+      case(14:,:-12)
+        time_zone_out_of_range = .true.
+      end select
+
+    else if (offset_mins == 0) then
+
+      select case (offset_hrs*offset_sign)
+      case(15:,:-13)
+        time_zone_out_of_range = .true.
+      end select
+
+    end if
+
+    if (time_zone_out_of_range) then
+      call log_event('Time-zone out-of-range (-12:00 to 14:00)', &
+                     log_level_error)
+    end if
+
+    date_obj = xios_date( year, month, day, hours, minutes, seconds )
 
   end function parse_date_as_xios
 
