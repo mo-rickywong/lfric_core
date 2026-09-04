@@ -34,7 +34,9 @@ private
 type, public, extends(kernel_type) :: convert_hdiv_field_kernel_type
   private
   type(arg_type) :: meta_args(8) = (/                                     &
-       arg_type(GH_FIELD*3, GH_REAL, GH_INC,  ANY_SPACE_1),               & ! physical_field1, physical_field2, physical_field3
+       arg_type(GH_FIELD*3, GH_REAL, GH_INC,  ANY_SPACE_1),               & ! physical_field1,
+                                                                            ! physical_field2,
+                                                                            ! physical_field3
        arg_type(GH_FIELD,   GH_REAL, GH_READ, ANY_SPACE_2),               & ! computational_field
        arg_type(GH_FIELD*3, GH_REAL, GH_READ, ANY_SPACE_9),               & ! chi1, chi2, chi3
        arg_type(GH_FIELD,   GH_REAL, GH_READ, ANY_DISCONTINUOUS_SPACE_3), & ! panel_id
