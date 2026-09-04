@@ -25,7 +25,7 @@ module io_demo_checkpoint_mod
                                     LOG_LEVEL_DEBUG, LOG_LEVEL_ERROR
   use mesh_mod,               only: mesh_type
 
-  use sci_mesh_enums_mod, only: get_mesh_enums
+  use sci_mesh_enums_mod, only: get_mesh_geometry, get_mesh_topology
 
   implicit none
 
@@ -69,8 +69,8 @@ contains
 
     mesh => chi(1)%get_mesh()
 
-    call get_mesh_enums(mesh, geometry, topology)
-
+    geometry = get_mesh_geometry(mesh)
+    topology = get_mesh_topology(mesh)
     coord_system  = modeldb%config%finite_element%coord_system()
     scaled_radius = modeldb%config%planet%scaled_radius()
 

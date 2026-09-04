@@ -48,8 +48,8 @@ module sci_fem_constants_mod
   use dg_inc_matrix_vector_kernel_mod,    only: dg_inc_matrix_vector_kernel_type
   use sci_multiplicity_kernel_mod,        only: multiplicity_kernel_type
 
-  use sci_mesh_enums_mod, only: get_mesh_enums, &
-                                topology_fully_periodic
+  use sci_mesh_enums_mod, only: get_mesh_topology, &
+                                topology_periodic
 
   implicit none
 
@@ -235,7 +235,7 @@ contains
     integer(i_def) :: topology
 
     mesh => mesh_collection%get_mesh(mesh_id)
-    call get_mesh_enums(mesh, topology=topology)
+    topology = get_mesh_topology(mesh)
 
     ! If running at lowest order, use finite volume
     if (element_order_h == 0 .and. element_order_v == 0) then
@@ -305,7 +305,7 @@ contains
       end select
       ! Lump W2 mass matrix along the edge of the domain to avoid boundary
       ! errors propagating into the domain with each iteration
-      if ( (space == W2 .or. space == W2h) .and. topology /= topology_fully_periodic ) then
+      if ( (space == W2 .or. space == W2h) .and. topology /= topology_periodic ) then
         call dummy_field%initialise( fs, halo_depth=2 )
         call invoke( edge_lump_w2_mass_matrix_kernel_type(mm_op,        &
                                                           dummy_field,  &
@@ -356,7 +356,7 @@ contains
     integer(i_def) :: topology
 
     mesh => mesh_collection%get_mesh(mesh_id)
-    call get_mesh_enums(mesh, topology=topology)
+    topology = get_mesh_topology(mesh)
 
     ! Point to appropriate inventory for this space
     select case (space)
@@ -419,7 +419,7 @@ contains
       end select
       ! Lump W2 mass matrix along the edge of the domain to avoid boundary
       ! errors propagating into the domain with each iteration
-      if ( (space == W2 .or. space == W2h) .and. topology /= topology_fully_periodic ) then
+      if ( (space == W2 .or. space == W2h) .and. topology /= topology_periodic ) then
         call dummy_field%initialise( fs, halo_depth=2 )
         call invoke( edge_lump_w2_mass_matrix_kernel_type(mm_op,        &
                                                           dummy_field,  &

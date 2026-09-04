@@ -25,7 +25,7 @@ module sci_coordinate_jacobian_mod
                                        get_to_rotate,            &
                                        get_stretch_factor
   use sci_mesh_enums_mod,        only: geometry_planar, &
-                                       topology_fully_periodic
+                                       topology_periodic
 
   ! Configuration modules
   use finite_element_config_mod, only: coord_system_xyz, &
@@ -209,7 +209,7 @@ contains
       ! Using (X,Y,Z) coordinates or on a plane
       jac = jac_ref2sph
 
-    else if (topology == topology_fully_periodic) then
+    else if (topology == topology_periodic) then
       ! Native coordinates for a cubed-sphere mesh
       to_rotate = get_to_rotate()
       to_stretch = get_to_stretch()
@@ -372,7 +372,7 @@ contains
       ! Using (X,Y,Z) coordinates or on a plane
       jac = jac_ref2sph
 
-    else if (topology == topology_fully_periodic) then
+    else if (topology == topology_periodic) then
       ! Native coordinates for a cubed-sphere mesh
       to_rotate = get_to_rotate()
       to_stretch = get_to_stretch()
@@ -549,7 +549,7 @@ contains
       ! Using (X,Y,Z) coordinates or on a plane
       jac = jac_ref2sph
 
-    else if (topology == topology_fully_periodic) then
+    else if (topology == topology_periodic) then
       ! Native coordinates for a cubed-sphere mesh
       to_rotate = get_to_rotate()
       to_stretch = get_to_stretch()
@@ -690,7 +690,7 @@ contains
       ! Using (X,Y,Z) coordinates or on a plane
       jac = jac_ref2sph
 
-    else if (topology == topology_fully_periodic) then
+    else if (topology == topology_periodic) then
       ! Native coordinates for a cubed-sphere mesh
       to_rotate = get_to_rotate()
       to_stretch = get_to_stretch()
@@ -981,7 +981,7 @@ contains
       ! Using (X,Y,Z) coordinates or on a plane
       jac = jac_ref2sph
 
-    else if (topology == topology_fully_periodic) then
+    else if (topology == topology_periodic) then
       ! Native coordinates for a cubed-sphere mesh
       alpha  = 0.0_real32
       beta   = 0.0_real32
@@ -1100,7 +1100,7 @@ contains
       ! Using (X,Y,Z) coordinates or on a plane
       jac = jac_ref2sph
 
-    else if (topology == topology_fully_periodic) then
+    else if (topology == topology_periodic) then
       ! Native coordinates for a cubed-sphere mesh
       alpha  = 0.0_real64
       beta   = 0.0_real64

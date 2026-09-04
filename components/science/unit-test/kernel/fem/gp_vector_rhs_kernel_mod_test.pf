@@ -39,7 +39,7 @@ contains
   subroutine setUp( this )
 
     use sci_mesh_enums_mod, only : geometry_planar, &
-                                   topology_fully_periodic
+                                   topology_periodic
 
     use sci_chi_transform_mod,     only : init_chi_transforms
     use finite_element_config_mod, only : cellshape_quadrilateral, &
@@ -61,7 +61,7 @@ contains
                                  prime_mesh_name='unit_test',      &
                                  geometry=geometry_planar,         &
                                  prepartitioned=.false.,           &
-                                 topology=topology_fully_periodic, &
+                                 topology=topology_periodic,       &
                                  fplane=.false., f_lat_deg=0.0_r_def )
 
     call feign_finite_element_config(           &
@@ -74,7 +74,7 @@ contains
              element_order_v=0_i_def,           &
              rehabilitate=.true. )
 
-    call init_chi_transforms(geometry_planar, topology_fully_periodic)
+    call init_chi_transforms(geometry_planar, topology_periodic)
 
     qr = quadrature_xyoz_type(3, quadrature_rule)
 
