@@ -246,7 +246,7 @@ module mesh_mod
     procedure, public :: get_extrusion_id
     procedure, public :: geometry
     procedure, public :: topology
-
+    procedure, public :: coord_sys
     procedure, public :: get_dz
     procedure, public :: get_eta
     procedure, public :: get_vertex_cell_owner
@@ -1230,8 +1230,6 @@ contains
   end function get_extrusion_id
 
 
-
-
   !==============================================================================
   !> @brief   Returns mesh geometry enumeration
   !> @return  geometry_enumeration  Integer enumeration identifying the mesh
@@ -1264,6 +1262,22 @@ contains
     topology_enumeration = self%local_mesh%topology()
 
   end function topology
+
+
+  !> @brief     Returns mesh topology enumeration
+  !> @return    coord_sys_enumeration  Integer enumeration identifying the mesh
+  !>                                   coordinate system.
+  !>
+  function coord_sys( self ) result( coord_sys_enumeration )
+
+    implicit none
+
+    class(mesh_type), intent(in) :: self
+    integer(i_def) :: coord_sys_enumeration
+
+    coord_sys_enumeration = self%local_mesh%coord_sys()
+
+  end function coord_sys
 
 
   !> @details This functions returns an array of 3d-layer thicknesses in

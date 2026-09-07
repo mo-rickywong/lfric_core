@@ -26,11 +26,11 @@ module sci_native_jacobian_mod
                                        get_to_stretch,           &
                                        get_to_rotate,            &
                                        get_stretch_factor
+  use mesh_mod,                  only: geometry_planar, &
+                                       topology_periodic
 
   use finite_element_config_mod, only: coord_system_xyz, &
                                        coord_system_native
-  use sci_mesh_enums_mod,        only: geometry_planar, &
-                                       topology_periodic
 
   implicit none
 

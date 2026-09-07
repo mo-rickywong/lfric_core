@@ -30,45 +30,33 @@ module local_mesh_mod
                                             LOG_LEVEL_INFO, LOG_LEVEL_DEBUG
   use partition_mod,                  only: partition_type
 
-!!$  use base_mesh_config_mod, only:                                    &
-!!$          config_geometry_spherical      => geometry_spherical,      &
-!!$          config_geometry_planar         => geometry_planar,         &
-!!$          config_topology_periodic       => topology_fully_periodic, &
-!!$          config_topology_non_periodic   => topology_non_periodic
-!!$
-!!$  implicit none
-!!$
-!!$  private
-!!$
-!!$  integer(i_def), parameter, public :: geometry_spherical = config_geometry_spherical ! 101
-!!$  integer(i_def), parameter, public :: geometry_planar    = config_geometry_planar    ! 202
-!!$
-!!$  integer(i_def), parameter, public :: topology_non_periodic = config_topology_non_periodic ! 301
-!!$  integer(i_def), parameter, public :: topology_periodic     = config_topology_periodic     ! 503
-!!$  integer(i_def), parameter, public :: topology_channel      = 402
-!!$
-!!$  integer(i_def), parameter, public :: coord_sys_ll  = 601
-!!$  integer(i_def), parameter, public :: coord_sys_xyz = 702
-
+#if !defined(INFRASTRUCTURE_UNIT_TEST) && !defined(MESH_TOOLS)
+  use base_mesh_config_mod, only:                                  &
+          config_geometry_spherical    => geometry_spherical,      &
+          config_geometry_planar       => geometry_planar,         &
+          config_topology_periodic     => topology_fully_periodic, &
+          config_topology_non_periodic => topology_non_periodic
+#endif
 
   implicit none
 
   private
 
-  integer(i_def), parameter, public :: geometry_spherical = 101
-  integer(i_def), parameter, public :: geometry_planar    = 202
+#if !defined(INFRASTRUCTURE_UNIT_TEST) && !defined(MESH_TOOLS)
+  integer(i_def), parameter, public :: geometry_spherical    = config_geometry_spherical    ! 101
+  integer(i_def), parameter, public :: geometry_planar       = config_geometry_planar       ! 202
+  integer(i_def), parameter, public :: topology_non_periodic = config_topology_non_periodic ! 301
+  integer(i_def), parameter, public :: topology_periodic     = config_topology_periodic     ! 503
+#else
+  integer(i_def), parameter, public :: geometry_spherical    = 101_i_def
+  integer(i_def), parameter, public :: geometry_planar       = 202_i_def
+  integer(i_def), parameter, public :: topology_non_periodic = 301_i_def
+  integer(i_def), parameter, public :: topology_periodic     = 503_i_def
+#endif
+  integer(i_def), parameter, public :: topology_channel      = 402_i_def
 
-  integer(i_def), parameter, public :: topology_non_periodic = 301
-  integer(i_def), parameter, public :: topology_periodic     = 503
-  integer(i_def), parameter, public :: topology_channel      = 402
-
-  integer(i_def), parameter, public :: coord_sys_ll  = 601
-  integer(i_def), parameter, public :: coord_sys_xyz = 702
-
-
-
-
-
+  integer(i_def), parameter, public :: coord_sys_ll  = 601_i_def
+  integer(i_def), parameter, public :: coord_sys_xyz = 702_i_def
 
   type, extends(linked_list_data_type), public :: local_mesh_type
 
@@ -254,6 +242,7 @@ module local_mesh_mod
     procedure, public :: get_equatorial_latitude
     procedure, public :: geometry
     procedure, public :: topology
+    procedure, public :: coord_sys
     procedure, public :: get_global_domain_extents
 
     procedure, public :: is_geometry_spherical
@@ -1175,16 +1164,18 @@ contains
     integer(i_def) :: max_face_per_node ! Only needed for global meshes that
                                         ! are to be partitioned.
 
-    logical(i_def) :: periodic_xy(2) = .false.
+    logical(l_def) :: periodic_xy(2)
 
-    character(str_def)       :: geometry_str
-    character(str_def)       :: topology_str
-    character(str_def)       :: coord_sys_str
+    character(str_def) :: geometry_str
+    character(str_def) :: topology_str
+    character(str_def) :: coord_sys_str
 
     if (.not. ugrid_mesh_data%is_local()) then
       call log_event( 'Insufficient data to initialise local mesh', &
                       LOG_LEVEL_ERROR )
     end if
+
+    periodic_xy(2) = .false.
 
     local_mesh_id_counter = local_mesh_id_counter + 1
     call self%set_id( local_mesh_id_counter )
@@ -2563,6 +2554,23 @@ contains
     topology_enumeration = self%mesh_topology
 
   end function topology
+
+
+  !==============================================================================
+  !> @brief     Returns mesh topology enumeration
+  !> @return    coord_sys_enumeration  Integer enumeration identifying the mesh
+  !>                                   coordinate system.
+  !>
+  function coord_sys( self ) result( coord_sys_enumeration )
+
+    implicit none
+
+    class(local_mesh_type), intent(in) :: self
+    integer(i_def) :: coord_sys_enumeration
+
+    coord_sys_enumeration = self%mesh_coord_sys
+
+  end function coord_sys
 
   !==============================================================================
   !> @brief   Populates a <ugrid_2d_type> object with this local mesh object's

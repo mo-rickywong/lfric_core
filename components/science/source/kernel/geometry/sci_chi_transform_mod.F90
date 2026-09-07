@@ -29,7 +29,7 @@ use log_mod,                   only : log_event,               &
                                       LOG_LEVEL_DEBUG,         &
                                       LOG_LEVEL_WARNING
 use matrix_invert_mod,         only : matrix_invert_3x3
-use sci_mesh_enums_mod,        only : geometry_spherical, &
+use mesh_mod,                  only : geometry_spherical, &
                                       geometry_planar,    &
                                       topology_periodic
 

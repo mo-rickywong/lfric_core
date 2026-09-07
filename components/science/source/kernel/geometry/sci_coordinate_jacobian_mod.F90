@@ -19,13 +19,12 @@ module sci_coordinate_jacobian_mod
                                        xyz2ll,           &
                                        llr2xyz,          &
                                        schmidt_transform_lat
-
+  use mesh_mod,                  only: geometry_planar, &
+                                       topology_periodic
   use sci_chi_transform_mod,     only: get_mesh_rotation_matrix, &
                                        get_to_stretch,           &
                                        get_to_rotate,            &
                                        get_stretch_factor
-  use sci_mesh_enums_mod,        only: geometry_planar, &
-                                       topology_periodic
 
   ! Configuration modules
   use finite_element_config_mod, only: coord_system_xyz, &

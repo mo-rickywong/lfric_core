@@ -40,8 +40,6 @@ module sci_mapping_constants_mod
   use timing_mod,                        only: start_timing, stop_timing, &
                                                tik, LPROF
 
-  use sci_mesh_enums_mod, only: get_mesh_geometry, get_mesh_topology
-
   ! Object types
   use config_mod, only: config_type
 
@@ -225,8 +223,8 @@ contains
     integer(kind=i_def) :: coord_system
     real(kind=r_def)    :: scaled_radius
 
-    geometry = get_mesh_geometry(mesh)
-    topology = get_mesh_topology(mesh)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
@@ -294,8 +292,8 @@ contains
     integer(kind=i_def) :: coord_system
     real(kind=r_def)    :: scaled_radius
 
-    geometry = get_mesh_geometry(mesh)
-    topology = get_mesh_topology(mesh)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
@@ -1084,8 +1082,8 @@ contains
     integer(kind=i_def),      parameter :: xdirection = 1_i_def
     integer(tik)                        :: id
 
-    geometry = get_mesh_geometry(mesh)
-    topology = get_mesh_topology(mesh)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
@@ -1156,8 +1154,8 @@ contains
     integer(kind=i_def),      parameter :: ydirection = 2_i_def
     integer(tik)                        :: id
 
-    geometry = get_mesh_geometry(mesh)
-    topology = get_mesh_topology(mesh)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
@@ -1229,8 +1227,8 @@ contains
     integer(kind=i_def),      parameter :: zdirection = 3_i_def
     integer(tik)                        :: id
 
-    geometry = get_mesh_geometry(mesh)
-    topology = get_mesh_topology(mesh)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
@@ -1303,8 +1301,8 @@ contains
     integer(kind=i_def) :: coord_system
     real(kind=r_def)    :: scaled_radius
 
-    geometry = get_mesh_geometry(mesh)
-    topology = get_mesh_topology(mesh)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 

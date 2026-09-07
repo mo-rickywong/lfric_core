@@ -21,12 +21,9 @@ module sci_geometric_constants_mod
   use function_space_collection_mod, only: function_space_collection
   use log_mod,                       only: log_event, LOG_LEVEL_ERROR
   use mesh_collection_mod,           only: mesh_collection
+  use mesh_mod,                      only: geometry_spherical
   use timing_mod,                    only: start_timing, stop_timing, &
                                            tik, LPROF
-
-  use sci_mesh_enums_mod, only: get_mesh_topology, &
-                                get_mesh_geometry, &
-                                geometry_spherical
 
   ! Object types
   use config_mod,                  only: config_type
@@ -190,7 +187,7 @@ contains
     element_order_h = config%finite_element%element_order_h()
     element_order_v = config%finite_element%element_order_v()
 
-    topology = get_mesh_topology(mesh)
+    topology = mesh%topology()
 
     f_lat = config%base_mesh%f_lat()
     f_lon = config%idealised%f_lon()
@@ -989,7 +986,7 @@ contains
       call dA_msl_proj_inventory%initialise(name="dA_msl_proj")
     end if
 
-    geometry = get_mesh_geometry(mesh)
+    geometry = mesh%geometry()
 
     planet_radius = config%extrusion%planet_radius()
     domain_height = config%extrusion%domain_height()
@@ -1330,7 +1327,7 @@ contains
 
     real(kind=r_def) :: scaled_radius
 
-    geometry = get_mesh_geometry(mesh)
+    geometry = mesh%geometry()
 
     element_order_h = config%finite_element%element_order_h()
     element_order_v = config%finite_element%element_order_v()
@@ -1456,7 +1453,7 @@ contains
     integer(kind=i_def) :: coord_system
     real(kind=r_def)    :: scaled_radius
 
-    geometry = get_mesh_geometry(mesh)
+    geometry = mesh%geometry()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()

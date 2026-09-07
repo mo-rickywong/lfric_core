@@ -18,12 +18,10 @@ module driver_coordinates_mod
                                  schmidt_transform_xyz,            &
                                  inverse_schmidt_transform_xyz
 
-  use sci_mesh_enums_mod,  only: get_mesh_geometry,  &
-                                 get_mesh_topology,  &
-                                 geometry_planar,    &
-                                 geometry_spherical, &
-                                 topology_periodic,  &
-                                 topology_non_periodic
+  use mesh_mod,  only: geometry_planar,    &
+                       geometry_spherical, &
+                       topology_periodic,  &
+                       topology_non_periodic
 
   ! Configuration modules
   use finite_element_config_mod, only: coord_system_xyz
@@ -111,8 +109,8 @@ contains
 
     nullify( map, map_pid, dof_coords, reference_element )
 
-    geometry = get_mesh_geometry(mesh)
-    topology = get_mesh_topology(mesh)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
