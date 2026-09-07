@@ -19,7 +19,7 @@ module sci_height_discontinuous_kernel_mod
   use constants_mod,             only: r_def, i_def, l_def
   use finite_element_config_mod, only: coord_system_xyz
   use kernel_mod,                only: kernel_type
-  use sci_mesh_enums_mod,        only: geometry_spherical
+  use mesh_mod,                  only: geometry_spherical
 
   implicit none
   private

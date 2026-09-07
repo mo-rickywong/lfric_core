@@ -31,7 +31,6 @@ module skeleton_constants_mod
   use quadrature_rule_gaussian_mod,       only: quadrature_rule_gaussian_type
   use timing_mod,                         only: start_timing, stop_timing, &
                                                 tik, LPROF
-  use sci_mesh_enums_mod,                 only: get_mesh_enums
 
   ! Kernels
   use sci_compute_derham_matrices_kernel_mod, only: compute_derham_matrices_kernel_type
@@ -81,7 +80,7 @@ contains
     ! Arguments
     type(modeldb_type), intent(in) :: modeldb
 
-    type(mesh_type),  pointer, intent(in) :: mesh
+    type(mesh_type),           intent(in) :: mesh
     type(field_type),  target, intent(in) :: chi(:)
     type(field_type),  target, intent(in) :: panel_id
 
@@ -121,7 +120,8 @@ contains
 
     call log_event( "Skeleton: creating runtime constants", LOG_LEVEL_INFO )
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     order_h       = modeldb%config%finite_element%element_order_h()
     order_v       = modeldb%config%finite_element%element_order_v()

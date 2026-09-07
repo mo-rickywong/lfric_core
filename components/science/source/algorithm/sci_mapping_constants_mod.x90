@@ -20,6 +20,7 @@ module sci_mapping_constants_mod
   use extrusion_mod,                     only: PRIME_EXTRUSION, &
                                                DOUBLE_LEVEL,    &
                                                TWOD
+  use sci_fem_constants_mod,             only: get_qr_fv
   use field_mod,                         only: field_type
   use function_space_mod,                only: function_space_type
   use function_space_collection_mod,     only: function_space_collection
@@ -39,10 +40,10 @@ module sci_mapping_constants_mod
   use r_tran_field_mod,                  only: r_tran_field_type
   use timing_mod,                        only: start_timing, stop_timing, &
                                                tik, LPROF
-  use sci_fem_constants_mod,             only: get_qr_fv
-  use sci_geometric_constants_mod,       only: get_coordinates, &
-                                               get_panel_id
-  use sci_mesh_enums_mod,                only: get_mesh_enums
+
+  ! Other algorithms
+  use sci_geometric_constants_mod, only: get_coordinates, &
+                                         get_panel_id
 
   ! Kernels
   use sci_project_ws_to_w1_operator_kernel_mod, &
@@ -220,8 +221,8 @@ contains
     integer(kind=i_def) :: coord_system
     real(kind=r_def)    :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry, topology)
-
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
@@ -289,8 +290,8 @@ contains
     integer(kind=i_def) :: coord_system
     real(kind=r_def)    :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry, topology)
-
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
@@ -1089,8 +1090,8 @@ contains
     integer(kind=i_def),      parameter :: xdirection = 1_i_def
     integer(tik)                        :: id
 
-    call get_mesh_enums(mesh, geometry, topology)
-
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
@@ -1161,8 +1162,8 @@ contains
     integer(kind=i_def),      parameter :: ydirection = 2_i_def
     integer(tik)                        :: id
 
-    call get_mesh_enums(mesh, geometry, topology)
-
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
@@ -1234,8 +1235,8 @@ contains
     integer(kind=i_def),      parameter :: zdirection = 3_i_def
     integer(tik)                        :: id
 
-    call get_mesh_enums(mesh, geometry, topology)
-
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 
@@ -1308,8 +1309,8 @@ contains
     integer(kind=i_def) :: coord_system
     real(kind=r_def)    :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry, topology)
-
+    geometry = mesh%geometry()
+    topology = mesh%topology()
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
 

@@ -51,8 +51,8 @@ module driver_mesh_mod
 
   use global_mesh_collection_mod, only: global_mesh_collection
   use local_mesh_collection_mod,  only: local_mesh_collection
-  use sci_mesh_enums_mod,         only: geometry_spherical, &
-                                        topology_fully_periodic
+  use mesh_mod,                   only: geometry_spherical, &
+                                        topology_periodic
 
   ! Configuration modules
   use finite_element_config_mod, only: cellshape_quadrilateral
@@ -287,7 +287,7 @@ subroutine init_mesh( config,                  &
     generate_inner_halos = config%partitioning%generate_inner_halos()
 
     if ( geometry == geometry_spherical .and. &
-         topology == topology_fully_periodic ) then
+         topology == topology_periodic ) then
       mesh_selection = mesh_cubedsphere
       call log_event( "Setting up cubed-sphere partition mesh(es)", &
                       log_level_debug )

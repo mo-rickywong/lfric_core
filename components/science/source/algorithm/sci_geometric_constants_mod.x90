@@ -21,6 +21,7 @@ module sci_geometric_constants_mod
   use function_space_collection_mod, only: function_space_collection
   use log_mod,                       only: log_event, LOG_LEVEL_ERROR
   use mesh_collection_mod,           only: mesh_collection
+  use mesh_mod,                      only: geometry_spherical
   use timing_mod,                    only: start_timing, stop_timing, &
                                            tik, LPROF
 
@@ -33,7 +34,6 @@ module sci_geometric_constants_mod
   use inventory_by_local_mesh_mod, only: inventory_by_local_mesh_type
   use mesh_mod,                    only: mesh_type
   use local_mesh_mod,              only: local_mesh_type
-  use sci_mesh_enums_mod,          only: get_mesh_enums, geometry_spherical
 
   ! Configuration
   use finite_element_config_mod, only: coord_system_native
@@ -183,12 +183,13 @@ contains
 
     if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
 
-    call get_mesh_enums(mesh, geometry, topology)
-
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
     element_order_h = config%finite_element%element_order_h()
     element_order_v = config%finite_element%element_order_v()
+
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     f_lat = config%base_mesh%f_lat()
     f_lon = config%idealised%f_lon()
@@ -519,7 +520,8 @@ contains
     integer(i_def) :: coord_system
     real(r_def)    :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     order_h       = config%finite_element%element_order_h()
     order_v       = config%finite_element%element_order_v()
@@ -617,7 +619,8 @@ contains
     integer(i_def) :: coord_system
     real(r_def)    :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
@@ -800,7 +803,7 @@ contains
 
     implicit none
 
-    type(config_type), intent(in)          :: config
+    type(config_type), intent(in) :: config
     type(mesh_type),   intent(in) :: mesh
 
     type(field_type),          pointer :: dz_w3
@@ -990,8 +993,8 @@ contains
 
     implicit none
 
-    type(config_type), intent(in)          :: config
-    type(mesh_type),   intent(in), pointer :: mesh
+    type(config_type), intent(in) :: config
+    type(mesh_type),   intent(in) :: mesh
 
     integer(kind=i_def) :: local_mesh_id
 
@@ -1013,7 +1016,7 @@ contains
       call dA_msl_proj_inventory%initialise(name="dA_msl_proj")
     end if
 
-    call get_mesh_enums(mesh, geometry)
+    geometry = mesh%geometry()
 
     planet_radius = config%extrusion%planet_radius()
     domain_height = config%extrusion%domain_height()
@@ -1354,7 +1357,7 @@ contains
 
     real(kind=r_def) :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry)
+    geometry = mesh%geometry()
 
     element_order_h = config%finite_element%element_order_h()
     element_order_v = config%finite_element%element_order_v()
@@ -1480,7 +1483,7 @@ contains
     integer(kind=i_def) :: coord_system
     real(kind=r_def)    :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry)
+    geometry = mesh%geometry()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()

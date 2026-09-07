@@ -25,11 +25,10 @@ module driver_fem_mod
   use mesh_collection_mod,           only: mesh_collection
   use sci_chi_transform_mod,         only: init_chi_transforms, &
                                            final_chi_transforms
-  use sci_mesh_enums_mod,            only: get_mesh_enums,         &
-                                           geometry_spherical,     &
-                                           geometry_planar,        &
-                                           topology_non_periodic,  &
-                                           topology_fully_periodic
+
+  use mesh_mod, only: geometry_spherical, &
+                      geometry_planar,    &
+                      topology_non_periodic
 
   ! Object types
   use config_mod, only: config_type
@@ -122,7 +121,8 @@ contains
       mesh => mesh_collection%get_mesh(all_mesh_names(i))
       mesh_name = mesh%get_mesh_name()
 
-      call get_mesh_enums(mesh, geometry, topology)
+      geometry = mesh%geometry()
+      topology = mesh%topology()
 
       ! Initialise coordinate transformations
       call init_chi_transforms( geometry, topology, &
