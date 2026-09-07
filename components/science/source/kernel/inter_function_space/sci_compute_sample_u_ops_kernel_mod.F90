@@ -32,9 +32,10 @@ module sci_compute_sample_u_ops_kernel_mod
   use sci_chi_transform_mod,   only : chi2llr
   use sci_coordinate_jacobian_mod, only : coordinate_jacobian, &
                                           coordinate_jacobian_inverse
-  use sci_mesh_enums_mod,      only : geometry_spherical, geometry_planar
   use coord_transform_mod,     only : sphere2cart_vector
   use reference_element_mod,   only : W, S, N, E, T, B
+  use mesh_mod,                only : geometry_spherical, geometry_planar
+
 
   implicit none
 

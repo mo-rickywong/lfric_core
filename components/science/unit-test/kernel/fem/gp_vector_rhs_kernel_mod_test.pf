@@ -14,8 +14,7 @@ module gp_vector_rhs_kernel_mod_test
                                           quadrature_xyoz_proxy_type
   use quadrature_rule_gaussian_mod, only: quadrature_rule_gaussian_type
 
-  use sci_mesh_enums_mod, only: geometry_planar, &
-                                topology_fully_periodic
+  use mesh_mod, only: geometry_planar, topology_periodic
 
   implicit none
 
@@ -55,7 +54,7 @@ contains
 
     integer(i_def) :: nqp_h, nqp_v
 
-    call init_chi_transforms(geometry_planar, topology_fully_periodic)
+    call init_chi_transforms(geometry_planar, topology_periodic)
 
     qr = quadrature_xyoz_type(3, quadrature_rule)
 
@@ -111,7 +110,7 @@ contains
     integer :: df, dim, qp1, qp2
 
     integer(i_def), parameter :: geometry = geometry_planar
-    integer(i_def), parameter :: topology = topology_fully_periodic
+    integer(i_def), parameter :: topology = topology_periodic
     integer(i_def), parameter :: coord_system = coord_system_xyz
     real(r_def),    parameter :: scaled_radius = rmdi
 

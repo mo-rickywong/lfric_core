@@ -10,13 +10,13 @@ module chi_transform_mod_test
 
   use constants_mod, only : i_def, r_def, str_long, PI, rmdi
 
+  use mesh_mod, only: geometry_spherical, &
+                      topology_periodic,  &
+                      topology_non_periodic
+
   use finite_element_config_mod, only: coord_system_native, &
                                        coord_system_xyz
 
-  use sci_mesh_enums_mod,   only: geometry_spherical,      &
-                                  geometry_planar,         &
-                                  topology_fully_periodic, &
-                                  topology_non_periodic
   use funit
 
   implicit none
@@ -244,7 +244,7 @@ contains
     select case ( this%source_coord_system )
     case ( XYZ )
       this%src_coord_system = coord_system_xyz
-      this%topology = topology_fully_periodic
+      this%topology = topology_periodic
 
     case ( LLH, LLH_rot )
       this%src_coord_system = coord_system_native
@@ -252,7 +252,7 @@ contains
 
     case ( ABH, ABH_stretch_rot )
       this%src_coord_system = coord_system_native
-      this%topology = topology_fully_periodic
+      this%topology = topology_periodic
     end select
 
     this%geometry = geometry_spherical

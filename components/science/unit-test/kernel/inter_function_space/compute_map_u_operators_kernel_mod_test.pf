@@ -7,10 +7,11 @@
 module compute_map_u_operators_kernel_mod_test
 
   use constants_mod, only : i_def, pi, r_def
+
+  use mesh_mod,                  only: geometry_spherical, &
+                                       topology_non_periodic
   use finite_element_config_mod, only: coord_system_native
   use funit
-  use sci_mesh_enums_mod,        only: geometry_spherical, &
-                                       topology_non_periodic
 
   implicit none
 

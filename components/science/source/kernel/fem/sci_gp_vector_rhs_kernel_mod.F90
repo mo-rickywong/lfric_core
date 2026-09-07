@@ -23,7 +23,7 @@ module sci_gp_vector_rhs_kernel_mod
   use coord_transform_mod,       only : cart2sphere_vector
   use fs_continuity_mod,         only : W0, W2
   use kernel_mod,                only : kernel_type
-  use sci_mesh_enums_mod,        only : geometry_spherical
+  use mesh_mod,                  only : geometry_spherical
 
   implicit none
 

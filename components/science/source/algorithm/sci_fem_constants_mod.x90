@@ -26,14 +26,12 @@ module sci_fem_constants_mod
   use inventory_by_mesh_mod,              only: inventory_by_mesh_type
   use log_mod,                            only: log_event, LOG_LEVEL_ERROR
   use mesh_collection_mod,                only: mesh_collection
-  use mesh_mod,                           only: mesh_type
+  use mesh_mod,                           only: mesh_type, topology_periodic
   use operator_mod,                       only: operator_type
   use quadrature_xyoz_mod,                only: quadrature_xyoz_type
   use quadrature_rule_gaussian_mod,       only: quadrature_rule_gaussian_type
   use timing_mod,                         only: start_timing, stop_timing, &
                                                 tik, LPROF
-  use sci_mesh_enums_mod,                 only: get_mesh_enums, &
-                                                topology_fully_periodic
 
   ! Other algorithms
   use sci_geometric_constants_mod,        only: get_coordinates, &
@@ -239,7 +237,8 @@ contains
     integer(i_def) :: coord_system
     real(r_def)    :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
@@ -324,7 +323,7 @@ contains
       end select
       ! Lump W2 mass matrix along the edge of the domain to avoid boundary
       ! errors propagating into the domain with each iteration
-      if ( (space == W2 .or. space == W2h) .and. topology /= topology_fully_periodic ) then
+      if ( (space == W2 .or. space == W2h) .and. topology /= topology_periodic ) then
         call dummy_field%initialise( fs, halo_depth=2 )
         call invoke( edge_lump_w2_mass_matrix_kernel_type(mm_op,        &
                                                           dummy_field,  &
@@ -379,7 +378,8 @@ contains
     integer(i_def) :: coord_system
     real(r_def)    :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
@@ -457,7 +457,7 @@ contains
       end select
       ! Lump W2 mass matrix along the edge of the domain to avoid boundary
       ! errors propagating into the domain with each iteration
-      if ( (space == W2 .or. space == W2h) .and. topology /= topology_fully_periodic ) then
+      if ( (space == W2 .or. space == W2h) .and. topology /= topology_periodic ) then
         call dummy_field%initialise( fs, halo_depth=2 )
         call invoke( edge_lump_w2_mass_matrix_kernel_type(mm_op,        &
                                                           dummy_field,  &
@@ -955,7 +955,8 @@ contains
     integer(i_def) :: order_v
     real(r_def)    :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
@@ -1025,7 +1026,8 @@ contains
     integer(i_def) :: coord_system
     real(r_def)    :: scaled_radius
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
@@ -1088,7 +1090,8 @@ contains
     real(r_def)    :: scaled_radius
     logical(l_def) :: rehabilitate
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
@@ -1157,7 +1160,8 @@ contains
     real(r_def)    :: scaled_radius
     logical(l_def) :: rehabilitate
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
@@ -1230,7 +1234,8 @@ contains
     real(r_def)    :: scaled_radius
     logical(l_def) :: rehabilitate
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
@@ -1309,7 +1314,8 @@ contains
     real(r_def)    :: scaled_radius
     logical(l_def) :: rehabilitate
 
-    call get_mesh_enums(mesh, geometry, topology)
+    geometry = mesh%geometry()
+    topology = mesh%topology()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
