@@ -844,13 +844,15 @@ contains
   ! ========================================================================== !
 
   !> @brief Returns a pointer to the operator projection from xdot to W2
-  !> @param[in]  mesh  Mesh to get the object for
+  !> @param[in]  config  Application configuration object
+  !> @param[in]  mesh    Mesh to get the object for
   !> @return The projection operator
-  function get_project_xdot_to_w2(mesh) result(proj_op)
+  function get_project_xdot_to_w2(config, mesh) result(proj_op)
 
     implicit none
 
-    type(mesh_type), intent(in) :: mesh
+    type(config_type), intent(in) :: config
+    type(mesh_type),   intent(in) :: mesh
 
     type(operator_type),      pointer :: proj_op
     logical(kind=l_def)               :: constant_exists
@@ -862,19 +864,23 @@ contains
 
     constant_exists = project_xdot_to_w2_inventory%paired_object_exists(mesh%get_id())
 
-    if (.not. constant_exists) call create_cartesian_components_to_w2_matrices(mesh)
+    if (.not. constant_exists) then
+      call create_cartesian_components_to_w2_matrices(config, mesh)
+    end if
 
     call project_xdot_to_w2_inventory%get_operator(mesh, proj_op)
 
   end function get_project_xdot_to_w2
 
   !> @brief Returns a pointer to the operator projection from ydot to W2
-  !> @param[in] mesh_id The ID of the mesh to get the object for
+  !> @param[in]  config  Application configuration object
+  !> @param[in]  mesh    Mesh to get the object for
   !> @return The projection operator
-  function get_project_ydot_to_w2(mesh) result(proj_op)
+  function get_project_ydot_to_w2(config, mesh) result(proj_op)
 
     implicit none
 
+    type(config_type), intent(in) :: config
     type(mesh_type), intent(in) :: mesh
 
     type(operator_type),      pointer :: proj_op
@@ -887,20 +893,24 @@ contains
 
     constant_exists = project_ydot_to_w2_inventory%paired_object_exists(mesh%get_id())
 
-    if (.not. constant_exists) call create_cartesian_components_to_w2_matrices(mesh)
+    if (.not. constant_exists) then
+      call create_cartesian_components_to_w2_matrices(config, mesh)
+    end if
 
     call project_ydot_to_w2_inventory%get_operator(mesh, proj_op)
 
   end function get_project_ydot_to_w2
 
   !> @brief Returns a pointer to the operator projection from zdot to W2
-  !> @param[in]  mesh  Mesh to get the object for
+  !> @param[in]  config  Application configuration object
+  !> @param[in]  mesh    Mesh to get the object for
   !> @return The projection operator
-  function get_project_zdot_to_w2(mesh) result(proj_op)
+  function get_project_zdot_to_w2(config, mesh) result(proj_op)
 
     implicit none
 
-    type(mesh_type), intent(in) :: mesh
+    type(config_type), intent(in) :: config
+    type(mesh_type),   intent(in) :: mesh
 
     type(operator_type),        pointer :: proj_op
     logical(kind=l_def)                 :: constant_exists
@@ -912,7 +922,9 @@ contains
 
     constant_exists = project_zdot_to_w2_inventory%paired_object_exists(mesh%get_id())
 
-    if (.not. constant_exists) call create_cartesian_components_to_w2_matrices(mesh)
+    if (.not. constant_exists) then
+      call create_cartesian_components_to_w2_matrices(config, mesh)
+    end if
 
     call project_zdot_to_w2_inventory%get_operator(mesh, proj_op)
 
