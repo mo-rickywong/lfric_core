@@ -7,7 +7,7 @@
 !> @brief Extracts the horizontal dof components from a W2 wind field
 
 !> @details Extracts horizontal dof components from a 3D wind field
-!!          on W2 and places them in a W2H field
+!!          on W2 and places them in a W2h field
 !!          This kernel only works for the lowest-order elements
 
 module sci_extract_uv_kernel_mod
@@ -37,7 +37,7 @@ private
 type, public, extends(kernel_type) :: extract_uv_kernel_type
   private
   type(arg_type) :: meta_args(4) = (/                                       &
-       ! NB: This is to be used to write to a continuous W2H field, but using
+       ! NB: This is to be used to write to a continuous W2h field, but using
        ! a discontinuous data pattern, so use discontinuous metadata
        arg_type(GH_FIELD, GH_REAL,    GH_WRITE, ANY_DISCONTINUOUS_SPACE_2), &
        arg_type(GH_FIELD, GH_REAL,    GH_READ,  W2),                        &

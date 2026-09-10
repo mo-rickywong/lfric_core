@@ -11,7 +11,7 @@ module load_local_mesh_mod
   use local_mesh_mod,      only: local_mesh_type
   use log_mod,             only: log_event,         &
                                  log_scratch_space, &
-                                 LOG_LEVEL_INFO
+                                 log_level_info
   use ugrid_mesh_data_mod, only: ugrid_mesh_data_type
   use sci_query_mod,       only: is_lbc
 
@@ -94,7 +94,7 @@ subroutine load_local_mesh_single( input_mesh_file, &
 
     end if ! ugrid data object contains a mesh
 
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
 
   end if ! not already in collection
 

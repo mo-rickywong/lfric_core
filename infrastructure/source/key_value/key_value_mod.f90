@@ -27,7 +27,7 @@ module key_value_mod
   use constants_mod,        only: imdi, cmdi, str_longlong, str_def
   use linked_list_data_mod, only: linked_list_data_type
   use log_mod,              only: log_event, log_scratch_space, &
-                                  LOG_LEVEL_INFO, LOG_LEVEL_ERROR
+                                  log_level_info, log_level_error
 
   implicit none
 
@@ -341,7 +341,7 @@ subroutine key_value_initialise( self, key )
   if ( allocated(self%key) ) then
     write( log_scratch_space,'(A)' ) &
         'Type already initialised as ' // trim(self%key)
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   else
     allocate( self%key, source=trim(key) )
   end if

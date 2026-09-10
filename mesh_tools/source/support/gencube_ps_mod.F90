@@ -34,7 +34,7 @@ module gencube_ps_mod
   use coord_transform_mod,            only: ll2xyz, xyz2ll
   use global_mesh_map_collection_mod, only: global_mesh_map_collection_type
   use log_mod,                        only: log_event, log_scratch_space, &
-                                            LOG_LEVEL_ERROR, LOG_LEVEL_INFO
+                                            log_level_error, log_level_info
   use reference_element_mod,          only: W, S, E, N, SWB, SEB, NWB, NEB
   use ugrid_generator_mod,            only: ugrid_generator_type
 
@@ -47,8 +47,8 @@ module gencube_ps_mod
                                             topology_periodic
 
   use rotation_mod,                   only: rotate_mesh_coords, &
-                                            TRUE_NORTH_POLE_LL, &
-                                            TRUE_NULL_ISLAND_LL
+                                            true_north_pole_ll, &
+                                            true_null_island_ll
 
   use panel_decomposition_mod, only: panel_decomposition_type
   implicit none
@@ -65,18 +65,18 @@ module gencube_ps_mod
   integer(i_def), parameter :: SW = SWB
 
   ! For a cubesphere these panels are the 6 faces of the domain cube
-  integer(i_def), parameter :: NPANELS = 6
-  integer(i_def), parameter :: PANEL_ROTATIONS(NPANELS) = (/ 0, 0, 1, 1, -1, 0 /)
+  integer(i_def), parameter :: npanels = 6
+  integer(i_def), parameter :: panel_rotations(npanels) = (/ 0, 0, 1, 1, -1, 0 /)
 
   ! Prefix for error messages
-  character(*),       parameter :: PREFIX = "[Cubed-Sphere Mesh] "
+  character(*),       parameter :: prefix = "[Cubed-Sphere Mesh] "
 
   ! flag to print out mesh data for debugging purposes
-  logical(l_def),     parameter :: DEBUG = .false.
+  logical(l_def),     parameter :: debug = .false.
 
   ! Set to -9999 to be used for fill value so meshes
   ! are more Cf-compliant.
-  integer(i_def), parameter :: VOID_ID = -9999
+  integer(i_def), parameter :: void_id = -9999
 !-------------------------------------------------------------------------------
 
   type, extends(ugrid_generator_type), public :: gencube_ps_type
@@ -91,7 +91,7 @@ module gencube_ps_mod
     character(str_def) :: coord_units_y
     integer(i_def)     :: edge_cells
     real(r_def)        :: domain_extents(2,4) =rmdi
-    integer(i_def)     :: npanels   = NPANELS
+    integer(i_def)     :: npanels   = npanels
     real(r_def)        :: north_pole(2)
     real(r_def)        :: null_island(2)
 
@@ -227,7 +227,7 @@ contains
     if ( (equatorial_latitude <= -90.0_r_def &
           .or. equatorial_latitude >= 90.0_r_def) ) then
       call log_event( 'Invalid equatorial latitude. Must be between -90 and 90', &
-                      LOG_LEVEL_ERROR )
+                      log_level_error )
     end if
 
     self%equatorial_latitude = degrees_to_radians * equatorial_latitude
@@ -248,8 +248,8 @@ contains
   else
     ! Default value is also given in degrees so
     ! convert to radians
-    self%north_pole  = degrees_to_radians * TRUE_NORTH_POLE_LL
-    self%null_island = degrees_to_radians * TRUE_NULL_ISLAND_LL
+    self%north_pole  = degrees_to_radians * true_north_pole_ll
+    self%null_island = degrees_to_radians * true_null_island_ll
   end if
 
   ! Constructor inputs for any target mesh maps
@@ -286,7 +286,7 @@ contains
         if (remainder == 0) then
           self%target_edge_cells(i) = target_edge_cells(i)
         else
-          call log_event( trim(log_scratch_space), LOG_LEVEL_ERROR )
+          call log_event( trim(log_scratch_space), log_level_error )
         end if
 
       end do
@@ -354,13 +354,13 @@ subroutine calc_adjacency(gen_cube, cell_next)
 
   edge_cells = gen_cube%edge_cells
   cpp        = edge_cells*edge_cells
-  ncells     = cpp*NPANELS
+  ncells     = cpp*npanels
 
 
   allocate(cell_next(4, ncells), stat=astat)
   if (astat /= 0)                                               &
-      call log_event( PREFIX//"Failure to allocate cell_next.", &
-                      LOG_LEVEL_ERROR )
+      call log_event( prefix//"Failure to allocate cell_next.", &
+                      log_level_error )
 
   allocate(panel_edge_cells_west(edge_cells))
   allocate(panel_edge_cells_south(edge_cells))
@@ -390,8 +390,8 @@ subroutine calc_adjacency(gen_cube, cell_next)
   ! |7|8|9|
   ! +-----+
 
-  allocate(panel_next(4, NPANELS))
-  allocate(panel_edge_cells (edge_cells,4,NPANELS))
+  allocate(panel_next(4, npanels))
+  allocate(panel_edge_cells (edge_cells,4,npanels))
 
   ! Ordering : W,S,E,N
   panel_next(:,1) = [4,6,2,5]
@@ -567,13 +567,13 @@ subroutine calc_face_to_vert(gen_cube, verts_on_cell)
 
   edge_cells = gen_cube%edge_cells
   cpp        = edge_cells*edge_cells
-  ncells     = cpp*NPANELS
+  ncells     = cpp*npanels
 
   allocate(verts_on_cell(4, 6*cpp), stat=astat)
 
   if (astat /= 0)                                                   &
-      call log_event( PREFIX//"Failure to allocate verts_on_cell.", &
-                      LOG_LEVEL_ERROR )
+      call log_event( prefix//"Failure to allocate verts_on_cell.", &
+                      log_level_error )
 
   verts_on_cell = 0
   cell = 1
@@ -728,19 +728,19 @@ subroutine calc_edges(gen_cube, edges_on_cell, verts_on_edge)
 
   edge_cells = gen_cube%edge_cells
   cpp        = edge_cells*edge_cells
-  ncells     = cpp*NPANELS
+  ncells     = cpp*npanels
 
   allocate(edges_on_cell(4, ncells), stat=astat)
 
   if (astat /= 0)                                                   &
-      call log_event( PREFIX//"Failure to allocate edges_on_cell.", &
-                      LOG_LEVEL_ERROR )
+      call log_event( prefix//"Failure to allocate edges_on_cell.", &
+                      log_level_error )
 
   allocate(verts_on_edge(2, 2*ncells), stat=astat)
 
   if (astat /= 0)                                                   &
-      call log_event( PREFIX//"Failure to allocate verts_on_edge.", &
-                      LOG_LEVEL_ERROR )
+      call log_event( prefix//"Failure to allocate verts_on_edge.", &
+                      log_level_error )
 
   edges_on_cell = 0
   verts_on_edge = 0
@@ -908,14 +908,14 @@ subroutine calc_coords(gen_cube, vert_coords, coord_units_x, coord_units_y)
 
   edge_cells = gen_cube%edge_cells
   cpp        = edge_cells*edge_cells
-  ncells     = cpp*NPANELS
+  ncells     = cpp*npanels
   nverts     = ncells+2
 
   allocate(vert_coords(2, nverts), stat=astat)
 
   if (astat /= 0)                                                 &
-      call log_event( PREFIX//"Failure to allocate vert_coords.", &
-                      LOG_LEVEL_ERROR )
+      call log_event( prefix//"Failure to allocate vert_coords.", &
+                      log_level_error )
 
   vert_coords = 0.0_r_def
   dlambda = 0.5_r_def*PI/edge_cells  ! dlamba in radians
@@ -1191,7 +1191,7 @@ subroutine get_dimensions(self, num_nodes, num_edges, num_faces,           &
 
   edge_cells = self%edge_cells
   cpp        = edge_cells*edge_cells
-  ncells     = cpp*NPANELS
+  ncells     = cpp*npanels
 
   num_faces = ncells
   num_nodes = ncells + 2
@@ -1309,14 +1309,14 @@ subroutine generate(self)
   call calc_face_to_vert(self, self%verts_on_cell)
   call calc_edges(self, self%edges_on_cell, self%verts_on_edge)
 
-  if (self%nmaps > 0_i_def) call calc_global_mesh_maps(self, PANEL_ROTATIONS)
+  if (self%nmaps > 0_i_def) call calc_global_mesh_maps(self, panel_rotations)
 
   ! Co-ord output from calc_coords in radians
   call calc_coords(self, self%vert_coords,   &
                          self%coord_units_x, &
                          self%coord_units_y)
 
-  call orient_lfric(self, PANEL_ROTATIONS)
+  call orient_lfric(self, panel_rotations)
 
   ! Stretching and smoothing of the mesh should be done before
   ! any rotations are done.
@@ -1342,7 +1342,7 @@ subroutine generate(self)
     self%coord_units_y = 'degrees_north'
   end if
 
-  if (DEBUG) call write_mesh(self)
+  if (debug) call write_mesh(self)
 
   return
 end subroutine generate
@@ -1375,13 +1375,13 @@ subroutine calc_global_mesh_maps(self, panel_rotation_array)
 
   source_id  = 1
   source_cpp = self%edge_cells*self%edge_cells
-  source_ncells = source_cpp*NPANELS
+  source_ncells = source_cpp*npanels
 
   do i=1, size(self%target_mesh_names)
 
     target_edge_cells    = self%target_edge_cells(i)
     target_cpp           = target_edge_cells*target_edge_cells
-    target_ncells        = target_cpp*NPANELS
+    target_ncells        = target_cpp*npanels
     ntarget_per_source_x = max(1,target_edge_cells/self%edge_cells)
     ntarget_per_source_y = max(1,target_edge_cells/self%edge_cells)
     allocate(cell_map(ntarget_per_source_x,ntarget_per_source_y,source_ncells))
@@ -1427,13 +1427,13 @@ subroutine write_mesh(self)
 
   character(str_long) :: tmp_str
 
-  ncells = NPANELS*self%edge_cells*self%edge_cells
+  ncells = npanels*self%edge_cells*self%edge_cells
 
-  write(stdout,'(A)')    "====DEBUG INFO===="
+  write(stdout,'(A)')    "====debug INFO===="
   write(stdout,'(A)')    "Mesh name: "// trim(self%mesh_name)
   write(stdout,'(A)')    "Geometry:  "// trim(key_from_geometry(self%geometry))
   write(stdout,'(A)')    "Topology:  "// trim(key_from_topology(self%topology))
-  write(stdout,'(A,I0)') "Panels:    ", NPANELS
+  write(stdout,'(A,I0)') "Panels:    ", npanels
   write(stdout,'(A,I0)') "Panel edge cells: ", self%edge_cells
   write(stdout,'(A)')    "Coord_sys:  "// trim(key_from_coord_sys(self%coord_sys))
   write(stdout,'(A)')    "Co-ord (x) units: "// trim(self%coord_units_x)
@@ -1544,7 +1544,7 @@ subroutine write_mesh(self)
     end do
   end do
 
-  write(stdout,'(A)')    "====END DEBUG INFO===="
+  write(stdout,'(A)')    "====END debug INFO===="
   return
 end subroutine write_mesh
 
@@ -1631,7 +1631,7 @@ subroutine smooth( gen_cube )
   ! Counters
   integer(i_def) :: i, j, smooth_pass, cell, vert
 
-  ncells = NPANELS*gen_cube%edge_cells*gen_cube%edge_cells
+  ncells = npanels*gen_cube%edge_cells*gen_cube%edge_cells
   nverts = ncells + 2
 
   allocate( cell_on_vert(4,nverts) )
@@ -1729,7 +1729,7 @@ subroutine calc_cell_centres( gen_cube )
   ! Counters
   integer(i_def) :: cell, vert
 
-  ncells = NPANELS*gen_cube%edge_cells*gen_cube%edge_cells
+  ncells = npanels*gen_cube%edge_cells*gen_cube%edge_cells
 
   allocate( verts_on_cell(nverts_per_cell) )
   allocate( cell_vert_coords_xyz(3,nverts_per_cell) )
@@ -1879,7 +1879,7 @@ subroutine get_metadata( self,               &
   if (present(edge_cells_y)) edge_cells_y   = self%edge_cells
   if (present(nmaps))        nmaps          = self%nmaps
   if (present(rim_depth))    rim_depth      = imdi
-  if (present(void_cell))    void_cell      = VOID_ID
+  if (present(void_cell))    void_cell      = void_id
 
   if (present(north_pole))     north_pole(:)  = radians_to_degrees * self%north_pole(:)
   if (present(null_island))    null_island(:) = radians_to_degrees * self%null_island(:)
@@ -1955,13 +1955,13 @@ subroutine get_panel_edge_cell_ids( edge_cells, panel_edge_cells )
 !
 
   integer(i_def), intent(in)  :: edge_cells
-  integer(i_def), intent(out) :: panel_edge_cells(edge_cells,4,NPANELS)
+  integer(i_def), intent(out) :: panel_edge_cells(edge_cells,4,npanels)
 
   integer(i_def) :: i, cpp, panel
 
   cpp = edge_cells*edge_cells
 
-  do panel=1, NPANELS
+  do panel=1, npanels
     ! Panel edge ordering W,S,E,N
     do i=1, edge_cells
       panel_edge_cells(i,W,panel) = (panel-1)*cpp + edge_cells*(i-1) + 1
@@ -2017,8 +2017,8 @@ subroutine set_partition_parameters( decomposition, partitioner_ptr )
     ! Use the serial cubed-sphere partitioner
     partitioner_ptr => partitioner_cubedsphere_serial
     call log_event( "Using serial cubed sphere partitioner", &
-                    LOG_LEVEL_INFO )
-  else if( mod(n_partitions, NPANELS) == 0 )then
+                    log_level_info )
+  else if( mod(n_partitions, npanels) == 0 )then
     ! Use the parallel cubed-sphere partitioner
     partitioner_ptr => partitioner_cubedsphere
 
@@ -2043,14 +2043,14 @@ subroutine set_partition_parameters( decomposition, partitioner_ptr )
 
       case default
         call log_event( "Missing entry for panel decomposition, "// &
-                        "specify 'auto' if unsure.", LOG_LEVEL_ERROR )
+                        "specify 'auto' if unsure.", log_level_error )
 
     end select
 
     call log_event( "Using parallel cubed sphere partitioner", &
-                     LOG_LEVEL_INFO )
+                     log_level_info )
 
-  else if( NPANELS == 6 .and.               &
+  else if( npanels == 6 .and.               &
            (mod(n_partitions, 3) == 0) .or. &
            (mod(n_partitions, 2) == 0 ) ) then
     ! Use the parallel cubed-sphere partitioner
@@ -2061,18 +2061,18 @@ subroutine set_partition_parameters( decomposition, partitioner_ptr )
         decomposition = custom_decomposition_type( panel_xproc, panel_yproc )
       case default
         call log_event( "Decomposing across 2 or 3 panels requires "// &
-                        "'custom' decomposition.", LOG_LEVEL_ERROR )
+                        "'custom' decomposition.", log_level_error )
     end select
 
     call log_event( "Using parallel cubed sphere partitioner", &
-                     LOG_LEVEL_INFO )
+                     log_level_info )
 
   else
     call log_event( "Number of partitions must be 1 "//         &
                     "or a multiple of the number of panels "//  &
                     "or a multiple of 2 or 3 for 6 panels "//   &
                     "and using 'custom' decomposition",         &
-                     LOG_LEVEL_ERROR )
+                     log_level_error )
   end if
 
 end subroutine set_partition_parameters

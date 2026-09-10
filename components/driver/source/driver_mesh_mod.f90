@@ -177,7 +177,7 @@ subroutine init_mesh( config,                  &
     write(log_scratch_space, '(A)')                      &
         'Number of stencil depths specified does not '// &
         'match number of requested meshes.'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   ! Check stencil depths are valid
@@ -185,14 +185,14 @@ subroutine init_mesh( config,                  &
     if (stencil_depths(i) < 0_i_def) then
       write(log_scratch_space,'(A)') &
         'Standard partitioned meshes must support a not -ve stencil_depth'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
   end do
 
   ! Currently only quad elements are fully functional
   if (cellshape /= cellshape_quadrilateral) then
     call log_event( "Reference_element must be QUAD for now...", &
-                    LOG_LEVEL_ERROR )
+                    log_level_error )
   end if
 
 
@@ -206,7 +206,7 @@ subroutine init_mesh( config,                  &
       write(log_scratch_space, '(A)')                   &
           'Specified alternative mesh names to does '// &
           'not match number of requested meshes.'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
   else
     allocate(names, source=mesh_names)

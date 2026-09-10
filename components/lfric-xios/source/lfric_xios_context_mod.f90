@@ -30,7 +30,7 @@ module lfric_xios_context_mod
   use mesh_mod,             only : mesh_type
   use model_clock_mod,      only : model_clock_type
   use timing_mod,           only : start_timing, stop_timing, &
-                                   tik, LPROF
+                                   tik, lprof
   use xios,                 only : xios_context,                  &
                                    xios_context_initialize,       &
                                    xios_close_context_definition, &
@@ -140,7 +140,7 @@ contains
     write(log_scratch_space, "(A)") &
         "Initialising XIOS context: " // this%get_context_name()
     call log_event(log_scratch_space, log_level_debug)
-    if ( LPROF ) call start_timing(timing_id, 'lfric_xios.init_context')
+    if ( lprof ) call start_timing(timing_id, 'lfric_xios.init_context')
 
     if (present(start_at_zero)) then
       zero_start = start_at_zero
@@ -171,7 +171,7 @@ contains
 
     if (this%filelist%get_length() > 0) call setup_xios_files(this%filelist)
 
-    if ( LPROF ) call stop_timing(timing_id, 'lfric_xios.init_context')
+    if ( lprof ) call stop_timing(timing_id, 'lfric_xios.init_context')
 
   end subroutine initialise_xios_context
 
@@ -192,12 +192,12 @@ contains
 
     ! Close the context definition - no more I/O configuration operations
     ! can be defined after this point
-    if ( LPROF ) call start_timing(timing_id, 'xios.close_context_definition')
+    if ( lprof ) call start_timing(timing_id, 'xios.close_context_definition')
     call log_event('XIOS context definition closing', log_level_debug)
     ! Set an MPI barrier to support MPI-IO metadata interaction synchronisation.
     call this%communicator%barrier_mpi()
     call xios_close_context_definition()
-    if ( LPROF ) call stop_timing(timing_id, 'xios.close_context_definition')
+    if ( lprof ) call stop_timing(timing_id, 'xios.close_context_definition')
     call log_event('XIOS context definition closed', log_level_debug)
 
     this%xios_context_initialised = .true.
@@ -249,8 +249,8 @@ contains
 
 
     if (this%xios_context_initialised) then
-      if ( LPROF ) call start_timing(timing_idlx, 'lfric_xios.finalise_context')
-      call log_event( 'Finalising XIOS context: ' // this%get_context_name(), LOG_LEVEL_DEBUG )
+      if ( lprof ) call start_timing(timing_idlx, 'lfric_xios.finalise_context')
+      call log_event( 'Finalising XIOS context: ' // this%get_context_name(), log_level_debug )
       call this%set_current()
 
       ! Perform final write
@@ -270,14 +270,14 @@ contains
       ! will be closed.
       write(log_scratch_space, "(A)") "Finalising XIOS context: " // this%get_context_name()
       call log_event(log_scratch_space, log_level_debug)
-      if ( LPROF ) call start_timing(timing_idxc, 'xios.context_finalize')
+      if ( lprof ) call start_timing(timing_idxc, 'xios.context_finalize')
       call xios_context_finalize()
-      if ( LPROF ) call stop_timing(timing_idxc, 'xios.context_finalize')
+      if ( lprof ) call stop_timing(timing_idxc, 'xios.context_finalize')
 
       ! Only take action if this is a regional model with UGRID Projected
       ! coordinates, as these are awaiting XIOS feature development
       if ( this%ugrid_scaled_projected_coordinates ) then
-        call log_event("Closing file for post processing.", LOG_LEVEL_DEBUG)
+        call log_event("Closing file for post processing.", log_level_debug)
         ! We have closed the context on our end, but we need to make sure that XIOS
         ! has closed the files for all servers before we process them.
         call init_wait()
@@ -298,7 +298,7 @@ contains
       end if
 
       this%xios_context_initialised = .false.
-      if ( LPROF ) call stop_timing(timing_idlx, 'lfric_xios.finalise_context')
+      if ( lprof ) call stop_timing(timing_idlx, 'lfric_xios.finalise_context')
     end if
     nullify(loop)
     nullify(file)

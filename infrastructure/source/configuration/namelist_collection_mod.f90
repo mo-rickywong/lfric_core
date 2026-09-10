@@ -19,8 +19,8 @@ module namelist_collection_mod
   use constants_mod,   only: i_def, l_def, str_def, cmdi
   use namelist_mod,         only: namelist_type
   use log_mod,         only: log_event, log_scratch_space, &
-                             log_level, LOG_LEVEL_ERROR,   &
-                             LOG_LEVEL_DEBUG, LOG_LEVEL_INFO
+                             log_level, log_level_error,   &
+                             log_level_debug, log_level_info
   use linked_list_mod, only: linked_list_type, &
                              linked_list_item_type
 
@@ -100,7 +100,7 @@ subroutine initialise( self, name, table_len )
     write(log_scratch_space, '(3A)') &
     'Namelist collection [', trim(self%name),'] has already been '// &
     'initiaised and should not be initialised for a second time'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   if ( present(table_len) ) then
@@ -349,7 +349,7 @@ function get_namelist( self, name, profile_name ) result( namelist_obj )
           'Namelist '//trim(full_name)//         &
           ' not found in namelist collection '// &
           trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
 
     ! Otherwise search list for the namelist we want
@@ -491,7 +491,7 @@ function get_namelist_names( self, show_full ) result( namelist_names )
     write( log_scratch_space, '(A)')              &
         'Namelist collection '//trim(self%name)// &
         ' is empty.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end if
 
   if (allocated(namelist_names)) deallocate(namelist_names)
@@ -588,7 +588,7 @@ function get_namelist_profiles( self, name ) result( profile_names )
     write( log_scratch_space, '(A)')              &
         'Namelist collection '//trim(self%name)// &
         ' is empty.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end if
 
   if (allocated(profile_names)) deallocate(profile_names)
@@ -616,7 +616,7 @@ function get_table_len( self ) result( table_len )
 
   if ( self%table_len == 0 ) then
     call log_event("namelist_collection: Attempt to use uninitialised collection", &
-                    LOG_LEVEL_ERROR)
+                    log_level_error)
   end if
 
   table_len = self%table_len

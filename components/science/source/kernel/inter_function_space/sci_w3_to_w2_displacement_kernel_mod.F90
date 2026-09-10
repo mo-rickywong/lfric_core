@@ -20,7 +20,7 @@ module sci_w3_to_w2_displacement_kernel_mod
                                     GH_BASIS, GH_EVALUATOR,    &
                                     CELL_COLUMN, GH_SCALAR,    &
                                     GH_LOGICAL
-  use fs_continuity_mod,     only : W3, W2H
+  use fs_continuity_mod,     only : W3, W2h
   use constants_mod,         only : r_def, i_def
   use kernel_mod,            only : kernel_type
   use reference_element_mod, only : E, W, N, S
@@ -36,7 +36,7 @@ module sci_w3_to_w2_displacement_kernel_mod
   type, public, extends(kernel_type) :: w3_to_w2_displacement_kernel_type
     private
     type(arg_type) :: meta_args(8) = (/                                     &
-         arg_type(GH_FIELD,   GH_REAL, GH_INC,  W2H),                       & ! displacement
+         arg_type(GH_FIELD,   GH_REAL, GH_INC,  W2h),                       & ! displacement
          arg_type(GH_FIELD*3, GH_REAL, GH_READ, ANY_SPACE_9),               & ! chi_1, chi_2, chi_3
          arg_type(GH_FIELD,   GH_REAL, GH_READ, ANY_DISCONTINUOUS_SPACE_3), & ! panel_id
          arg_type(GH_FIELD,   GH_REAL, GH_READ, W3),                        & ! dummy_w3
@@ -50,7 +50,7 @@ module sci_w3_to_w2_displacement_kernel_mod
          /)
     integer :: operates_on = CELL_COLUMN
     integer :: gh_shape = GH_EVALUATOR
-    integer :: gh_evaluator_targets(2) = (/ W2H, W3 /)
+    integer :: gh_evaluator_targets(2) = (/ W2h, W3 /)
   contains
     procedure, nopass :: w3_to_w2_displacement_code
   end type
@@ -65,7 +65,7 @@ module sci_w3_to_w2_displacement_kernel_mod
   !> @brief Calculates the effective horizontal displacement corresponding to
   !!        the error when averaging a W3 to W2 points
   !> @param[in]     nlayers       Number of layers
-  !> @param[in,out] displacement  2D W2H field containing the displacements
+  !> @param[in,out] displacement  2D W2h field containing the displacements
   !!                              corresponding to the averaging error. This is
   !!                              dimensionless, being divided by the cell width
   !> @param[in]     chi_1         The first coordinate field
@@ -77,13 +77,13 @@ module sci_w3_to_w2_displacement_kernel_mod
   !> @param[in]     topology      Mesh topology enumeration value
   !> @param[in]     coord_system  Finite-Element coord-system enumeration value
   !> @param[in]     scaled_radius Planet scaled radius
-  !> @param[in]     ndf_w2h       Number of DoFs for W2H per cell
-  !> @param[in]     undf_w2h      Number of unique DoFs for W2H per partition
-  !> @param[in]     map_w2h       The DoF map for bottom layer cells for W2H
+  !> @param[in]     ndf_w2h       Number of DoFs for W2h per cell
+  !> @param[in]     undf_w2h      Number of unique DoFs for W2h per partition
+  !> @param[in]     map_w2h       The DoF map for bottom layer cells for W2h
   !> @param[in]     ndf_chi       Number of DoFs for Wchi per cell
   !> @param[in]     undf_chi      Number of unique DoFs for Wchi per partition
   !> @param[in]     map_chi       The DoF map for bottom layer cells for Wchi
-  !> @param[in]     basis_chi_w2h Wchi basis functions evaluated at W2H points
+  !> @param[in]     basis_chi_w2h Wchi basis functions evaluated at W2h points
   !> @param[in]     basis_chi_w3  Wchi basis functions evaluated at W3 points
   !> @param[in]     ndf_pid       Number of DoFs for panel id per cell
   !> @param[in]     undf_pid      Number of unique DoFs for panel id per partition
@@ -179,7 +179,7 @@ module sci_w3_to_w2_displacement_kernel_mod
                  geometry, topology, coord_system, scaled_radius, &
                  alpha_w3, beta_w3, dummy_r)
 
-    ! W2H points ---------------------------------------------------------------
+    ! W2h points ---------------------------------------------------------------
     do df_w2h = 1, 4
       chi1_at_dof = 0.0_r_def
       chi2_at_dof = 0.0_r_def

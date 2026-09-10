@@ -11,7 +11,7 @@ module mirth_config_mod
                            str_def
   use lfric_mpi_mod, only: global_mpi
   use log_mod,       only: log_event, log_scratch_space &
-                         , LOG_LEVEL_ERROR, LOG_LEVEL_DEBUG, LOG_LEVEL_INFO
+                         , log_level_error, log_level_debug, log_level_info
 
   use namelist_mod,      only: namelist_type
   use namelist_item_mod, only: namelist_item_type
@@ -92,14 +92,14 @@ contains
     if (condition /= 0) then
       write( log_scratch_space, '(A)' ) &
             'Unable to allocate temporary array for "hysterics"'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
     if (allocated(chortle)) deallocate(chortle)
     allocate( chortle(max_array_size), stat=condition )
     if (condition /= 0) then
       write( log_scratch_space, '(A)' ) &
             'Unable to allocate temporary array for "chortle"'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
 
     chortle = cmdi
@@ -111,7 +111,7 @@ contains
 
       read( file_unit, nml=mirth, iostat=condition, iomsg=log_scratch_space )
       if (condition /= 0) then
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       end if
 
     end if
@@ -236,7 +236,7 @@ contains
     allocate( new_hysterics(array_size), stat=condition )
     if (condition /= 0) then
       write(log_scratch_space, '(A)') 'Unable to allocate "hysterics"'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
     new_hysterics(:array_size) = hysterics(:array_size)
     call move_alloc( new_hysterics, hysterics )
@@ -248,13 +248,13 @@ contains
           '"mirth:chortle" not allocated, '// &
           'deferred size "biggles" '//   &
           'has not been specified.'
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
       array_size = 0
     end if
     allocate( new_chortle(array_size), stat=condition )
     if (condition /= 0) then
       write(log_scratch_space, '(A)') 'Unable to allocate "chortle"'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
     new_chortle(:array_size) = chortle(:array_size)
     call move_alloc( new_chortle, chortle )

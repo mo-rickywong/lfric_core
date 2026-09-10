@@ -8,9 +8,9 @@
 !>
 module event_actor_mod
 
-  use constants_mod,        only : str_def, i_timestep, IMDI
+  use constants_mod,        only : str_def, i_timestep, imdi
   use linked_list_data_mod, only : linked_list_data_type
-  use log_mod,              only : log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod,              only : log_event, log_scratch_space, log_level_error
 
   implicit none
 
@@ -22,8 +22,8 @@ module event_actor_mod
     character(str_def) :: event_name
     logical :: active = .false.
     logical :: constructed = .false.
-    integer(i_timestep) :: start = IMDI
-    integer(i_timestep) :: stop = IMDI
+    integer(i_timestep) :: start = imdi
+    integer(i_timestep) :: stop = imdi
   contains
     procedure, public :: init_event_actor
     procedure, public :: get_event_name
@@ -49,7 +49,7 @@ contains
     if(this%constructed) then
       write(log_scratch_space, '(A)') trim(name) // &
                                       " event actor type already initialised"
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
 
     if(present(start)) then

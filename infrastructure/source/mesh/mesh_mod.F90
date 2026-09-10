@@ -25,8 +25,8 @@ module mesh_mod
   use local_mesh_map_mod,    only : local_mesh_map_type
   use local_mesh_mod,        only : local_mesh_type
   use log_mod,               only : log_event, log_scratch_space, &
-                                    LOG_LEVEL_ERROR, LOG_LEVEL_TRACE, &
-                                    LOG_LEVEL_INFO, LOG_LEVEL_DEBUG
+                                    log_level_error, log_level_trace, &
+                                    log_level_info, log_level_debug
   use mesh_colouring_mod,    only : set_colours
   use mesh_tiling_mod,       only : set_tiling
   use mesh_constructor_helper_functions_mod,           &
@@ -353,10 +353,10 @@ module mesh_mod
   !
   !> @}
   !> @name Horizontal Grid Types for pFunit tests
-  integer(i_def), parameter, public :: PLANE                  = 1
-  integer(i_def), parameter, public :: PLANE_BI_PERIODIC      = 2
-  integer(i_def), parameter, public :: PLANE_TWOD             = 3
-  integer(i_def), parameter, public :: PLANE_TWOD_BI_PERIODIC = 4
+  integer(i_def), parameter, public :: plane                  = 1
+  integer(i_def), parameter, public :: plane_BI_PERIODIC      = 2
+  integer(i_def), parameter, public :: plane_twod             = 3
+  integer(i_def), parameter, public :: plane_twod_BI_PERIODIC = 4
   !> @}
 
 contains
@@ -2149,7 +2149,7 @@ contains
       if( depth > self%get_halo_depth() .or. depth < 0 )then
         write(log_scratch_space,'(A,A,I5,A)')function_name,': depth ', &
            depth,' is out of bounds'
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
       end if
     end if
 
@@ -2157,7 +2157,7 @@ contains
       if( colour > self%ncolours .or. colour < 1 )then
         write(log_scratch_space,'(A,A,I5,A)')function_name,': colour ', &
            colour,' is out of bounds'
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
       end if
     end if
   end subroutine bounds_check
@@ -2347,7 +2347,7 @@ contains
     if (source_mesh_id == target_mesh_id) then
       write(log_scratch_space, '(A)') &
            'Nothing to do, no need to map a local mesh to itself.'
-      call log_event(log_scratch_space, LOG_LEVEL_TRACE)
+      call log_event(log_scratch_space, log_level_trace)
       return
     end if
 
@@ -2408,7 +2408,7 @@ contains
 
     if (source_mesh_id == target_mesh_id) then
       write(log_scratch_space, '(A)') 'Identical source and target meshes.'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     else
       mesh_map => self%mesh_maps%get_mesh_map(source_mesh_id, target_mesh_id)
     end if
@@ -2501,7 +2501,7 @@ contains
       write(log_scratch_space,'(A,I0)') &
          "calc_face_id_in_adjacent_cell: odd number of horizontal faces ", &
           nfaces_h
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
 
     end if
 
@@ -2761,13 +2761,13 @@ contains
 
     ! Log cell-cell connectivity
     !=======================================================
-    call log_event('', LOG_LEVEL_DEBUG)
-    call log_event(spacer, LOG_LEVEL_DEBUG)
-    call log_event('Mesh cells adjacent to cells', LOG_LEVEL_DEBUG)
-    call log_event(spacer, LOG_LEVEL_DEBUG)
+    call log_event('', log_level_debug)
+    call log_event(spacer, log_level_debug)
+    call log_event('Mesh cells adjacent to cells', log_level_debug)
+    call log_event(spacer, log_level_debug)
     call log_event('Cell ID  | Cell IDs: S E N W B T', &
-                    LOG_LEVEL_DEBUG)
-    call log_event(spacer_long, LOG_LEVEL_DEBUG)
+                    log_level_debug)
+    call log_event(spacer_long, log_level_debug)
 
     do icell=1, self%ncells
       write(log_scratch_space,'(I6,T9,A,6I7)') &
@@ -2778,18 +2778,18 @@ contains
         self%cell_next(W,icell), &
         self%cell_next(B,icell), &
         self%cell_next(T,icell)
-      call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space, log_level_debug)
     end do
 
     ! Report the cell-node connectivity
     !=======================================================
-    call log_event('', LOG_LEVEL_DEBUG)
-    call log_event(spacer, LOG_LEVEL_DEBUG)
-    call log_event('Mesh nodes on cells', LOG_LEVEL_DEBUG)
-    call log_event(spacer, LOG_LEVEL_DEBUG)
+    call log_event('', log_level_debug)
+    call log_event(spacer, log_level_debug)
+    call log_event('Mesh nodes on cells', log_level_debug)
+    call log_event(spacer, log_level_debug)
     call log_event('Cell ID | Node IDs: SWB SEB NEB NWB SWT SET NET NWT', &
-                    LOG_LEVEL_DEBUG)
-    call log_event(spacer_long, LOG_LEVEL_DEBUG)
+                    log_level_debug)
+    call log_event(spacer_long, log_level_debug)
 
     do icell=1, self%ncells
       write(log_scratch_space, '(I6,T9,A,8I7)') &
@@ -2802,17 +2802,17 @@ contains
         self%vert_on_cell(SET,icell), &
         self%vert_on_cell(NET,icell), &
         self%vert_on_cell(NWT,icell)
-      call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space, log_level_debug)
     end do
 
     ! Report the cell-face connectivity
     !=======================================================
-    call log_event('', LOG_LEVEL_DEBUG)
-    call log_event(spacer, LOG_LEVEL_DEBUG)
-    call log_event('Mesh faces on cells', LOG_LEVEL_DEBUG)
-    call log_event(spacer, LOG_LEVEL_DEBUG)
-    call log_event('Cell ID | Face IDs: S E N W B T', LOG_LEVEL_DEBUG)
-    call log_event(spacer_long, LOG_LEVEL_DEBUG)
+    call log_event('', log_level_debug)
+    call log_event(spacer, log_level_debug)
+    call log_event('Mesh faces on cells', log_level_debug)
+    call log_event(spacer, log_level_debug)
+    call log_event('Cell ID | Face IDs: S E N W B T', log_level_debug)
+    call log_event(spacer_long, log_level_debug)
     do icell=1, self%ncells
       write(log_scratch_space,'(I6,T9,A,6I7)') &
         icell, ' | ',               &
@@ -2822,18 +2822,18 @@ contains
         self%face_on_cell(W,icell), &
         self%face_on_cell(B,icell), &
         self%face_on_cell(T,icell)
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     end do
 
     ! Report the cell-edge connectivity
     !=======================================================
-    call log_event('', LOG_LEVEL_DEBUG)
-    call log_event(spacer, LOG_LEVEL_DEBUG)
-    call log_event('Mesh edges on cells', LOG_LEVEL_DEBUG)
-    call log_event(spacer, LOG_LEVEL_DEBUG)
+    call log_event('', log_level_debug)
+    call log_event(spacer, log_level_debug)
+    call log_event('Mesh edges on cells', log_level_debug)
+    call log_event(spacer, log_level_debug)
     call log_event('Cell ID | Edge IDs: SB EB NB WB SW SE NE NW ST ET NT WT', &
-                   LOG_LEVEL_DEBUG)
-    call log_event(spacer_long, LOG_LEVEL_DEBUG)
+                   log_level_debug)
+    call log_event(spacer_long, log_level_debug)
     do icell=1, self%ncells
       write( log_scratch_space, '(I6,T9,A,12I7)' )                  &
           icell, ' | ',                                             &
@@ -2843,22 +2843,22 @@ contains
           self%edge_on_cell(NE,icell), self%edge_on_cell(NW,icell), &
           self%edge_on_cell(ST,icell), self%edge_on_cell(ET,icell), &
           self%edge_on_cell(NT,icell), self%edge_on_cell(WT,icell)
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     end do
 
     ! Log node coordinates (cartesian)
     !=======================================================
-    call log_event('', LOG_LEVEL_DEBUG)
-    call log_event(spacer, LOG_LEVEL_DEBUG)
-    call log_event('Mesh node coordinates (m)', LOG_LEVEL_DEBUG)
-    call log_event(spacer, LOG_LEVEL_DEBUG)
-    call log_event('Node ID |   x y z', LOG_LEVEL_DEBUG)
-    call log_event(spacer_long, LOG_LEVEL_DEBUG)
+    call log_event('', log_level_debug)
+    call log_event(spacer, log_level_debug)
+    call log_event('Mesh node coordinates (m)', log_level_debug)
+    call log_event(spacer, log_level_debug)
+    call log_event('Node ID |   x y z', log_level_debug)
+    call log_event(spacer_long, log_level_debug)
 
     do inode=1, self%nverts
       write(log_scratch_space, '(I6,T9,A,3ES20.10E3)') &
           inode, '|', self%vertex_coords(:,inode)
-      call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space, log_level_debug)
     end do
 
   end subroutine debug
@@ -2884,9 +2884,9 @@ contains
   !============================================================================
   !> @brief     Stucture-Constructor (for unit testing)
   !> @param[in] mesh_cfg Sets the type of test mesh returned.
-  !>                     [PLANE|PLANE_BI_PERIODIC].
-  !>                     PLANE - returns a 5-layer non-biperiodic mesh
-  !>                     PLANE_BI_PERIODIC - returns a 3-layer bi-periodic mesh
+  !>                     [plane|plane_BI_PERIODIC].
+  !>                     plane - returns a 5-layer non-biperiodic mesh
+  !>                     plane_BI_PERIODIC - returns a 3-layer bi-periodic mesh
   !> @param[in] local_mesh_ptr A pointer to a (unit test) local mesh object
   !> @return             A 3D-Mesh object based on a 3x3-cell global mesh
   !>                     with one partition.
@@ -2906,8 +2906,8 @@ contains
     !
 
     use extrusion_mod,         only : uniform_extrusion_type, &
-                                      PRIME_EXTRUSION,        &
-                                      TWOD
+                                      prime_extrusion,        &
+                                      twod
     use reference_element_mod, only : reference_cube_type
 
     implicit none
@@ -2946,7 +2946,7 @@ contains
 
 
 
-    if (mesh_cfg == PLANE) then
+    if (mesh_cfg == plane) then
       ! The unit-test mesh is similar in configuration
       ! to a LAM. Node co-ords are held in cartesian,(xyz),
       ! though the <domain_type> object considers the axis
@@ -2968,7 +2968,7 @@ contains
       self%nfaces  = 174
       self%nedges  = 224
 
-    else if (mesh_cfg == PLANE_BI_PERIODIC) then
+    else if (mesh_cfg == plane_BI_PERIODIC) then
       ! The unit-test mesh is on a cartesian domain as
       ! a bi-periodic domain is not supported for
       ! a spherical coord system.
@@ -2991,7 +2991,7 @@ contains
       self%nfaces  = 108
       self%nedges  = 99
 
-    else if ( mesh_cfg == PLANE_TWOD ) then
+    else if ( mesh_cfg == plane_twod ) then
       self%mesh_name = 'test mesh: planar twod'
       self%domain_depth = 10000.0_r_def
       self%domain_base_height = 30000.0_r_def
@@ -3007,7 +3007,7 @@ contains
       self%nfaces  = 42
       self%nedges  = 64
 
-    else if ( mesh_cfg == PLANE_TWOD_BI_PERIODIC ) then
+    else if ( mesh_cfg == plane_twod_BI_PERIODIC ) then
       self%mesh_name = 'test mesh: planar twod bi-periodic'
       self%domain_depth = 6000.0_r_def
       self%domain_base_height = 0.0_r_def
@@ -3026,7 +3026,7 @@ contains
     else
       write(log_scratch_space,'(A,I0)')  &
           "mesh_constructor_unit_test_data:bad mesh specifier:", mesh_cfg
-      call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space,log_level_error)
     end if
 
     self%ncells_2d_with_ghost = self%ncells_2d &
@@ -3052,11 +3052,11 @@ contains
     ! Calculate vertical coordinates eta[0,1] and dz in a separate subroutine
     ! for the unit tests.
     ! Hard wires for uniform vertical grid on planar mesh.
-    if ( mesh_cfg == PLANE_TWOD .or. &
-         mesh_cfg == PLANE_TWOD_BI_PERIODIC ) then
-      extrusion_profile = TWOD
+    if ( mesh_cfg == plane_twod .or. &
+         mesh_cfg == plane_twod_BI_PERIODIC ) then
+      extrusion_profile = twod
     else
-      extrusion_profile = PRIME_EXTRUSION
+      extrusion_profile = prime_extrusion
     end if
 
     extrusion = uniform_extrusion_type( 0.0_r_def,         &
@@ -3067,7 +3067,7 @@ contains
 
     self%extrusion_id = extrusion%get_id()
 
-    if (mesh_cfg == PLANE_BI_PERIODIC .or. mesh_cfg == PLANE_TWOD_BI_PERIODIC) then
+    if (mesh_cfg == plane_BI_PERIODIC .or. mesh_cfg == plane_twod_BI_PERIODIC) then
       ! Periodic
       self%vert_cell_owner (:,:) = reshape( [ &
           9, 8, 5, 6, &  ! Cell 1
@@ -3123,7 +3123,7 @@ contains
     self%edge_ownership   (:,:) = 0
     self%vertex_ownership (:,:) = 0
 
-    if (mesh_cfg == PLANE) then
+    if (mesh_cfg == plane) then
       !=========================================================
       ! Assign 3D cell local ids on adjacent to given cell
       !
@@ -3625,7 +3625,7 @@ contains
                                  self%domain_depth,       &
                                  ll_coords )
 
-    else if (mesh_cfg == PLANE_BI_PERIODIC) then
+    else if (mesh_cfg == plane_BI_PERIODIC) then
       !=========================================================
       ! Assign 3D cell local ids on adjacent to given cell
       !
@@ -3778,7 +3778,7 @@ contains
                                  self%domain_depth,       &
                                  ll_coords )
 
-    else if ( mesh_cfg == PLANE_TWOD ) then
+    else if ( mesh_cfg == plane_twod ) then
       !=========================================================
       ! Assign 3D cell local ids on adjacent to given cell
       !
@@ -3980,7 +3980,7 @@ contains
                                  self%domain_depth,       &
                                  ll_coords )
 
-    else if ( mesh_cfg == PLANE_TWOD_BI_PERIODIC ) then
+    else if ( mesh_cfg == plane_twod_BI_PERIODIC ) then
       !=========================================================
       ! Assign 3D cell local ids on adjacent to given cell
       !

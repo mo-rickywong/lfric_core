@@ -18,7 +18,7 @@ use mesh_map_mod,        only: mesh_map_type
 use partition_mod,       only: partition_type
 use linked_list_mod,     only: linked_list_type, linked_list_item_type
 use log_mod,             only: log_event, log_scratch_space, &
-                               LOG_LEVEL_ERROR, LOG_LEVEL_TRACE
+                               log_level_error, log_level_trace
 
 implicit none
 
@@ -125,7 +125,7 @@ if (.not. mesh_map_exists) then
 
   write(log_scratch_space, '(A,I0,A)') &
       'Adding mesh map (id:', mesh_map_id,')'
-  call log_event(log_scratch_space, LOG_LEVEL_TRACE)
+  call log_event(log_scratch_space, log_level_trace)
 
   call self%mesh_map_list%insert_item(mesh_map)
 
@@ -162,7 +162,7 @@ if (.not. mesh_map_exists) then
   write(log_scratch_space, '(A,I0,A)') &
       'Mesh map (id:',mesh_map_id,') not present in this map collection.'
 
-  call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+  call log_event(log_scratch_space, log_level_error)
   mesh_map => null()
   loop => self%mesh_map_list%get_tail()
 

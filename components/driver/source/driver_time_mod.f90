@@ -10,7 +10,7 @@ module driver_time_mod
 
   use constants_mod,      only: str_def, i_def, r_second, i_timestep
   use driver_modeldb_mod, only: modeldb_type
-  use log_mod,            only: log_event, LOG_LEVEL_ERROR
+  use log_mod,            only: log_event, log_level_error
   use model_clock_mod,    only: model_clock_type
   use step_calendar_mod,  only: step_calendar_type
 
@@ -66,7 +66,7 @@ contains
                                            calendar_start ), stat=rc )
 
     if (rc /= 0) then
-      call log_event( "Unable to allocate calendar", LOG_LEVEL_ERROR )
+      call log_event( "Unable to allocate calendar", log_level_error )
     end if
 
     ! Instantiate the model clock
@@ -81,7 +81,7 @@ contains
                                          max(spinup_period, 0.0_r_second) ), &
                                          stat=rc )
     if (rc /= 0) then
-      call log_event( "Unable to allocate model clock", LOG_LEVEL_ERROR )
+      call log_event( "Unable to allocate model clock", log_level_error )
     end if
 
   end subroutine init_time

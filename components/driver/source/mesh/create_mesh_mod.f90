@@ -10,9 +10,9 @@ module create_mesh_mod
                            str_max_filename
   use log_mod,       only: log_event,         &
                            log_scratch_space, &
-                           LOG_LEVEL_DEBUG,   &
-                           LOG_LEVEL_ERROR,   &
-                           LOG_LEVEL_INFO
+                           log_level_debug,   &
+                           log_level_error,   &
+                           log_level_info
 
   use extrusion_mod,       only: extrusion_type,           &
                                  uniform_extrusion_type,   &
@@ -78,7 +78,7 @@ function create_extrusion( extrusion_method, &
                                 domain_bottom, domain_height, &
                                 n_layers, extrusion_id ) )
     case default
-      call log_event("Invalid method for simple extrusion", LOG_LEVEL_ERROR)
+      call log_event("Invalid method for simple extrusion", log_level_error)
   end select
 
 end function create_extrusion
@@ -119,7 +119,7 @@ subroutine create_mesh_multiple( local_mesh_names, extrusion, &
       write(log_scratch_space, '(A)')                          &
           'Number of alternative mesh names does not match '// &
           'number of requested meshes.'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
 
     allocate(names, source=alt_name)
@@ -184,7 +184,7 @@ subroutine create_mesh_single( local_mesh_name, extrusion,  &
     write(log_scratch_space,'(A)')                          &
         'No action taken: Mesh '//trim(name)//' already '// &
         'exists in the program mesh_collection object.'
-    call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+    call log_event(log_scratch_space, log_level_debug)
     return
   end if
 
@@ -201,7 +201,7 @@ subroutine create_mesh_single( local_mesh_name, extrusion,  &
           'Specified local mesh object ('//trim(local_mesh_name)//  &
           ') was not found in the program local_mesh_collection '// &
           'object.'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
   end if
 
@@ -220,11 +220,11 @@ subroutine create_mesh_single( local_mesh_name, extrusion,  &
       'based on mesh "'//trim(local_mesh_name)//'"'
 
   if (mesh_id /= imdi) then
-    call log_event( log_scratch_space, LOG_LEVEL_INFO )
+    call log_event( log_scratch_space, log_level_info )
   else
     write(log_scratch_space,'(A,I0,A)') &
         trim(log_scratch_space)//' (FAILED)'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end if
 
 end subroutine create_mesh_single

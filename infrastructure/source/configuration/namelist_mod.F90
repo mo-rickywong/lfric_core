@@ -19,8 +19,8 @@ module namelist_mod
 
   use linked_list_data_mod, only: linked_list_data_type
   use log_mod,              only: log_level, log_event, log_scratch_space, &
-                                  LOG_LEVEL_ERROR, LOG_LEVEL_DEBUG,        &
-                                  LOG_LEVEL_INFO
+                                  log_level_error, log_level_debug,        &
+                                  log_level_info
   use constants_mod,        only: imdi, rmdi, cmdi, str_def, i_def
   use namelist_item_mod,    only: namelist_item_type
 
@@ -118,7 +118,7 @@ contains
       write(log_scratch_space, '(A)')          &
           'Attempted to create '// listname // &
           ' namelist with no member variables.'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
 
     allocate( self%listname, source=listname )
@@ -480,12 +480,12 @@ contains
       write( log_scratch_space, '(A)' )             &
          'Member "' // trim(name) // '" is not ' // &
          'present in ' // self%listname // ' namelist.'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
 
     else
       write( log_scratch_space, '(A)' ) &
          self%listname // ' namelist is empty.'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
 
   end function locate_member

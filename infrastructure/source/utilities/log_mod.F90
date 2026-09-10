@@ -52,12 +52,12 @@ module log_mod
   !> a break between level. Generally you will want to use these names.
   !>
   !> @{
-  integer, public, parameter :: LOG_LEVEL_ALWAYS  = 100000
-  integer, public, parameter :: LOG_LEVEL_ERROR   = 200
-  integer, public, parameter :: LOG_LEVEL_WARNING = 150
-  integer, public, parameter :: LOG_LEVEL_INFO    = 100
-  integer, public, parameter :: LOG_LEVEL_DEBUG   =  50
-  integer, public, parameter :: LOG_LEVEL_TRACE   =   0
+  integer, public, parameter :: log_level_always  = 100000
+  integer, public, parameter :: log_level_error   = 200
+  integer, public, parameter :: log_level_warning = 150
+  integer, public, parameter :: log_level_info    = 100
+  integer, public, parameter :: log_level_debug   =  50
+  integer, public, parameter :: log_level_trace   =   0
   !> @}
 
   !> Space in which to marshal log messages.
@@ -74,7 +74,7 @@ module log_mod
 
   integer, private, parameter :: EXIT_CODE_ON_ERROR = 1
 
-  integer, private :: logging_level = LOG_LEVEL_INFO
+  integer, private :: logging_level = log_level_info
   integer, private :: info_unit     = output_unit
   integer, private :: alert_unit    = error_unit
 
@@ -378,7 +378,7 @@ contains
   !> be sent to a log file. For serial executions, the event description is
   !> sent to the terminal along with timestamp and level information.
   !> For the most serious events (a severity level equal to
-  !> or greater than LOG_LEVEL_ERROR), execution of the code will be aborted.
+  !> or greater than log_level_error), execution of the code will be aborted.
   !>
   !> @param message A description of the event.
   !> @param level   The severity of the event. Defaults to cInfoLevel.
@@ -407,25 +407,25 @@ contains
     if (log_at_level(level)) then
 
       select case (level)
-        case ( : LOG_LEVEL_DEBUG - 1)
+        case ( : log_level_debug - 1)
           unit = info_unit
           tag  = 'TRACE'
-        case (LOG_LEVEL_DEBUG : LOG_LEVEL_INFO - 1 )
+        case (log_level_debug : log_level_info - 1 )
           unit = info_unit
-          tag  = 'DEBUG'
-        case ( LOG_LEVEL_INFO : LOG_LEVEL_WARNING - 1 )
+          tag  = 'debug'
+        case ( log_level_info : log_level_warning - 1 )
           unit = info_unit
           tag  = 'INFO '
-        case ( LOG_LEVEL_WARNING : LOG_LEVEL_ERROR - 1)
+        case ( log_level_warning : log_level_error - 1)
           unit = alert_unit
           tag  = 'WARN '
           if(warning_trace) trace = .true.
-        case ( LOG_LEVEL_ERROR : LOG_LEVEL_ALWAYS - 1)
+        case ( log_level_error : log_level_always - 1)
           unit = alert_unit
           tag  = 'ERROR'
           trace = .true.
           abort_run = .true.
-        case ( LOG_LEVEL_ALWAYS : )
+        case ( log_level_always : )
           unit = info_unit
           tag  = 'INFO'
       end select
@@ -448,7 +448,7 @@ contains
 
         write ( unit, '(":",A,": ",A)') tag, trim( message )
 
-        if (logging_level <= LOG_LEVEL_DEBUG) then
+        if (logging_level <= log_level_debug) then
           flush(unit)
         end if
 

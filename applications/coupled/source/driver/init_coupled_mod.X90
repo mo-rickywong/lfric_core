@@ -25,8 +25,8 @@ module init_coupled_mod
   use function_space_mod,             only : function_space_type
   use fs_continuity_mod,              only : W3
   use log_mod,                        only : log_event,      &
-                                             LOG_LEVEL_INFO, &
-                                             LOG_LEVEL_ERROR
+                                             log_level_info, &
+                                             log_level_error
   use mesh_mod,                       only : mesh_type
   use pure_abstract_field_mod,        only : pure_abstract_field_type
   use sci_compute_latlon_kernel_mod,  only : compute_latlon_kernel_type
@@ -83,7 +83,7 @@ module init_coupled_mod
 
     type(function_space_type), pointer :: fs
 
-    call log_event( 'coupled: Initialising app ...', LOG_LEVEL_INFO )
+    call log_event( 'coupled: Initialising app ...', log_level_info )
 
     ! Get the name of the coupling component
     call modeldb%values%get_value("cpl_name", cpl_component_name)
@@ -166,7 +166,7 @@ module init_coupled_mod
     if(allocated(send_field_names)) deallocate(send_field_names)
     if(allocated(recv_field_names)) deallocate(recv_field_names)
 
-    call log_event( 'coupled: Miniapp initialised', LOG_LEVEL_INFO )
+    call log_event( 'coupled: Miniapp initialised', log_level_info )
 
   end subroutine init_coupled
 

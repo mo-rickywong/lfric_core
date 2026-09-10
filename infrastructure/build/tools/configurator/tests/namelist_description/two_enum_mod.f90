@@ -11,7 +11,7 @@ module twoenum_config_mod
                            str_def
   use lfric_mpi_mod, only: global_mpi
   use log_mod,       only: log_event, log_scratch_space &
-                         , LOG_LEVEL_ERROR, LOG_LEVEL_DEBUG, LOG_LEVEL_INFO
+                         , log_level_error, log_level_debug, log_level_info
 
   use namelist_mod,      only: namelist_type
   use namelist_item_mod, only: namelist_item_type
@@ -84,7 +84,7 @@ contains
       write( log_scratch_space, '(A)') &
           'Missing key for first enumeration in twoenum namelist.'
       first_from_key = emdi
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
       return
     end if
 
@@ -99,7 +99,7 @@ contains
           write( log_scratch_space, &
               '("Key ''", A, "'' not recognised for twoenum first")' ) &
               trim(adjustl(key))
-          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+          call log_event( log_scratch_space, log_level_error )
         end if
       end if
     end do
@@ -133,7 +133,7 @@ contains
         if (value_index > ubound(first_key, 1)) then
           write( log_scratch_space, &
                  '("Value ", I0, " is not in twoenum first")' ) value
-          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+          call log_event( log_scratch_space, log_level_error )
         end if
       end if
     end do
@@ -158,7 +158,7 @@ contains
       write( log_scratch_space, '(A)') &
           'Missing key for second enumeration in twoenum namelist.'
       second_from_key = emdi
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
       return
     end if
 
@@ -173,7 +173,7 @@ contains
           write( log_scratch_space, &
               '("Key ''", A, "'' not recognised for twoenum second")' ) &
               trim(adjustl(key))
-          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+          call log_event( log_scratch_space, log_level_error )
         end if
       end if
     end do
@@ -207,7 +207,7 @@ contains
         if (value_index > ubound(second_key, 1)) then
           write( log_scratch_space, &
                  '("Value ", I0, " is not in twoenum second")' ) value
-          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+          call log_event( log_scratch_space, log_level_error )
         end if
       end if
     end do
@@ -271,7 +271,7 @@ contains
 
       read( file_unit, nml=twoenum, iostat=condition, iomsg=log_scratch_space )
       if (condition /= 0) then
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       end if
 
       dummy_first = first_from_key( first )

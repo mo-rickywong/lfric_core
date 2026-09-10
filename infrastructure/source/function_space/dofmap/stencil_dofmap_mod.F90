@@ -90,7 +90,7 @@ function stencil_dofmap_constructor(st_shape, st_depth, ndf, mesh, master_dofmap
 
   use log_mod,                             only: log_event,         &
                                                  log_scratch_space, &
-                                                 LOG_LEVEL_ERROR
+                                                 log_level_error
   use mesh_mod,                            only: mesh_type
   use reference_element_mod,               only: W, E, N, S, &
                                                  reference_element_type
@@ -128,7 +128,7 @@ function stencil_dofmap_constructor(st_shape, st_depth, ndf, mesh, master_dofmap
   ! Since this routine is only valid for quadrilateral elements throw an error
   ! if the number of (horizontal) neighbours is not four
   if ( number_of_neighbours /= 4_i_def ) &
-  call log_event( 'Stencil dofmaps only valid for quad elements', LOG_LEVEL_ERROR )
+  call log_event( 'Stencil dofmaps only valid for quad elements', log_level_error )
 
   ! Get direction map for the requested stencil shape
   allocate( direction_map(number_of_neighbours) )
@@ -160,7 +160,7 @@ function stencil_dofmap_constructor(st_shape, st_depth, ndf, mesh, master_dofmap
     write( log_scratch_space, '( A, I4, A, I4, A, I4 )' ) &
        'Attempting to create stencil: ', st_shape,' of extent ',st_depth, &
        ' when halo is depth is too small:',mesh%get_halo_depth()
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   else if (last_halo_index == 0) then
     ! Stencil extent same as halo depth, so compute stencil for all owned cells
     ncells = mesh%get_last_edge_cell()
@@ -295,7 +295,7 @@ subroutine get_direction_map(st_shape, st_depth, direction_map)
 
   use log_mod,               only: log_event,         &
                                    log_scratch_space, &
-                                   LOG_LEVEL_ERROR
+                                   log_level_error
   use reference_element_mod, only: W, E, N, S
 
   implicit none
@@ -325,7 +325,7 @@ subroutine get_direction_map(st_shape, st_depth, direction_map)
     ! Throw error if stencil shape invalid
     write( log_scratch_space, '( A, I4 )' ) &
        "Invalid stencil type: ", st_shape
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   ! Multiply direction map values by the requested stencil depth

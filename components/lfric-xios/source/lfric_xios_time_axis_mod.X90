@@ -21,7 +21,7 @@ module lfric_xios_time_axis_mod
   use function_space_mod,   only: function_space_type
   use function_space_collection_mod, &
                             only: function_space_collection
-  use file_mod,             only: FILE_OP_OPEN, FILE_MODE_READ
+  use file_mod,             only: FILE_OP_OPEN, file_mode_read
   use lfric_ncdf_dims_mod,  only: lfric_ncdf_dims_type
   use lfric_ncdf_field_mod, only: lfric_ncdf_field_type
   use lfric_ncdf_file_mod,  only: lfric_ncdf_file_type
@@ -31,7 +31,7 @@ module lfric_xios_time_axis_mod
   use lfric_xios_diag_mod,  only: get_field_axis_ref
   use linked_list_data_mod, only: linked_list_data_type
   use log_mod,              only: log_event, log_scratch_space, &
-                                  LOG_LEVEL_ERROR, LOG_LEVEL_INFO, LOG_LEVEL_TRACE
+                                  log_level_error, log_level_info, log_level_trace
   use xios,                 only: xios_get_field_attr, xios_get_axis_attr,     &
                                   xios_get_file_attr,                          &
                                   xios_recv_field, xios_date, xios_duration,   &
@@ -181,7 +181,7 @@ contains
       else
         write( log_scratch_space,'(A,A)' ) "Invalid update freq for "//trim(self%name)// &
                                            " time axis: "// trim(pop_freq)
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       end if
     else
       ! Default to smallest update frequency xios can handle
@@ -204,7 +204,7 @@ contains
     integer(i_def)              :: i
 
     call log_event( "Performing post-XIOS context set-up for time_axis_type ["// &
-                    trim(self%name)//"]", LOG_LEVEL_TRACE )
+                    trim(self%name)//"]", log_level_trace )
 
     call xios_get_file_attr( trim(adjustl(self%file_id)), output_freq=self%update_frequency, &
                                                           name=file_name )
@@ -371,7 +371,7 @@ contains
 
       ! If we're still going something's gone wrong
       call log_event("Cannot align yearly time axis "//self%name, &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
 
     else
       if (size(self%time_data) == 1) then
@@ -391,7 +391,7 @@ contains
                                   model_date%year, model_date%month, model_date%day, &
                                   model_date%hour, model_date%minute
 
-          call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+          call log_event(log_scratch_space, log_level_error)
         end if
       else
         ! Cycle through data to find correct time window
@@ -406,7 +406,7 @@ contains
       end if
       ! If we're still going something's gone wrong
       call log_event("Model start date out of bounds for time axis "// &
-                      self%name, LOG_LEVEL_ERROR)
+                      self%name, log_level_error)
 
     end if
 
@@ -447,7 +447,7 @@ contains
           tmp_proxy = updated_field%get_proxy()
           call log_event( &
             'Reading '//trim(adjustl(updated_field%get_name())), &
-            LOG_LEVEL_INFO)
+            log_level_info)
           call read_field_time_var(updated_field%get_name(), tmp_proxy, &
                                       self%index_data(1:self%window_size), size(self%time_data))
       end select
@@ -530,7 +530,7 @@ contains
 
         call log_event( &
             'Updating '//trim(adjustl(model_field%get_name())), &
-            LOG_LEVEL_INFO)
+            log_level_info)
 
         ! Populate model fields based on time interpolation flag
         if ( self%does_interpolation ) then

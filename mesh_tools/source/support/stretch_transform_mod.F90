@@ -22,9 +22,9 @@ module stretch_transform_mod
                                          stretching_on_cell_centres
   use log_mod,                    only : log_event,                 &
                                          log_scratch_space,         &
-                                         LOG_LEVEL_INFO,            &
-                                         LOG_LEVEL_ERROR,           &
-                                         LOG_LEVEL_DEBUG
+                                         log_level_info,            &
+                                         log_level_error,           &
+                                         log_level_debug
 
   implicit none
 
@@ -34,7 +34,7 @@ module stretch_transform_mod
             stretch_transform
 
   ! Prefix for error messages.
-  character(len=*), parameter :: PREFIX = "[Stretch Transform] "
+  character(len=*), parameter :: prefix = "[Stretch Transform] "
 
 contains
 
@@ -130,31 +130,31 @@ subroutine calculate_settings( axis_direction, total_n,    &
       n_inner = total_n - 1 - ( 2 * n_stretch ) - ( 2 * n_outer )
 
     case default
-      call log_event( PREFIX//"Unrecognised value of stretching_on", &
-                      LOG_LEVEL_ERROR )
+      call log_event( prefix//"Unrecognised value of stretching_on", &
+                      log_level_error )
   end select
 
   if ( n_stretch < 0 ) then
 
     write(log_scratch_space,'(A)') &
-    PREFIX//'n_stretch is negative'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    prefix//'n_stretch is negative'
+    call log_event(log_scratch_space, log_level_error)
 
   end if
 
   if ( n_outer < 0 ) then
 
     write(log_scratch_space,'(A)') &
-    PREFIX//'n_outer is negative'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    prefix//'n_outer is negative'
+    call log_event(log_scratch_space, log_level_error)
 
   end if
 
   if ( n_inner < 0 ) then
 
     write(log_scratch_space,'(A)') &
-    PREFIX//'n_inner is negative'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    prefix//'n_inner is negative'
+    call log_event(log_scratch_space, log_level_error)
 
   end if
 
@@ -205,35 +205,35 @@ subroutine calculate_settings( axis_direction, total_n,    &
   if (axis_direction == 1) then
     write(log_scratch_space,'(A)') &
     'x-direction or Longitude'
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
     write(log_scratch_space,'(A, 4(F16.11), A)') &
     'ends = [', outer_ends_l, inner_ends_l, inner_ends_r, outer_ends_r, ' ]'
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
     write(log_scratch_space,'(A, 2(F16.11), A)') &
     'deltas = [', delta_outer, delta_inner, ']'
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
     write(log_scratch_space,'(A, F16.11 )') &
     'infl_target = ', inflation_factor
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
 
   elseif (axis_direction == 2 ) then
     write(log_scratch_space,'(A)') &
     'y-direction or Latitude'
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
     write(log_scratch_space,'(A, 4(F16.11), A)') &
     'ends = [', outer_ends_l, inner_ends_l, inner_ends_r, outer_ends_r, ']'
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
     write(log_scratch_space,'(A, 2(F16.11), A)') &
     'deltas = [', delta_outer, delta_inner, ']'
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
     write(log_scratch_space,'(A, F16.11 )') &
     'infl_target = ', inflation_factor
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
 
   else
     write(log_scratch_space,'(A)') &
-    PREFIX//'axis_direction value unknown'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    prefix//'axis_direction value unknown'
+    call log_event(log_scratch_space, log_level_error)
   end if
 
 end subroutine calculate_settings
@@ -300,8 +300,8 @@ subroutine stretch_transform( cell, node_coord,           &
       n_outer = n_cells_outer( axis_direction ) - 2
 
     case default
-      call log_event( PREFIX//"Unrecognised value of stretching_on", &
-                      LOG_LEVEL_ERROR )
+      call log_event( prefix//"Unrecognised value of stretching_on", &
+                      log_level_error )
   end select
 
   ! First cell
@@ -360,8 +360,8 @@ subroutine stretch_transform( cell, node_coord,           &
 
   else
     write(log_scratch_space,'(A, I0)') &
-    PREFIX//"Invalid cell number ", cell
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    prefix//"Invalid cell number ", cell
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   ! Use the stretching function coordinate to define the coordinates
@@ -441,7 +441,7 @@ subroutine stretch_transform( cell, node_coord,           &
   write(log_scratch_space,'(A, I0, 2(A,F16.10))') 'cell = ', cell, &
                                                   ' stretch-coord = ', stretching_coord, &
                                                   ' cell-node-coord = ', node_coord
-  call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+  call log_event(log_scratch_space, log_level_debug)
 
 end subroutine stretch_transform
 

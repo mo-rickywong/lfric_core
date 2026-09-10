@@ -10,7 +10,7 @@ module lfric_xios_file_mod
 
   use, intrinsic :: iso_fortran_env, only: real64
   use constants_mod,                 only: i_def, l_def, str_def,        &
-                                           str_max_filename, RMDI, IMDI
+                                           str_max_filename, rmdi, imdi
   use field_mod,                     only: field_type
   use field_parent_mod,              only: field_parent_type
   use field_collection_mod,          only: field_collection_type
@@ -122,8 +122,8 @@ interface lfric_xios_file_type
   module procedure lfric_xios_file_constructor
 end interface
 
-integer(i_def), public, parameter :: OPERATION_ONCE       = 1938
-integer(i_def), public, parameter :: OPERATION_TIMESERIES = 3406
+integer(i_def), public, parameter :: operation_once       = 1938
+integer(i_def), public, parameter :: operation_timeseries = 3406
 
 integer(i_def), public, parameter :: CONVENTION_CF    =  6542
 integer(i_def), public, parameter :: CONVENTION_UGRID =  3698
@@ -169,10 +169,10 @@ subroutine register_diagnostics_file(xios_id, freq_ts, is_main, always_on_sampli
   if (first_time) then
     first_time = .false.
     if (xios_is_valid_fieldgroup(diag_field_group)) then
-      call xios_set_fieldgroup_attr(diag_field_group, default_value=real(RMDI, real64))
+      call xios_set_fieldgroup_attr(diag_field_group, default_value=real(rmdi, real64))
     end if
     if (xios_is_valid_fieldgroup(diag_int_field_group)) then
-      call xios_set_fieldgroup_attr(diag_int_field_group, default_value=real(IMDI, real64))
+      call xios_set_fieldgroup_attr(diag_int_field_group, default_value=real(imdi, real64))
     end if
     if (.not. always_on_sampling) then
       if (xios_is_valid_fieldgroup(diag_field_group)) then
@@ -238,7 +238,7 @@ function lfric_xios_file_constructor( file_name, xios_id, io_mode, freq,      &
 
   if (present(operation)) self%operation = operation
   if (present(file_convention)) self%file_convention = file_convention
-  if (present(cyclic) .and. self%io_mode == FILE_MODE_READ) then
+  if (present(cyclic) .and. self%io_mode == file_mode_read) then
     self%cyclic = cyclic
   end if
 
@@ -368,9 +368,9 @@ subroutine register_with_context(self)
   ! default behaviour)
   call xios_set_attr( self%handle, type="one_file" )
   select case(self%io_mode)
-  case (FILE_MODE_READ)
+  case (file_mode_read)
     call xios_set_attr( self%handle, mode="read" )
-  case (FILE_MODE_WRITE)
+  case (file_mode_write)
     call xios_set_attr( self%handle, mode="write" )
   end select
 
@@ -383,7 +383,7 @@ subroutine register_with_context(self)
   end select
 
   ! Create CF-compliant time description
-  if (self%operation == OPERATION_TIMESERIES) then
+  if (self%operation == operation_timeseries) then
     call xios_set_attr( self%handle, time_counter="exclusive", &
                                      time_counter_name="time" )
   else
@@ -438,9 +438,9 @@ subroutine register_with_context(self)
 
     ! Set the temporal operation for fields in the file
     select case(self%operation)
-    case(OPERATION_ONCE)
+    case(operation_once)
       call xios_set_attr(file_fields, operation="once")
-    case(OPERATION_TIMESERIES)
+    case(operation_timeseries)
       call xios_set_attr(file_fields, operation="instant")
     end select
 
@@ -450,8 +450,8 @@ subroutine register_with_context(self)
     end do
 
     ! Set up time axis if needed
-    if ( self%io_mode == FILE_MODE_READ .and. &
-         self%operation == OPERATION_TIMESERIES ) then
+    if ( self%io_mode == file_mode_read .and. &
+         self%operation == operation_timeseries ) then
 
       ! Initialise file temporal control. Get the record offset from
       ! the temporal object initialiser which will tell XIOS which time entry
@@ -481,7 +481,7 @@ function mode_is_read(self) result(file_mode_is_read)
   class(lfric_xios_file_type), intent(inout) :: self
   logical :: file_mode_is_read
 
-  file_mode_is_read = (self%io_mode == FILE_MODE_READ)
+  file_mode_is_read = (self%io_mode == file_mode_read)
 
 end function mode_is_read
 
@@ -493,7 +493,7 @@ function mode_is_write(self) result(file_mode_is_write)
   class(lfric_xios_file_type), intent(inout) :: self
   logical :: file_mode_is_write
 
-  file_mode_is_write = (self%io_mode == FILE_MODE_WRITE)
+  file_mode_is_write = (self%io_mode == file_mode_write)
 
 end function mode_is_write
 
@@ -511,7 +511,7 @@ subroutine recv_fields(self)
   ! don't do any operations
   if (.not. allocated(self%fields) .or. self%is_closed) return
 
-  if (self%io_mode /= FILE_MODE_READ) then
+  if (self%io_mode /= file_mode_read) then
     call log_event( "Can't perform read operations on file ["//     &
                     trim(self%xios_id)//"]: file not in read mode", &
                     log_level_error)
@@ -526,14 +526,14 @@ subroutine recv_fields(self)
     end do
 
     ! Shift the read index forward for temporal reading
-    if ( (self%io_mode == FILE_MODE_READ) .and. &
-        (self%operation == OPERATION_TIMESERIES) ) then
+    if ( (self%io_mode == file_mode_read) .and. &
+        (self%operation == operation_timeseries) ) then
       call self%temporal%shift_read_index(self%fields)
     end if
 
     ! If file should only be operated on once, close it, else set the time for
     ! the next operation
-    if (self%operation == OPERATION_ONCE) then
+    if (self%operation == operation_once) then
       call self%file_close()
     else if (.not. self%context_init_read) then
       self%next_operation = self%next_operation + self%frequency
@@ -544,8 +544,8 @@ subroutine recv_fields(self)
   end if
 
   ! Advance the time axis if present
-  if ( (self%io_mode == FILE_MODE_READ) .and. &
-        (self%operation == OPERATION_TIMESERIES) ) then
+  if ( (self%io_mode == file_mode_read) .and. &
+        (self%operation == operation_timeseries) ) then
     if (.not. self%temporal%advance(self%fields)) call self%file_close()
   end if
 
@@ -566,7 +566,7 @@ subroutine send_fields(self)
   if (.not. allocated(self%fields) .or. self%is_closed) return
 
   ! Do not try to write if file is not in write mode
-  if (self%io_mode /= FILE_MODE_WRITE) then
+  if (self%io_mode /= file_mode_write) then
     call log_event( "Cannot perform write operations on file ["//     &
                     trim(self%xios_id)//"]: file not in write mode", &
                     log_level_error)
@@ -585,7 +585,7 @@ subroutine send_fields(self)
 
     ! If file should only be operated on once, close it, else set the time for
     ! the next operation
-    if (self%operation == OPERATION_ONCE) then
+    if (self%operation == operation_once) then
       call self%file_close()
     else
       self%next_operation = self%next_operation + self%frequency

@@ -12,7 +12,7 @@ module lfric_xios_utils_mod_test
     use local_mesh_mod,                 only : local_mesh_type
     use mesh_collection_mod,            only : mesh_collection_type, &
                                                mesh_collection
-    use mesh_mod,                       only : mesh_type, PLANE, PLANE_BI_PERIODIC
+    use mesh_mod,                       only : mesh_type, plane, plane_bi_periodic
     use xios,                           only : xios_date, xios_duration
 
     use funit
@@ -52,8 +52,8 @@ module lfric_xios_utils_mod_test
     unit_test_local_mesh_ptr => this%get_local_mesh_ptr()
 
     ! Dummy mesh mod has 9 cells, 3 layers and is uniform in vertical
-    unit_test_mesh_1 = mesh_type( PLANE, unit_test_local_mesh_ptr )
-    unit_test_mesh_2 = mesh_type( PLANE_BI_PERIODIC, unit_test_local_mesh_ptr )
+    unit_test_mesh_1 = mesh_type( plane, unit_test_local_mesh_ptr )
+    unit_test_mesh_2 = mesh_type( plane_bi_periodic, unit_test_local_mesh_ptr )
     mesh_id_1 = mesh_collection%add_new_mesh( unit_test_mesh_1 )
     mesh_id_2 = mesh_collection%add_new_mesh( unit_test_mesh_2 )
     this%mesh_1 => mesh_collection%get_mesh( mesh_id_1 )

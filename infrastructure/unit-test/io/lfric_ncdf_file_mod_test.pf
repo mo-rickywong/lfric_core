@@ -9,7 +9,7 @@
 module lfric_ncdf_file_mod_test
 
   use constants_mod,       only: i_def
-  use file_mod,            only: FILE_MODE_READ, FILE_MODE_WRITE, &
+  use file_mod,            only: file_mode_read, file_mode_write, &
                                  FILE_OP_OPEN, FILE_OP_CREATE
   use lfric_ncdf_file_mod, only: lfric_ncdf_file_type
   use pfunit
@@ -32,7 +32,7 @@ contains
     integer(kind=i_def), parameter :: nowrite = 0
 
     file1 = lfric_ncdf_file_type("test_file.nc", open_mode=FILE_OP_CREATE, &
-                                  io_mode=FILE_MODE_WRITE)
+                                  io_mode=file_mode_write)
     file1id = file1%get_id()
     @assertEqual(file1%get_io_mode(), canwrite)
 
@@ -40,14 +40,14 @@ contains
     call file1%close_file()
 
     file2 = lfric_ncdf_file_type("test_file.nc", open_mode=FILE_OP_OPEN, &
-                                  io_mode=FILE_MODE_READ)
+                                  io_mode=file_mode_read)
     file2id = file2%get_id()
     @assertEqual(file2%get_io_mode(), nowrite)
 
     call file2%close_file()
 
     file3 = lfric_ncdf_file_type("test_file.nc", open_mode=FILE_OP_OPEN, &
-                                  io_mode=FILE_MODE_WRITE)
+                                  io_mode=file_mode_write)
     file3id = file3%get_id()
     @assertEqual(file3%get_io_mode(), canwrite)
 

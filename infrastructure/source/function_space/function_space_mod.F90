@@ -20,11 +20,11 @@ module function_space_mod
   use stencil_dofmap_helper_functions_mod, &
                             only : generate_stencil_dofmap_id
   use log_mod,              only : log_event, log_scratch_space,               &
-                                   LOG_LEVEL_DEBUG, LOG_LEVEL_ERROR,           &
-                                   LOG_LEVEL_INFO
+                                   log_level_debug, log_level_error,           &
+                                   log_level_info
   use fs_continuity_mod,    only : W0, W1, W2, W3, Wtheta, W2broken, W2trace,  &
-                                   W2Htrace, W2Vtrace, W2V, W2H, Wchi,         &
-                                   W2Hbroken
+                                   W2htrace, W2vtrace, W2v, W2h, Wchi,         &
+                                   W2hbroken
   use function_space_constructor_helper_functions_mod, &
                             only : ndof_setup, basis_setup, dofmap_setup,      &
                                    levels_setup, generate_fs_id,               &
@@ -36,7 +36,7 @@ module function_space_mod
   use linked_list_mod,      only : linked_list_type, linked_list_item_type
   use mesh_collection_mod,  only : mesh_collection
   use timing_mod,           only : start_timing, stop_timing, &
-                                   tik, LPROF
+                                   tik, lprof
 
   implicit none
 
@@ -447,7 +447,7 @@ contains
     integer(i_def) :: id
     integer(tik)   :: t_id
 
-    if ( LPROF ) call start_timing(t_id, 'fs.constructor')
+    if ( lprof ) call start_timing(t_id, 'fs.constructor')
 
     if ( present(ndata_first) ) then
       instance%ndata_first = ndata_first
@@ -479,7 +479,7 @@ contains
     end if
     call init_function_space(instance)
 
-    if ( LPROF ) call stop_timing(t_id, 'fs.constructor')
+    if ( lprof ) call stop_timing(t_id, 'fs.constructor')
 
   end function fs_constructor
 
@@ -499,7 +499,7 @@ contains
     ncells_2d_with_ghost = self%mesh % get_ncells_2d_with_ghost()
 
     select case (self%fs)
-    case (W0, WTHETA, WCHI)
+    case (W0, Wtheta, WCHI)
       self%dim_space = 1  ! Scalar field
       self%dim_space_diff = 3  ! Vector field
 
@@ -507,18 +507,18 @@ contains
       self%dim_space = 3  ! Vector field
       self%dim_space_diff = 3  ! Vector field
 
-    case (W2, W2broken, W2V, W2H, W2Hbroken)
+    case (W2, W2broken, W2v, W2h, W2hbroken)
       self%dim_space = 3  ! Vector field
       self%dim_space_diff = 1  ! Scalar field
 
-    case (W2trace, W2Vtrace, W2Htrace, W3)
+    case (W2trace, W2vtrace, W2htrace, W3)
       self%dim_space = 1  ! Scalar field
       self%dim_space_diff = 3  ! Vector field
 
     case default
       call log_event(&
       'Attempt to initialise unknown function space', &
-      LOG_LEVEL_ERROR)
+      log_level_error)
 
     end select
 
@@ -867,7 +867,7 @@ contains
     case default
       call log_event(&
       'function_to_call does not match the available enumerators', &
-      LOG_LEVEL_ERROR)
+      log_level_error)
 
     end select
 

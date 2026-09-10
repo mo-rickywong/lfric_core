@@ -8,8 +8,8 @@
 module coupled_driver_mod
 
   use add_mesh_map_mod,           only : assign_mesh_maps
-  use base_mesh_config_mod,       only : GEOMETRY_SPHERICAL, &
-                                         GEOMETRY_PLANAR
+  use base_mesh_config_mod,       only : geometry_spherical, &
+                                         geometry_planar
   use calendar_mod,               only : calendar_type
   use constants_mod,              only : i_def, str_def, str_longlong, &
                                          r_def, r_second
@@ -21,15 +21,15 @@ module coupled_driver_mod
   use driver_fem_mod,             only : init_fem, final_fem
   use extrusion_mod,              only : extrusion_type,         &
                                          uniform_extrusion_type, &
-                                         PRIME_EXTRUSION, TWOD
+                                         prime_extrusion, twod
   use field_collection_mod,       only : field_collection_type
   use field_mod,                  only : field_type
   use init_coupled_mod,           only : init_coupled
   use inventory_by_mesh_mod,      only : inventory_by_mesh_type
   use log_mod,                    only : log_event, log_scratch_space, &
-                                         LOG_LEVEL_ALWAYS,             &
-                                         LOG_LEVEL_ERROR,              &
-                                         LOG_LEVEL_INFO
+                                         log_level_always,             &
+                                         log_level_error,              &
+                                         log_level_info
   use mesh_mod,                   only : mesh_type
   use mesh_collection_mod,        only : mesh_collection
 
@@ -116,23 +116,23 @@ contains
 
     ! Create the required extrusions
     select case (geometry)
-    case (GEOMETRY_PLANAR)
+    case (geometry_planar)
       domain_bottom = 0.0_r_def
-    case (GEOMETRY_SPHERICAL)
+    case (geometry_spherical)
       domain_bottom = scaled_radius
     case default
       call log_event("Invalid geometry for mesh initialisation", &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
     end select
     allocate( extrusion, source=create_extrusion( method,           &
                                                   domain_height,    &
                                                   domain_bottom,    &
                                                   number_of_layers, &
-                                                  PRIME_EXTRUSION ) )
+                                                  prime_extrusion ) )
 
     extrusion_2d = uniform_extrusion_type( domain_bottom, &
                                            domain_bottom, &
-                                           one_layer, TWOD )
+                                           one_layer, twod )
 
     ! Create the required meshes
     stencil_depth = 1
@@ -163,7 +163,7 @@ contains
 
     ! Create and initialise prognostic fields
     mesh => mesh_collection%get_mesh(prime_mesh_name)
-    mesh_twod => mesh_collection%get_mesh(mesh, TWOD)
+    mesh_twod => mesh_collection%get_mesh(mesh, twod)
     call chi_inventory%get_field_array(mesh, chi)
     call panel_id_inventory%get_field(mesh, panel_id)
     call init_coupled( mesh_twod, chi, panel_id, modeldb )
@@ -188,7 +188,7 @@ contains
     call coupled_alg(modeldb)
 
     ! Write out output file
-    call log_event(program_name//": Writing diagnostic output", LOG_LEVEL_INFO)
+    call log_event(program_name//": Writing diagnostic output", log_level_info)
 
   end subroutine step
 
@@ -217,7 +217,7 @@ contains
       call checksum_alg(program_name, field_2, 'coupled_field_2')
     end if
 
-    call log_event( program_name//': Miniapp completed', LOG_LEVEL_INFO )
+    call log_event( program_name//': Miniapp completed', log_level_info )
 
     call final_fem()
 

@@ -77,9 +77,9 @@ function stencil_2D_dofmap_constructor(st_shape, st_depth, ndf, mesh, master_dof
 
   use log_mod,                             only: log_event,         &
                                                  log_scratch_space, &
-                                                 LOG_LEVEL_ERROR,   &
-                                                 LOG_LEVEL_INFO,    &
-                                                 LOG_LEVEL_WARNING
+                                                 log_level_error,   &
+                                                 log_level_info,    &
+                                                 log_level_warning
   use mesh_mod,                            only: mesh_type
   use reference_element_mod,               only: W, E, N, S, &
                                                  reference_element_type
@@ -115,7 +115,7 @@ function stencil_2D_dofmap_constructor(st_shape, st_depth, ndf, mesh, master_dof
   ! Since this routine is only valid for quadrilateral elements throw an error
   ! if the number of (horizontal) neighbours is not four
   if ( number_of_neighbours /= 4_i_def ) &
-  call log_event( 'Stencil dofmaps only valid for quad elements', LOG_LEVEL_ERROR )
+  call log_event( 'Stencil dofmaps only valid for quad elements', log_level_error )
 
   ! Get direction map for the requested stencil shape
   allocate( direction_map(number_of_neighbours) )
@@ -135,7 +135,7 @@ function stencil_2D_dofmap_constructor(st_shape, st_depth, ndf, mesh, master_dof
     write( log_scratch_space, '( A, I4, A, I4, A, I4 )' ) &
        'Attempting to create stencil: ', st_shape,' of extent ',st_depth, &
        ' when halo is depth is too small:',mesh%get_halo_depth()
-    call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+    call log_event( log_scratch_space, log_level_warning )
   end if
 
   ! Compute stencil for all cells

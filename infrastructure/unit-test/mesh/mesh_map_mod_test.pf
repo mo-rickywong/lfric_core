@@ -8,9 +8,9 @@
 !>
 module mesh_map_mod_test
 
-  use constants_mod,              only: r_def, i_def, l_def, IMDI, &
+  use constants_mod,              only: r_def, i_def, l_def, imdi, &
                                         str_max_filename, str_def
-  use extrusion_mod,              only: uniform_extrusion_type, PRIME_EXTRUSION
+  use extrusion_mod,              only: uniform_extrusion_type, prime_extrusion
   use global_mesh_mod,            only: global_mesh_type
   use halo_comms_mod,             only: initialise_halo_comms, &
                                         finalise_halo_comms
@@ -176,7 +176,7 @@ contains
 
     ! Extrusion to be used for all meshes
     extrusion = uniform_extrusion_type( radius, domain_top, nlayers, &
-                                        PRIME_EXTRUSION )
+                                        prime_extrusion )
 
     ! Get coarse mesh
     name = 'C4'

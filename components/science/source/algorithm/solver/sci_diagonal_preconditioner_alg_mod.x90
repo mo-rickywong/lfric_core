@@ -10,8 +10,8 @@ module sci_diagonal_preconditioner_alg_mod
   use constants_mod,          only: i_def, r_def
   use field_mod,              only: field_type
   use log_mod,                only: log_event,       &
-                                    LOG_LEVEL_ERROR, &
-                                    LOG_LEVEL_DEBUG, &
+                                    log_level_error, &
+                                    log_level_debug, &
                                     log_scratch_space
   use sci_field_vector_mod,   only: field_vector_type
   use sci_preconditioner_mod, only: abstract_preconditioner_type
@@ -59,7 +59,7 @@ contains
     type(field_vector_type), intent(in) :: mass_matrix_diagonal
 
     self%mass_matrix_diagonal = mass_matrix_diagonal
-    call log_event( 'Created diagonal pre-conditioner', LOG_LEVEL_DEBUG )
+    call log_event( 'Created diagonal pre-conditioner', log_level_debug )
 
   end function diagonal_preconditioner_constructor
 
@@ -95,12 +95,12 @@ contains
        class default
           write(log_scratch_space, '(A)') &
                "diagonal_preconditioner_alg_mod: incorrect vector_type argument y"
-          call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+          call log_event(log_scratch_space, log_level_error)
        end select
     class default
        write(log_scratch_space, '(A)') &
              "diagonal_preconditioner_alg_mod: incorrect vector_type argument x"
-       call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+       call log_event(log_scratch_space, log_level_error)
     end select
 
   end subroutine apply_diagonal_preconditioner

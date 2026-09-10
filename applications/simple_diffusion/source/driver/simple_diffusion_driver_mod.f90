@@ -21,7 +21,7 @@ module simple_diffusion_driver_mod
   use driver_io_mod,               only : init_io, final_io
   use extrusion_mod,               only : extrusion_type,         &
                                           uniform_extrusion_type, &
-                                          TWOD, PRIME_EXTRUSION
+                                          twod, prime_extrusion
   use field_collection_mod,        only : field_collection_type
   use field_mod,                   only : field_type
   use init_simple_diffusion_mod,   only : init_simple_diffusion
@@ -30,9 +30,9 @@ module simple_diffusion_driver_mod
   use lfric_mpi_mod,               only : lfric_mpi_type
   use log_mod,                     only : log_event,         &
                                           log_scratch_space, &
-                                          LOG_LEVEL_INFO,    &
-                                          LOG_LEVEL_ERROR,   &
-                                          LOG_LEVEL_TRACE
+                                          log_level_info,    &
+                                          log_level_error,   &
+                                          log_level_trace
   use mesh_mod,                    only : mesh_type
   use mesh_collection_mod,         only : mesh_collection
   use random_number_generator_mod, only : random_number_generator_type
@@ -41,8 +41,8 @@ module simple_diffusion_driver_mod
   !------------------------------------
   ! Configuration modules
   !------------------------------------
-  use base_mesh_config_mod, only: GEOMETRY_SPHERICAL, &
-                                  GEOMETRY_PLANAR
+  use base_mesh_config_mod, only: geometry_spherical, &
+                                  geometry_planar
 
   implicit none
 
@@ -141,24 +141,24 @@ contains
     ! Extrusions for prime/2d meshes
     ! ---------------------------------------------------------
     select case (geometry)
-    case (GEOMETRY_PLANAR)
+    case (geometry_planar)
       domain_bottom = 0.0_r_def
-    case (GEOMETRY_SPHERICAL)
+    case (geometry_spherical)
       domain_bottom = scaled_radius
     case default
       call log_event("Invalid geometry for mesh initialisation", &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
     end select
 
     allocate( extrusion, source=create_extrusion( method,           &
                                                   domain_height,    &
                                                   domain_bottom,    &
                                                   number_of_layers, &
-                                                  PRIME_EXTRUSION ) )
+                                                  prime_extrusion ) )
 
     extrusion_2d = uniform_extrusion_type( domain_bottom, &
                                            domain_bottom, &
-                                           one_layer, TWOD )
+                                           one_layer, twod )
 
     !-------------------------------------------------------------------------
     ! 1.3 Initialise mesh objects and assign InterGrid maps
@@ -217,7 +217,7 @@ contains
       class default
         write(log_scratch_space, * ) &
           "Error: the value called 'rng' is not a random_number_generator"
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
     end select
     call rng%check_seed()
 
@@ -253,12 +253,12 @@ contains
     call depository%get_field("diffusion_field", diffusion_field)
 
     ! Call an algorithm
-    call log_event(program_name//": Calculating diffusion", LOG_LEVEL_INFO)
+    call log_event(program_name//": Calculating diffusion", log_level_info)
     call simple_diffusion_alg(modeldb, diffusion_field)
 
     if (write_diag) then
         ! Write out output file
-        call log_event(program_name//": Writing diagnostic output", LOG_LEVEL_INFO)
+        call log_event(program_name//": Writing diagnostic output", log_level_info)
         call diffusion_field%write_field('diffusion_field')
     end if
 
@@ -285,7 +285,7 @@ contains
     !--------------------------------------------------------------------------
     ! Write checksums to file
     call checksum_alg(program_name, diffusion_field, 'simple_diffusion_field_1')
-    call log_event( program_name//': Miniapp completed', LOG_LEVEL_TRACE )
+    call log_event( program_name//': Miniapp completed', log_level_trace )
 
     !-------------------------------------------------------------------------
     ! Driver layer finalise

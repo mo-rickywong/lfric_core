@@ -40,13 +40,13 @@ module lfric_xios_write_mod
   use model_clock_mod,      only: model_clock_type
   use log_mod,              only: log_event,         &
                                   log_scratch_space, &
-                                  LOG_LEVEL_INFO,    &
-                                  LOG_LEVEL_DEBUG,   &
-                                  LOG_LEVEL_WARNING, &
-                                  LOG_LEVEL_ERROR
+                                  log_level_info,    &
+                                  log_level_debug,   &
+                                  log_level_warning, &
+                                  log_level_error
   use lfric_string_mod,     only: split_string
   use timing_mod,           only: start_timing, stop_timing, &
-                                  tik, LPROF
+                                  tik, lprof
 #ifdef UNIT_TEST
   use lfric_xios_mock_mod,  only: xios_send_field,      &
                                   xios_get_domain_attr, &
@@ -115,7 +115,7 @@ subroutine write_value_generic(io_value, value_name)
       deallocate(dp_equiv)
     else
       call log_event( 'No XIOS field with id="'//trim(io_value%io_id)//'" is defined', &
-                      LOG_LEVEL_ERROR )
+                      log_level_error )
     end if
   type is (integer_io_value_type)
     if (present(value_name)) then
@@ -134,7 +134,7 @@ subroutine write_value_generic(io_value, value_name)
       deallocate(dp_equiv)
     else
       call log_event( 'No XIOS field with id="'//trim(io_value%io_id)//'" is defined', &
-                      LOG_LEVEL_ERROR )
+                      log_level_error )
     end if
   end select
 
@@ -163,7 +163,7 @@ subroutine write_field_generic(field_name, field_proxy)
   ! without doing anything
   if (.not. field_is_active(field_name, .true.)) return
 
-  if ( LPROF ) call start_timing(timing_id, 'lfric_xios.write_fldg')
+  if ( lprof ) call start_timing(timing_id, 'lfric_xios.write_fldg')
 
   undf = field_proxy%vspace%get_last_dof_owned() ! total dimension
 
@@ -194,7 +194,7 @@ subroutine write_field_generic(field_name, field_proxy)
 
   deallocate(xios_data)
 
-  if ( LPROF ) call stop_timing(timing_id, 'lfric_xios.write_fldg')
+  if ( lprof ) call stop_timing(timing_id, 'lfric_xios.write_fldg')
 
 end subroutine write_field_generic
 
@@ -210,10 +210,10 @@ subroutine write_empty_field(field_name, field_proxy)
   class(field_parent_proxy_type), intent(in) :: field_proxy
 
   ! Note that this routine simply outputs an informative warning.
-  ! Future versions may force an error by logging to LOG_LEVEL_ERROR.
+  ! Future versions may force an error by logging to log_level_error.
   write(log_scratch_space,'(2A)') &
         "Attempt to write an empty field: ", field_name
-  call log_event(log_scratch_space, LOG_LEVEL_WARNING)
+  call log_event(log_scratch_space, log_level_warning)
 
 
 end subroutine write_empty_field
@@ -246,7 +246,7 @@ subroutine checkpoint_write_r_def_value(io_value, value_name)
     deallocate(dp_equiv)
   else
     call log_event( 'No XIOS field with id="'//trim(checkpoint_id)//'" is defined', &
-                    LOG_LEVEL_ERROR )
+                    log_level_error )
   end if
 
 end subroutine checkpoint_write_r_def_value
@@ -279,7 +279,7 @@ subroutine checkpoint_write_integer_value(io_value, value_name)
     deallocate(dp_equiv)
   else
     call log_event( 'No XIOS field with id="'//trim(checkpoint_id)//'" is defined', &
-                    LOG_LEVEL_ERROR )
+                    log_level_error )
   end if
 
 end subroutine checkpoint_write_integer_value
@@ -318,12 +318,12 @@ subroutine checkpoint_write_xios(xios_field_name, file_name, field_proxy)
     type is (integer_field_proxy_type)
     if ( any( abs(field_proxy%data(1:undf)) > xios_max_int) ) then
       call log_event( 'Data for integer field "'// trim(adjustl(xios_field_name)) // &
-                      '" contains values too large for 16-bit precision', LOG_LEVEL_WARNING )
+                      '" contains values too large for 16-bit precision', log_level_warning )
     end if
     send_field = real( field_proxy%data(1:undf), dp_xios )
 
     class default
-    call log_event( "Invalid type for input field proxy", LOG_LEVEL_ERROR )
+    call log_event( "Invalid type for input field proxy", log_level_error )
 
   end select
 
@@ -364,7 +364,7 @@ subroutine write_state(state, prefix, suffix)
         if ( fld%can_write() ) then
           write(log_scratch_space,'(3A,I6)') &
               "Writing ", trim(adjustl(fld%get_name()))
-          call log_event(log_scratch_space,LOG_LEVEL_INFO)
+          call log_event(log_scratch_space,log_level_info)
 
           ! Construct the XIOS field ID from the LFRic field name and optional arguments
           xios_field_id = trim(adjustl(fld%get_name()))
@@ -375,14 +375,14 @@ subroutine write_state(state, prefix, suffix)
         else
 
           call log_event( 'Write method for '// trim(adjustl(fld%get_name())) // &
-                      ' not set up', LOG_LEVEL_INFO )
+                      ' not set up', log_level_info )
 
         end if
       type is (field_real64_type)
         if ( fld%can_write() ) then
           write(log_scratch_space,'(3A,I6)') &
               "Writing ", trim(adjustl(fld%get_name()))
-          call log_event(log_scratch_space,LOG_LEVEL_INFO)
+          call log_event(log_scratch_space,log_level_info)
 
           ! Construct the XIOS field ID from the LFRic field name and optional arguments
           xios_field_id = trim(adjustl(fld%get_name()))
@@ -393,14 +393,14 @@ subroutine write_state(state, prefix, suffix)
         else
 
           call log_event( 'Write method for '// trim(adjustl(fld%get_name())) // &
-                      ' not set up', LOG_LEVEL_INFO )
+                      ' not set up', log_level_info )
 
         end if
       type is (integer_field_type)
         if ( fld%can_write() ) then
           write(log_scratch_space,'(3A,I6)') &
               "Writing ", trim(adjustl(fld%get_name()))
-          call log_event(log_scratch_space,LOG_LEVEL_INFO)
+          call log_event(log_scratch_space,log_level_info)
 
           ! Construct the XIOS field ID from the LFRic field name and optional arguments
           xios_field_id = trim(adjustl(fld%get_name()))
@@ -411,7 +411,7 @@ subroutine write_state(state, prefix, suffix)
         else
 
           call log_event( 'Write method for '// trim(adjustl(fld%get_name())) // &
-                      ' not set up', LOG_LEVEL_INFO )
+                      ' not set up', log_level_info )
 
         end if
 
@@ -479,7 +479,7 @@ subroutine write_checkpoint( fields, values, clock, checkpoint_stem_name, &
           if ( fld%can_checkpoint() ) then
              write(log_scratch_space,'(2A)') &
                   "Checkpointing ", xios_field_id
-             call log_event(log_scratch_space, LOG_LEVEL_INFO)
+             call log_event(log_scratch_space, log_level_info)
              call fld%write_checkpoint( xios_field_id,      &
                                         trim(ts_fname(checkpoint_stem_name, &
                                         "",                                 &
@@ -489,17 +489,17 @@ subroutine write_checkpoint( fields, values, clock, checkpoint_stem_name, &
           else if ( fld%can_write() ) then
              write(log_scratch_space,'(2A)') &
                   "Writing checkpoint for ", xios_field_id
-             call log_event(log_scratch_space, LOG_LEVEL_INFO)
+             call log_event(log_scratch_space, log_level_info)
              call fld%write_field( trim(field_prefix) // trim(xios_field_id) )
           else
              call log_event( 'Writing not set up for '// xios_field_id, &
-                            LOG_LEVEL_INFO )
+                            log_level_info )
           end if
        type is (field_real64_type)
           if ( fld%can_checkpoint() ) then
              write(log_scratch_space,'(2A)') &
                   "Checkpointing ", xios_field_id
-             call log_event(log_scratch_space, LOG_LEVEL_INFO)
+             call log_event(log_scratch_space, log_level_info)
              call fld%write_checkpoint( xios_field_id,      &
                                         trim(ts_fname(checkpoint_stem_name, &
                                         "",                                 &
@@ -509,17 +509,17 @@ subroutine write_checkpoint( fields, values, clock, checkpoint_stem_name, &
           else if ( fld%can_write() ) then
              write(log_scratch_space,'(2A)') &
                   "Writing checkpoint for ", xios_field_id
-             call log_event(log_scratch_space, LOG_LEVEL_INFO)
+             call log_event(log_scratch_space, log_level_info)
              call fld%write_field( trim(field_prefix) // trim(xios_field_id) )
           else
              call log_event( 'Writing not set up for '// xios_field_id, &
-                            LOG_LEVEL_INFO )
+                            log_level_info )
           end if
        type is (integer_field_type)
           if ( fld%can_checkpoint() ) then
              write(log_scratch_space,'(2A)') &
                   "Checkpointing ", xios_field_id
-             call log_event(log_scratch_space, LOG_LEVEL_INFO)
+             call log_event(log_scratch_space, log_level_info)
              call fld%write_checkpoint( trim(adjustl(fld%get_name()) ),     &
                                         trim(ts_fname(checkpoint_stem_name, &
                                         "",                                 &
@@ -529,14 +529,14 @@ subroutine write_checkpoint( fields, values, clock, checkpoint_stem_name, &
           else if ( fld%can_write() ) then
              write(log_scratch_space,'(2A)') &
                   "Writing checkpoint for ", xios_field_id
-             call log_event(log_scratch_space, LOG_LEVEL_INFO)
+             call log_event(log_scratch_space, log_level_info)
              call fld%write_field( trim(field_prefix) // trim(xios_field_id) )
           else
              call log_event( 'Writing not set up for '// xios_field_id, &
-                  LOG_LEVEL_INFO )
+                  log_level_info )
           end if
        class default
-          call log_event('write_checkpoint:Invalid type of field, not supported supported',LOG_LEVEL_ERROR)
+          call log_event('write_checkpoint:Invalid type of field, not supported supported',log_level_error)
        end select
     end do
 
@@ -553,7 +553,7 @@ subroutine write_checkpoint( fields, values, clock, checkpoint_stem_name, &
               if(io_value_object%can_write_checkpoint()) then
                 call log_event( 'Writing checkpoint for ' // &
                                 trim(io_value_object%io_id), &
-                                LOG_LEVEL_INFO )
+                                log_level_info )
                 call io_value_object%write_checkpoint( &
                         trim(field_prefix) // trim(io_value_object%io_id))
               end if
@@ -561,7 +561,7 @@ subroutine write_checkpoint( fields, values, clock, checkpoint_stem_name, &
               if(io_value_object%can_write_checkpoint()) then
                 call log_event( 'Writing checkpoint for ' // &
                                 trim(io_value_object%io_id), &
-                                LOG_LEVEL_INFO )
+                                log_level_info )
                 call io_value_object%write_checkpoint( &
                         trim(field_prefix) // trim(io_value_object%io_id))
               end if

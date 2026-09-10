@@ -8,7 +8,7 @@
 !>
 module global_mesh_collection_mod_test
 
-  use constants_mod,                  only: i_def, IMDI, l_def, &
+  use constants_mod,                  only: i_def, imdi, l_def, &
                                             str_max_filename, str_def
   use global_mesh_mod,                only: global_mesh_type
   use global_mesh_map_mod,            only: global_mesh_map_type

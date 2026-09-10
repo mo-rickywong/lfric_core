@@ -5,7 +5,7 @@
 !-----------------------------------------------------------------------------
 
 !> Test the extraction of the u and v components of a W2 field
-!> into an W2H field
+!> into an W2h field
 !>
 module extract_uv_kernel_mod_test
 
@@ -89,7 +89,7 @@ contains
     ! Set up the input W2 field with data at all dofs
     this%w2_field_in(1:6) = (/  101.0_r_def,102.0_r_def,103.0_r_def,104.0_r_def, 105.0_r_def, 106.0_r_def /)
 
-    ! Set up the output W2H field with zeroes
+    ! Set up the output W2h field with zeroes
     this%w2h_field_out = 0.0_r_def
 
     call extract_uv_code( nlayers,                      &

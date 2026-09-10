@@ -11,7 +11,7 @@ module telly_config_mod
                            str_def
   use lfric_mpi_mod, only: global_mpi
   use log_mod,       only: log_event, log_scratch_space &
-                         , LOG_LEVEL_ERROR, LOG_LEVEL_DEBUG, LOG_LEVEL_INFO
+                         , log_level_error, log_level_debug, log_level_info
 
   use constants_mod, only: cmdi, emdi, imdi, rmdi, unset_key
 
@@ -62,7 +62,7 @@ contains
       write( log_scratch_space, '(A)') &
           'Missing key for tubbies enumeration in telly namelist.'
       tubbies_from_key = emdi
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
       return
     end if
 
@@ -77,7 +77,7 @@ contains
           write( log_scratch_space, &
               '("Key ''", A, "'' not recognised for telly tubbies")' ) &
               trim(adjustl(key))
-          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+          call log_event( log_scratch_space, log_level_error )
         end if
       end if
     end do
@@ -111,7 +111,7 @@ contains
         if (value_index > ubound(tubbies_key, 1)) then
           write( log_scratch_space, &
                  '("Value ", I0, " is not in telly tubbies")' ) value
-          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+          call log_event( log_scratch_space, log_level_error )
         end if
       end if
     end do
@@ -167,7 +167,7 @@ contains
 
       read( file_unit, nml=telly, iostat=condition, iomsg=log_scratch_space )
       if (condition /= 0) then
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       end if
 
       dummy_tubbies = tubbies_from_key( tubbies )

@@ -21,16 +21,16 @@ module skeleton_driver_mod
   use driver_fem_mod,             only : init_fem, final_fem
   use extrusion_mod,              only : extrusion_type,         &
                                          uniform_extrusion_type, &
-                                         PRIME_EXTRUSION, TWOD
+                                         prime_extrusion, twod
   use field_collection_mod,       only : field_collection_type
   use field_mod,                  only : field_type
   use init_skeleton_mod,          only : init_skeleton
   use inventory_by_mesh_mod,      only : inventory_by_mesh_type
   use lfric_mpi_mod,              only : lfric_mpi_type
   use log_mod,                    only : log_event, log_scratch_space, &
-                                         LOG_LEVEL_ALWAYS,             &
-                                         LOG_LEVEL_ERROR,              &
-                                         LOG_LEVEL_INFO
+                                         log_level_always,             &
+                                         log_level_error,              &
+                                         log_level_info
   use mesh_mod,                   only : mesh_type
   use mesh_collection_mod,        only : mesh_collection
   use skeleton_alg_mod,           only : skeleton_alg
@@ -38,8 +38,8 @@ module skeleton_driver_mod
   !------------------------------------
   ! Configuration modules
   !------------------------------------
-  use base_mesh_config_mod, only: GEOMETRY_SPHERICAL, &
-                                  GEOMETRY_PLANAR
+  use base_mesh_config_mod, only: geometry_spherical, &
+                                  geometry_planar
 
   implicit none
 
@@ -134,24 +134,24 @@ contains
     ! Create the required extrusions
     !-----------------------------------------------------------------------
     select case (geometry)
-    case (GEOMETRY_PLANAR)
+    case (geometry_planar)
       domain_bottom = 0.0_r_def
-    case (GEOMETRY_SPHERICAL)
+    case (geometry_spherical)
       domain_bottom = scaled_radius
     case default
       call log_event("Invalid geometry for mesh initialisation", &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
     end select
 
     allocate( extrusion, source=create_extrusion( method,           &
                                                   domain_height,    &
                                                   domain_bottom,    &
                                                   number_of_layers, &
-                                                  PRIME_EXTRUSION ) )
+                                                  prime_extrusion ) )
 
     extrusion_2d = uniform_extrusion_type( domain_bottom, &
                                            domain_bottom, &
-                                           one_layer, TWOD )
+                                           one_layer, twod )
 
     !-----------------------------------------------------------------------
     ! Create the required meshes
@@ -246,7 +246,7 @@ contains
     ! Write checksums to file
     call checksum_alg(program_name, field_1, 'skeleton_field_1')
 
-    call log_event( program_name//': Miniapp completed', LOG_LEVEL_INFO )
+    call log_event( program_name//': Miniapp completed', log_level_info )
 
     !-------------------------------------------------------------------------
     ! Driver layer finalise

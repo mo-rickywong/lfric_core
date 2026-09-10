@@ -10,8 +10,8 @@ module simple_diffusion_alg_mod
   use constants_mod,                       only: i_def, r_def
   use driver_modeldb_mod,                  only: modeldb_type
   use log_mod,                             only: log_event,         &
-                                                 LOG_LEVEL_INFO,    &
-                                                 LOG_LEVEL_TRACE
+                                                 log_level_info,    &
+                                                 log_level_trace
   use mesh_mod,                            only: mesh_type
   use field_mod,                           only: field_type
   use fs_continuity_mod,                   only: Wtheta, W2
@@ -56,7 +56,7 @@ contains
 
     integer(i_def) :: order_h, order_v
 
-    call log_event( "simple_diffusion: Running algorithm", LOG_LEVEL_TRACE )
+    call log_event( "simple_diffusion: Running algorithm", log_level_trace )
 
     nullify(dx_at_w2)
     nullify(mesh)
@@ -82,15 +82,15 @@ contains
                                                   dx_at_w2) )
 
     ! Printing the min/max values in field_in and dfield_in
-    call log_field_minmax( LOG_LEVEL_INFO, 'dfield_in', dfield_in )
-    call log_field_minmax( LOG_LEVEL_INFO, 'field_in', field_in )
+    call log_field_minmax( log_level_info, 'dfield_in', dfield_in )
+    call log_field_minmax( log_level_info, 'field_in', field_in )
 
     ! Incrementing field
     call invoke( inc_X_plus_Y( field_in, dfield_in ) )
 
     nullify(mesh)
 
-    call log_event( "simple_diffusion: finished algorithm", LOG_LEVEL_TRACE )
+    call log_event( "simple_diffusion: finished algorithm", log_level_trace )
 
   end subroutine simple_diffusion_alg
 

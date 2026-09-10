@@ -3,7 +3,7 @@
 ! The file LICENCE, distributed with this code, contains details of the terms
 ! under which the code may be used.
 !-----------------------------------------------------------------------------
-!> Test for the W2H restriction kernel
+!> Test for the W2h restriction kernel
 module restrict_w2h_kernel_mod_test
   use funit
   use constants_mod, only : i_def, r_def

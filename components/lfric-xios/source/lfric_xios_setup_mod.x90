@@ -16,12 +16,12 @@ module lfric_xios_setup_mod
   use domain_mod,                    only: domain_type
   use lfric_xios_constants_mod,      only: dp_xios
   use coord_transform_mod,           only: xyz2llr
-  use extrusion_mod,                 only: TWOD
+  use extrusion_mod,                 only: twod
   use field_mod,                     only: field_type, field_proxy_type
   use field_parent_mod,              only: field_parent_type
   use function_space_mod,            only: function_space_type, BASIS
   use function_space_collection_mod, only: function_space_collection
-  use fs_continuity_mod,             only: W0, W1, W2, W3, Wtheta, W2H, W2V, &
+  use fs_continuity_mod,             only: W0, W1, W2, W3, Wtheta, W2h, W2v, &
                                            name_from_functionspace
   use io_config_mod,                 only: file_convention,       &
                                            file_convention_ugrid, &
@@ -257,7 +257,7 @@ contains
     real(dp_xios),allocatable :: bnd_faces_lon(:,:)
     real(dp_xios),allocatable :: bnd_faces_lat(:,:)
 
-    ! Edge domain on half levels (W2H)
+    ! Edge domain on half levels (W2h)
     real(dp_xios),allocatable :: bnd_edges_lon(:,:)
     real(dp_xios),allocatable :: bnd_edges_lat(:,:)
 
@@ -306,7 +306,7 @@ contains
 
     ! Get mesh from chi
     mesh => chi(1)%get_mesh()
-    twod_mesh => mesh_collection%get_mesh_variant( mesh, extrusion_id=TWOD )
+    twod_mesh => mesh_collection%get_mesh_variant( mesh, extrusion_id=twod )
 
     if ( mesh%is_geometry_spherical() ) then
      r2d = radians_to_degrees
@@ -332,9 +332,9 @@ contains
      r2d = 1.0_r_def
     end if
 
-    ! Calculate the local size of a W2H fs in order to determine
+    ! Calculate the local size of a W2h fs in order to determine
     ! how many edge dofs for the current partition
-    w2h_fs => function_space_collection%get_fs( twod_mesh, 0, 0, W2H )
+    w2h_fs => function_space_collection%get_fs( twod_mesh, 0, 0, W2h )
     num_edge_owned = w2h_fs%get_last_dof_owned()/size(w2h_fs%get_levels())
 
     ! Get the unique fractional levels to set up vertical output domain
@@ -397,7 +397,7 @@ contains
       call init_xios_ugrid_domain( "node", mesh, W0, sample_chi,  &
                                    bnd_nodes_lon, bnd_nodes_lat,  &
                                    "Mesh2d", nverts=1 )
-      call init_xios_ugrid_domain( "edge", mesh, W2H, sample_chi, &
+      call init_xios_ugrid_domain( "edge", mesh, W2h, sample_chi, &
                                    bnd_edges_lon, bnd_edges_lat,  &
                                    "Mesh2d", nverts=2 )
       call init_xios_ugrid_domain( "face", mesh, W3,  sample_chi, &
@@ -407,7 +407,7 @@ contains
       call init_xios_ugrid_domain( trim(adjustl(mesh%get_mesh_name()))//"_node", mesh, W0, &
                                    sample_chi, bnd_nodes_lon, bnd_nodes_lat,      &
                                    trim(adjustl(mesh%get_mesh_name())), nverts=1 )
-      call init_xios_ugrid_domain( trim(adjustl(mesh%get_mesh_name()))//"_edge", mesh, W2H, &
+      call init_xios_ugrid_domain( trim(adjustl(mesh%get_mesh_name()))//"_edge", mesh, W2h, &
                                    sample_chi, bnd_edges_lon, bnd_edges_lat,       &
                                    trim(adjustl(mesh%get_mesh_name())), nverts=2 )
       call init_xios_ugrid_domain( trim(adjustl(mesh%get_mesh_name()))//"_face", mesh, W3, &
@@ -598,8 +598,8 @@ contains
     dim_chi = chi_p(1)%vspace%get_dim_space()
     allocate(basis_chi(dim_chi, ndf_chi, ndf_x))
 
-    ! Get number of local edges on a single level from W2H function space & allocate
-    w2h_fs => function_space_collection%get_fs( twod_mesh, 0, 0, W2H )
+    ! Get number of local edges on a single level from W2h function space & allocate
+    w2h_fs => function_space_collection%get_fs( twod_mesh, 0, 0, W2h )
     last_owned_edge = w2h_fs%get_last_dof_owned()/size(w2h_fs%get_levels())
 
     ! Set processed edges to 0 to prevent comparison with un-initialised data
@@ -1018,7 +1018,7 @@ contains
     ! Populate domain_index for this rank for relevant function space
     if (fs_id == W0) then
       call domain_fs%get_global_vert_dof_id_2d(domain_index)
-    else if (fs_id == W2H) then
+    else if (fs_id == W2h) then
       call domain_fs%get_global_edge_dof_id_2d(domain_index)
     else if (fs_id == W3) then
       call domain_fs%get_global_cell_dof_id_2d(domain_index)

@@ -17,7 +17,7 @@ use argument_mod,          only: arg_type,                                     &
                                  ANY_DISCONTINUOUS_SPACE_5,                    &
                                  OWNED_AND_HALO_CELL_COLUMN
 use constants_mod,         only: r_def, i_def, l_def
-use log_mod,               only: log_event, LOG_LEVEL_ERROR
+use log_mod,               only: log_event, log_level_error
 implicit none
 
 private
@@ -187,7 +187,7 @@ subroutine extend_chi_field_code(nlayers,                         &
         alpha_extended = beta_halo
         beta_extended = beta_owned
       case default
-        call log_event('Invalid panel edge',LOG_LEVEL_ERROR)
+        call log_event('Invalid panel edge',log_level_error)
     end select
 
     ! Write back to coordinate fields keeping the same value in the whole column

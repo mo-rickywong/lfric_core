@@ -15,14 +15,14 @@ module io_demo_checkpoint_mod
   use event_actor_mod,        only: event_actor_type
   use field_mod,              only: field_type
   use field_collection_mod,   only: field_collection_type
-  use file_mod,               only: FILE_MODE_WRITE, FILE_MODE_READ
+  use file_mod,               only: file_mode_write, file_mode_read
   use io_context_mod,         only: io_context_type
   use linked_list_mod,        only: linked_list_type
   use lfric_xios_action_mod,  only: advance
   use lfric_xios_context_mod, only: lfric_xios_context_type
-  use lfric_xios_file_mod,    only: lfric_xios_file_type, OPERATION_ONCE
+  use lfric_xios_file_mod,    only: lfric_xios_file_type, operation_once
   use log_mod,                only: log_event, log_scratch_space, &
-                                    LOG_LEVEL_DEBUG, LOG_LEVEL_ERROR
+                                    log_level_debug, log_level_error
   use mesh_mod,               only: mesh_type
 
   use base_mesh_config_mod, only: geometry_spherical,      &
@@ -68,7 +68,7 @@ contains
     integer(i_def) :: coord_system
     real(r_def)    :: scaled_radius
 
-    call log_event( 'io_demo: Setting up checkpoint I/O', LOG_LEVEL_DEBUG )
+    call log_event( 'io_demo: Setting up checkpoint I/O', log_level_debug )
 
     mesh => chi(1)%get_mesh()
     if (mesh%is_geometry_spherical()) then
@@ -108,9 +108,9 @@ contains
               trim(modeldb%config%files%checkpoint_stem_name()), ts_end
         call file_list%insert_item( lfric_xios_file_type( checkpoint_write_filename, &
                                           xios_id = "io_demo_checkpoint",            &
-                                          io_mode = FILE_MODE_WRITE,                 &
+                                          io_mode = file_mode_write,                 &
                                           freq = ts_end - ts_start + 1,              &
-                                          operation = OPERATION_ONCE,                &
+                                          operation = operation_once,                &
                                           fields_in_file = checkpoint_fields ) )
       end if
 
@@ -123,7 +123,7 @@ contains
             write(log_scratch_space, '(A,F6.1, A)') "io_demo: Checkpoint time ", &
                                       checkpoint_times(t_cp),                    &
                                       " is not an integer multiple of the model timestep."
-            call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+            call log_event(log_scratch_space, log_level_error)
           else
               freq_ts = int(checkpoint_times(t_cp) / modeldb%clock%get_seconds_per_step())
               write(checkpoint_write_filename, '(A,I0)') &
@@ -132,9 +132,9 @@ contains
               call file_list%insert_item( &
                     lfric_xios_file_type( trim(checkpoint_write_filename), &
                                           xios_id = trim(checkpoint_id),   &
-                                          io_mode = FILE_MODE_WRITE,       &
+                                          io_mode = file_mode_write,       &
                                           freq = freq_ts,                  &
-                                          operation = OPERATION_ONCE,      &
+                                          operation = operation_once,      &
                                           fields_in_file = checkpoint_fields ) )
           end if
         end do
@@ -149,9 +149,9 @@ contains
       call file_list%insert_item( &
             lfric_xios_file_type( checkpoint_read_filename,      &
                                   xios_id = trim(checkpoint_id), &
-                                  io_mode = FILE_MODE_READ,      &
+                                  io_mode = file_mode_read,      &
                                   freq = 1,                      &
-                                  operation = OPERATION_ONCE,    &
+                                  operation = operation_once,    &
                                   fields_in_file = checkpoint_fields ) )
     end if
 

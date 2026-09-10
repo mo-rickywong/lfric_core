@@ -20,9 +20,9 @@ module sci_iterative_solver_mod
                             only : abstract_linear_operator_type
   use sci_preconditioner_mod, &
                             only : abstract_preconditioner_type
-  use log_mod,              only : log_event, LOG_LEVEL_INFO, &
-                                   LOG_LEVEL_DEBUG,           &
-                                   LOG_LEVEL_ERROR,           &
+  use log_mod,              only : log_event, log_level_info, &
+                                   log_level_debug,           &
+                                   log_level_error,           &
                                    log_scratch_space,         &
                                    log_at_level
   use, intrinsic :: ieee_arithmetic, only : ieee_is_nan
@@ -528,14 +528,14 @@ contains
     if ( r_nrm_0 < EPS ) then
       write( log_scratch_space, '(A,E15.8)' ) &
            "cg converged in 0 iterations... ||b|| = ", r_nrm_0
-      call log_event(log_scratch_space, LOG_LEVEL_INFO)
+      call log_event(log_scratch_space, log_level_info)
       return
     end if
 
     if ( self%monitor_convergence ) then
       write(log_scratch_space,'(A,E15.8)')  &
            "cg starting ||r|| = ||b - A.x|| = ", r_nrm_0
-      call log_event(log_scratch_space,LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space,log_level_debug)
     end if
 
     call z%set_scalar(0.0_r_def)
@@ -546,7 +546,7 @@ contains
 
     if ( self%monitor_convergence ) then
       write(log_scratch_space,'("iter      ||r_i||        ||r_i||/||r_0||  ||r_i/r_{i-1}||")')
-      call log_event(log_scratch_space,LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space,log_level_debug)
     end if
     ! iterate until maximal number of iterations is reached
     do iter=1, self%max_iter
@@ -559,7 +559,7 @@ contains
          r_nrm = r%norm()                  ! r = ||r||_2
          write(log_scratch_space,'(I6, "    ",E12.5,"   ",E12.5,"   ",F8.4)')&
               iter, r_nrm, r_nrm/r_nrm_0, r_nrm/r_nrm_old
-         call log_event(log_scratch_space,LOG_LEVEL_DEBUG)
+         call log_event(log_scratch_space,log_level_debug)
          ! exit if either absolute or relative tolerance is reached
          if (      ( r_nrm/r_nrm_0 <= self%r_tol ) &
               .or. ( r_nrm <= self%a_tol ) ) then
@@ -578,14 +578,14 @@ contains
       if ( converged ) then
          write(log_scratch_space, &
               '("cg converged after ",I6," iterations")') iter
-         call log_event(log_scratch_space,LOG_LEVEL_INFO)
+         call log_event(log_scratch_space,log_level_info)
       else
          write(log_scratch_space, &
               '("cg failed to converge after ",I6," iterations")') iter
          if ( self%fail_on_non_converged ) then
-           call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+           call log_event(log_scratch_space,log_level_error)
          else
-           call log_event(log_scratch_space,LOG_LEVEL_INFO)
+           call log_event(log_scratch_space,log_level_info)
          end if
       end if
     end if
@@ -628,7 +628,7 @@ contains
     type(bicgstab_type) :: self
 
     write(log_scratch_space,'(A)') "bicgstab_constructor:"
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
     self%lin_op                => lin_op
     self%prec                  => prec
     self%r_tol                 = r_tol
@@ -687,7 +687,7 @@ contains
     if ( sc_err < EPS ) then
        write( log_scratch_space, '(A,E15.8)' ) &
             "bicgstab converged in 0 iterations... ||b|| = ", sc_err
-       call log_event(log_scratch_space, LOG_LEVEL_INFO)
+       call log_event(log_scratch_space, log_level_info)
        return
     end if
 
@@ -695,7 +695,7 @@ contains
     if ( self%monitor_convergence ) then
       write( log_scratch_space, '(A,E15.8)' ) &
            " bicgstab starting ... ||r|| = ||b - A.x|| = ", sc_err
-      call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space, log_level_debug)
     end if
 
     alpha = 1.0_r_def
@@ -756,13 +756,13 @@ contains
          err = r%norm()/sc_err
          write( log_scratch_space, '(A,I4,A, E15.8)' ) "bicgstab[", &
               iter, "]: res = ", err
-         call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+         call log_event(log_scratch_space, log_level_debug)
 
          if (err < self%r_tol) then
             write( log_scratch_space, '(A, I4, A, E15.8)' ) &
                "bicgstab:converged in ", iter,              &
                " iters, final=", err
-          call log_event( log_scratch_space, LOG_LEVEL_INFO )
+          call log_event( log_scratch_space, log_level_info )
           exit
         end if
       end if
@@ -772,9 +772,9 @@ contains
        write(log_scratch_space, '(A, I3, A, E15.8)') &
            "bicgstab: NOT converged in", iter, " iters, Res=", err
       if ( self%fail_on_non_converged ) then
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       else
-        call log_event( log_scratch_space, LOG_LEVEL_INFO )
+        call log_event( log_scratch_space, log_level_info )
       end if
     end if
 
@@ -869,7 +869,7 @@ contains
     if ( sc_err < EPS ) then
       write( log_scratch_space, '(A,E15.8)' ) &
            "gmres converged in 0 iterations... ||b|| = ", sc_err
-      call log_event(log_scratch_space, LOG_LEVEL_INFO)
+      call log_event(log_scratch_space, log_level_info)
       return
     end if
 
@@ -877,7 +877,7 @@ contains
       sc_err = max(sc_err,self%a_tol)
       write( log_scratch_space, '(A,E15.8,":",E15.8)' ) &
            "GMRES starting ... ||r|| = ||b - A.x||", res%norm(),sc_err
-      call log_event(log_scratch_space, LOG_LEVEL_INFO)
+      call log_event(log_scratch_space, log_level_info)
       init_err = sc_err
     end if
 
@@ -975,7 +975,7 @@ contains
             write( log_scratch_space, '(A, I2, A, E12.4, A, E15.8)' ) &
                  "GMRES solver_algorithm: converged in ", &
                  iter, " iters, init=", init_err, " final=", err
-            call log_event( log_scratch_space, LOG_LEVEL_INFO )
+            call log_event( log_scratch_space, log_level_info )
             exit ! break out of loop
          end if
        end if
@@ -988,9 +988,9 @@ contains
               self%max_iter, " iters, Res=", err
       if( (iter >= self%max_iter .and. err > self%r_tol .and. self%fail_on_non_converged ) &
            .or. ieee_is_nan(err) ) then
-         call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+         call log_event( log_scratch_space, log_level_error )
       else
-         call log_event( log_scratch_space, LOG_LEVEL_INFO )
+         call log_event( log_scratch_space, log_level_info )
       end if
     end if
 
@@ -1096,7 +1096,7 @@ contains
     if ( sc_err < EPS ) then
       write( log_scratch_space, '(A,E15.8)' ) &
            "fGMRES converged in 0 iterations... ||b|| = ", sc_err
-      call log_event(log_scratch_space, LOG_LEVEL_INFO)
+      call log_event(log_scratch_space, log_level_info)
       return
     end if
 
@@ -1104,7 +1104,7 @@ contains
       sc_err = max(sc_err,self%a_tol)
       write( log_scratch_space, '(A,E15.8,":",E15.8)' ) &
            "fGMRES starting ... ||b|| = ", b%norm(),sc_err
-      call log_event(log_scratch_space, LOG_LEVEL_INFO)
+      call log_event(log_scratch_space, log_level_info)
       init_err = sc_err
     end if
 
@@ -1201,7 +1201,7 @@ contains
             write( log_scratch_space, '(A, I2, A, E12.4, A, E15.8)' ) &
                  "fGMRES solver_algorithm: converged in ", &
                  iter, " iters, init=", init_err, " final=", err
-            call log_event( log_scratch_space, LOG_LEVEL_INFO )
+            call log_event( log_scratch_space, log_level_info )
             exit ! break out of loop
          end if
        end if
@@ -1220,9 +1220,9 @@ contains
             "fGMRES solver_algorithm: NOT converged in ", &
             self%max_iter, " iters, Res=", err
        if ( self%fail_on_non_converged .or. ieee_is_nan(err) ) then
-         call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+         call log_event( log_scratch_space, log_level_error )
        else
-         call log_event( log_scratch_space, LOG_LEVEL_INFO )
+         call log_event( log_scratch_space, log_level_info )
        end if
     end if
 
@@ -1330,7 +1330,7 @@ contains
     if ( sc_err < EPS ) then
       write( log_scratch_space, '(A,E15.8)' ) &
            "GCR converged in 0 iterations... ||b|| = ", sc_err
-      call log_event(log_scratch_space, LOG_LEVEL_INFO)
+      call log_event(log_scratch_space, log_level_info)
       return
     end if
 
@@ -1338,7 +1338,7 @@ contains
       sc_err = max(sc_err,self%a_tol)
       write( log_scratch_space, '(A,E15.8,":",E15.8)' ) &
            "GCR starting ... ||b|| = ", b%norm(),sc_err
-      call log_event(log_scratch_space, LOG_LEVEL_INFO)
+      call log_event(log_scratch_space, log_level_info)
       init_err = sc_err
     end if
 
@@ -1384,7 +1384,7 @@ contains
           write( log_scratch_space, '(A, I2, A, I2, A, E12.4, A, E15.8)' ) &
                "GCR solver_algorithm: [",iter,",",iv_final, &
                "], iters, init=", init_err, " final=", err
-          call log_event( log_scratch_space, LOG_LEVEL_INFO )
+          call log_event( log_scratch_space, log_level_info )
           if (err < self%r_tol ) exit
         end if
     end do
@@ -1395,9 +1395,9 @@ contains
             "GCR solver_algorithm: NOT converged in ", &
             self%max_iter, " iters, Res=", err
        if ( self%fail_on_non_converged .or. ieee_is_nan(err) ) then
-         call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+         call log_event( log_scratch_space, log_level_error )
        else
-         call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+         call log_event( log_scratch_space, log_level_error )
        end if
     end if
 
@@ -1518,7 +1518,7 @@ contains
 
       write( log_scratch_space, '(A,E15.8)' ) &
            "BLOCK_GCR starting ... ||b|| = ", init_err
-      call log_event(log_scratch_space, LOG_LEVEL_INFO)
+      call log_event(log_scratch_space, log_level_info)
     end if
 
     ! Use special DDT to avoid CCE bug.
@@ -1586,7 +1586,7 @@ contains
             do n = 1,n_fields
               write( log_scratch_space, '(A, I2, 3E16.8)') 'Intermediate BLOCK_GCR errors (I/F/R): ', &
                  n, initial_error(n), final_error(n), relative_error(n)
-              call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+              call log_event( log_scratch_space, log_level_debug )
             end do
 
           end if
@@ -1595,7 +1595,7 @@ contains
           write( log_scratch_space, '(A, I2, A, I2, A, E12.4, A, E15.8, A, E15.8)' ) &
                "BLOCK_GCR solver_algorithm: [",iter,",",iv_final, &
                "], iters, init=", init_err, " final=", err, " abs=", aerr
-          call log_event( log_scratch_space, LOG_LEVEL_INFO )
+          call log_event( log_scratch_space, log_level_info )
           if (all(converged)) exit
         end if
     end do
@@ -1605,7 +1605,7 @@ contains
       do n = 1,n_fields
         write( log_scratch_space, '(A, I2, 3E16.8)') 'BLOCK_GCR field errors (Init/Final/Rel): ', &
           n, initial_error(n), final_error(n), relative_error(n)
-        call log_event( log_scratch_space, LOG_LEVEL_INFO )
+        call log_event( log_scratch_space, log_level_info )
       end do
 
       if( (iter >= self%max_iter .and. err > self%r_tol) &
@@ -1614,9 +1614,9 @@ contains
               "BLOCK_GCR solver_algorithm: NOT converged in ", &
               self%max_iter, " iters, Res=", err
         if ( self%fail_on_non_converged ) then
-           call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+           call log_event( log_scratch_space, log_level_error )
         else
-           call log_event( log_scratch_space, LOG_LEVEL_INFO )
+           call log_event( log_scratch_space, log_level_info )
         end if
       end if
     end if
@@ -1655,7 +1655,7 @@ contains
     self%monitor_convergence = monitor_convergence
 
     if( .not. self%monitor_convergence ) then
-       call log_event("Precondition only: No diagnostic norm output", LOG_LEVEL_INFO)
+       call log_event("Precondition only: No diagnostic norm output", log_level_info)
     end if
 
   end function
@@ -1676,7 +1676,7 @@ contains
     class(abstract_vector_type), allocatable     :: Ax
 
 
-    call log_event("Precondition only starting", LOG_LEVEL_DEBUG)
+    call log_event("Precondition only starting", log_level_debug)
     call self%prec%apply(b,x)         ! x = P^{-1}.b
 
     if( self%monitor_convergence ) then
@@ -1690,9 +1690,9 @@ contains
        e = res%norm()
        write(log_scratch_space,'(A,3E15.8)')  &
             "Precondition only error,init, relative: = ", e,e0,e/e0
-       call log_event(log_scratch_space,LOG_LEVEL_DEBUG)
+       call log_event(log_scratch_space,log_level_debug)
     else
-       call log_event("Precondition only: ... finished", LOG_LEVEL_DEBUG)
+       call log_event("Precondition only: ... finished", log_level_debug)
     end if
 
   end subroutine precondition_only_solve
@@ -1783,7 +1783,7 @@ contains
         if ( iter == 1 ) r_nrm_0 = r_nrm
         write(log_scratch_space, &
              '("  jacobi iteration ",I6,": ||r|| = ",E12.4," ||r||/||r_0|| = ",E12.4)') iter, r_nrm, r_nrm/r_nrm_0
-         call log_event(log_scratch_space,LOG_LEVEL_INFO)
+         call log_event(log_scratch_space,log_level_info)
 
         if (      ( r_nrm/r_nrm_0 <= self%r_tol ) &
              .or. ( r_nrm <= self%a_tol ) ) then
@@ -1801,18 +1801,18 @@ contains
       if (converged) then
          write(log_scratch_space, &
               '("jacobi converged after ",I6," iterations")') iter
-         call log_event(log_scratch_space,LOG_LEVEL_INFO)
+         call log_event(log_scratch_space,log_level_info)
       else
          write(log_scratch_space, &
               '("jacobi failed to converge after ",I6," iterations")') iter
          if ( self%fail_on_non_converged ) then
            ! Reached maximum number of iterations so flag failure to converge as
            ! an error
-           call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+           call log_event(log_scratch_space,log_level_error)
          else
            ! Only performing a fixed number of iterations to so flag failure to converge as
            ! information only
-           call log_event(log_scratch_space,LOG_LEVEL_INFO)
+           call log_event(log_scratch_space,log_level_info)
          end if
       end if
     end if
@@ -1937,9 +1937,9 @@ contains
       write(log_scratch_space, &
           '("chebyshev[",I4,"], redidual = ",E16.8)') self%max_iter, final_norm/init_norm
       if ( self%fail_on_non_converged ) then
-        call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space,log_level_error)
       else
-        call log_event(log_scratch_space,LOG_LEVEL_INFO)
+        call log_event(log_scratch_space,log_level_info)
       end if
     end if
 

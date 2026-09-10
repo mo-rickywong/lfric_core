@@ -24,7 +24,7 @@
 module quadrature_xyoz_mod
 
 use constants_mod,           only: r_def, i_def, PI, EPS
-use log_mod,                 only: LOG_LEVEL_ERROR, log_event, log_scratch_space
+use log_mod,                 only: log_level_error, log_event, log_scratch_space
 use quadrature_rule_mod,     only: quadrature_rule_type
 use quadrature_mod,          only: quadrature_type
 use function_space_mod,      only: function_space_type

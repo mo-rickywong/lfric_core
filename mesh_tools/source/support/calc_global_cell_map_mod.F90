@@ -7,7 +7,7 @@ module calc_global_cell_map_mod
 
   use ugrid_generator_mod, only: ugrid_generator_type
   use constants_mod,       only: i_def, l_def
-  use log_mod,             only: log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod,             only: log_event, log_scratch_space, log_level_error
 
   implicit none
 
@@ -102,7 +102,7 @@ subroutine calc_global_cell_map( source_mesh,         &
        (.not. refine_y) .and. (.not. coarsen_y) ) then
     write(log_scratch_space,'(A)') &
         'Attempting to map mesh to itself .... pointless'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   if ( (refine_x  .and. coarsen_y) .or. &
@@ -110,7 +110,7 @@ subroutine calc_global_cell_map( source_mesh,         &
     write(log_scratch_space,'(A)')                              &
         'Mixed refine/coarsen operations for differing axis '// &
         'is not supported for single mappings'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   else if (refine_x .or. refine_y) then
     refining = .true.
   else if (coarsen_x .or. coarsen_y) then
@@ -129,7 +129,7 @@ subroutine calc_global_cell_map( source_mesh,         &
     write(log_scratch_space,'(A)')                        &
         'When coarsening, number of target axis cells '// &
         'must be factor source axis cells'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   ! Now we cat set which of the inputs meshes is the coarse
@@ -250,7 +250,7 @@ subroutine calc_global_cell_map( source_mesh,         &
             end do
           end do
         else
-          call log_event('Unexpected panel rotation', LOG_LEVEL_ERROR)
+          call log_event('Unexpected panel rotation', log_level_error)
         end if
       end do
     end do

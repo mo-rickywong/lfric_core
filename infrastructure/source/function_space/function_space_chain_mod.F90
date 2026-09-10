@@ -23,7 +23,7 @@ module function_space_chain_mod
   use linked_list_mod,              only : linked_list_type,                &
                                            linked_list_item_type
   use log_mod,                      only : log_event, log_scratch_space,    &
-                                           LOG_LEVEL_ERROR, LOG_LEVEL_DEBUG
+                                           log_level_error, log_level_debug
   use function_space_mod,           only : function_space_type
   use function_space_pointer_mod,   only : function_space_pointer_type
 
@@ -153,7 +153,7 @@ contains ! Module procedures
       ! items in this list. Given that the chain must have at least two
       ! different function spaces something must have gone wrong.
       write(log_scratch_space, '(A)') "No items in this function space chain."
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
 
     ! 'cast' to the function_space_type
@@ -224,7 +224,7 @@ contains ! Module procedures
       ! the end of the function space chain
       write(log_scratch_space, '(A)') &
       "End of function_space_chain; No more function spaces."
-      call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space, log_level_debug)
       return
     end if
 
@@ -274,7 +274,7 @@ contains ! Module procedures
         write(log_scratch_space, '(A)') "No previous function spaces."
       end if
 
-      call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space, log_level_debug)
 
       return
     end if
@@ -326,7 +326,7 @@ contains ! Module procedures
       write(log_scratch_space, '(A,I0,A)') &
       "function_space_chain_mod:set_current: fs_id=", fs_id, &
       " not found in chain"
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
 
   end subroutine set_current

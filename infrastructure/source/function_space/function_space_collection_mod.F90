@@ -18,7 +18,7 @@ module function_space_collection_mod
   use function_space_mod, only : function_space_type
   use fs_continuity_mod,  only : name_from_functionspace
   use log_mod,            only : log_event, log_scratch_space,    &
-                                 LOG_LEVEL_ERROR, LOG_LEVEL_TRACE
+                                 log_level_error, log_level_trace
   use mesh_mod,           only : mesh_type
   use linked_list_mod,    only : linked_list_type,                &
                                  linked_list_item_type
@@ -132,7 +132,7 @@ contains
       write(log_scratch_space, '(A,I0)')              &
       'Function space element order must be >= 0   ', &
       element_order_h, element_order_v
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
 
     mesh_id = mesh%get_id()
@@ -158,7 +158,7 @@ contains
       write(log_scratch_space, '(A,I0,A,I0,A)')                          &
       'Generated horizontal order-', element_order_h,' vertical order-', &
       element_order_v, ' ' // trim(name) // '-function space singleton'
-      call log_event(log_scratch_space, LOG_LEVEL_TRACE)
+      call log_event(log_scratch_space, log_level_trace)
 
       fs => get_existing_fs( self,            &
                              mesh_id,         &

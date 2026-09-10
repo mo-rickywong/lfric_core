@@ -25,7 +25,7 @@ module halo_routing_collection_mod
   use mesh_mod,           only: mesh_type
   use exchange_map_collection_mod, only: exchange_map_collection_type
   use timing_mod,         only: start_timing, stop_timing, &
-                                tik, LPROF
+                                tik, lprof
 
   implicit none
 
@@ -127,7 +127,7 @@ function get_halo_routing( self,            &
   integer(i_def) :: mesh_id
   integer(tik) :: id
 
-  if ( LPROF ) call start_timing(id, 'halo_routing_creation')
+  if ( lprof ) call start_timing(id, 'halo_routing_creation')
 
   nullify( function_space )
 
@@ -212,7 +212,7 @@ function get_halo_routing( self,            &
 
   end if
 
-  if ( LPROF ) call stop_timing(id, 'halo_routing_creation')
+  if ( lprof ) call stop_timing(id, 'halo_routing_creation')
 
   return
 end function get_halo_routing

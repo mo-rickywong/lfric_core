@@ -12,7 +12,7 @@ program log_mod_error_test
   use lfric_mpi_mod, only : global_mpi, create_comm, destroy_comm, &
                             lfric_comm_type
   use log_mod,       only : initialise_logging, finalise_logging, log_event, &
-                            LOG_LEVEL_ERROR
+                            log_level_error
 
   implicit none
 
@@ -40,7 +40,7 @@ program log_mod_error_test
   ! error message.
 
   if (local_rank == 0) then
-    call log_event( 'An error was logged.', LOG_LEVEL_ERROR )
+    call log_event( 'An error was logged.', log_level_error )
   end if
 
   ! Finalise the logging system

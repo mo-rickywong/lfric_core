@@ -160,7 +160,7 @@ contains
 
     use log_mod,               only: log_event,         &
                                      log_scratch_space, &
-                                     LOG_LEVEL_ERROR
+                                     log_level_error
     use mesh_mod,              only: mesh_type
     use reference_element_mod, only: W, E, N, S
 
@@ -188,7 +188,7 @@ contains
       case default
         write( log_scratch_space, '( A, I3 )' ) &
            'Invalid rotation value', rotation
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
     end select
 
     ! Find direction to origin cell and return

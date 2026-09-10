@@ -29,13 +29,13 @@ module fs_continuity_mod
   integer(i_def), public, parameter :: W0        = 173
   integer(i_def), public, parameter :: W1        = 194
   integer(i_def), public, parameter :: W2        = 889
-  integer(i_def), public, parameter :: W2V       = 857
-  integer(i_def), public, parameter :: W2H       = 884
+  integer(i_def), public, parameter :: W2v       = 857
+  integer(i_def), public, parameter :: W2h       = 884
   integer(i_def), public, parameter :: W2broken  = 211
-  integer(i_def), public, parameter :: W2Hbroken = 112
+  integer(i_def), public, parameter :: W2hbroken = 112
   integer(i_def), public, parameter :: W2trace   = 213
-  integer(i_def), public, parameter :: W2Vtrace  = 666
-  integer(i_def), public, parameter :: W2Htrace  = 777
+  integer(i_def), public, parameter :: W2vtrace  = 666
+  integer(i_def), public, parameter :: W2htrace  = 777
   integer(i_def), public, parameter :: W3        = 424
   integer(i_def), public, parameter :: Wtheta    = 274
   integer(i_def), public, parameter :: Wchi      = 869
@@ -49,13 +49,13 @@ module fs_continuity_mod
               W0,           1,              1, &
               W1,           1,              1, &
               W2,           1,              1, &
-              W2V,          0,              1, &
-              W2H,          1,              0, &
+              W2v,          0,              1, &
+              W2h,          1,              0, &
               W2broken,     0,              0, &
-              W2Hbroken,    0,              0, &
+              W2hbroken,    0,              0, &
               W2trace,      1,              1, &
-              W2Vtrace,     0,              1, &
-              W2Htrace,     1,              0, &
+              W2vtrace,     0,              1, &
+              W2htrace,     1,              0, &
               W3,           0,              0, &
               Wtheta,       0,              1, &
               Wchi,         0,              0  &
@@ -66,13 +66,13 @@ module fs_continuity_mod
              'W0',        &
              'W1',        &
              'W2',        &
-             'W2V',       &
-             'W2H',       &
+             'W2v',       &
+             'W2h',       &
              'W2broken',  &
-             'W2Hbroken', &
+             'W2hbroken', &
              'W2trace',   &
-             'W2Htrace',  &
-             'W2Vtrace',  &
+             'W2htrace',  &
+             'W2vtrace',  &
              'W3',        &
              'Wtheta',    &
              'Wchi' ]

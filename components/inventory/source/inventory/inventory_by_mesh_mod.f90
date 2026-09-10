@@ -19,8 +19,8 @@ module inventory_by_mesh_mod
   use function_space_mod,               only: function_space_type
   use integer_field_mod,                only: integer_field_type
   use log_mod,                          only: log_event, log_scratch_space, &
-                                              LOG_LEVEL_ERROR,              &
-                                              LOG_LEVEL_DEBUG
+                                              log_level_error,              &
+                                              log_level_debug
   use linked_list_data_mod,             only: linked_list_data_type
   use linked_list_mod,                  only: linked_list_type, &
                                               linked_list_item_type
@@ -222,7 +222,7 @@ subroutine add_paired_object(self, paired_object)
         ' already exists in inventory_by_mesh: ', trim(self%name),             &
         '. If this object corresponds to a new mesh, you may need to ',        &
         'increase the table length of the inventory'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
     call self%remove_paired_object(id)
   end if
 
@@ -231,7 +231,7 @@ subroutine add_paired_object(self, paired_object)
   call self%paired_object_list(hash)%insert_item( paired_object )
   write(log_scratch_space, '(A,I8,2A)') &
     'Adding object on mesh [', id, '] to inventory_by_mesh: ', trim(self%name)
-  call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+  call log_event(log_scratch_space, log_level_debug)
 
 end subroutine add_paired_object
 
@@ -276,7 +276,7 @@ function get_table_len(self) result(table_len)
 
   if ( self%table_len == 0 ) then
     call log_event("inventory_by_mesh: Attempt to use uninitialised collection", &
-                    LOG_LEVEL_ERROR)
+                    log_level_error)
   end if
 
   table_len = self%table_len
@@ -312,7 +312,7 @@ subroutine inventory_copy_constructor(self, source)
      '"inventory_by_mesh2 = inventory_by_mesh1" syntax not supported. '  // &
      'Use "call inventory_by_mesh1%copy_inventory(inventory_by_mesh2)". '// &
      'Inventory: ', source%get_name()
-  call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+  call log_event( log_scratch_space, log_level_error )
 
 end subroutine inventory_copy_constructor
 
@@ -378,7 +378,7 @@ function get_paired_object(self, id) result(paired_object)
     if ( .not. associated(loop) ) then
       write(log_scratch_space, '(A,I8,2A)') 'get_paired_object: No object on mesh [', &
          id, '] in inventory_by_mesh: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
 
     ! otherwise search list for the ID of object we want
@@ -462,7 +462,7 @@ function get_paired_object(self, id) result(paired_object)
           exit
         end if
       class default
-        call log_event('Type of ID paired object not supported', LOG_LEVEL_ERROR)
+        call log_event('Type of ID paired object not supported', log_level_error)
     end select
 
     loop => loop%next
@@ -582,7 +582,7 @@ function paired_object_exists(self, id) result(exists)
           exit
         end if
       class default
-        call log_event('Type of ID paired object not supported', LOG_LEVEL_ERROR)
+        call log_event('Type of ID paired object not supported', log_level_error)
     end select
 
     loop => loop%next
@@ -615,7 +615,7 @@ subroutine remove_paired_object(self, id)
     if ( .not. associated(loop) ) then
       write(log_scratch_space, '(A,I8,2A)') 'remove_paired_object: No object paired to mesh [', &
          id, '] in the inventory: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
 
     ! otherwise search list for the object we want
@@ -699,7 +699,7 @@ subroutine remove_paired_object(self, id)
           exit
         end if
       class default
-        call log_event('Type of ID paired object not supported', LOG_LEVEL_ERROR)
+        call log_event('Type of ID paired object not supported', log_level_error)
     end select
     loop => loop%next
   end do
@@ -1299,7 +1299,7 @@ subroutine get_r32_field(self, mesh, field)
     type is (id_r32_field_pair_type)
       field => this%get_field()
     class default
-      call log_event('Paired ID object must be of r32 field type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of r32 field type', log_level_error)
   end select
 
 end subroutine get_r32_field
@@ -1322,7 +1322,7 @@ subroutine get_r64_field(self, mesh, field)
     type is (id_r64_field_pair_type)
       field => this%get_field()
     class default
-      call log_event('Paired ID object must be of r64 field type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of r64 field type', log_level_error)
   end select
 
 end subroutine get_r64_field
@@ -1351,7 +1351,7 @@ subroutine get_r32_intermesh_field(self, source_mesh, target_mesh, field)
     type is (id_r32_field_pair_type)
       field => this%get_field()
     class default
-      call log_event('Paired ID object must be of r32 field type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of r32 field type', log_level_error)
   end select
 
 end subroutine get_r32_intermesh_field
@@ -1380,7 +1380,7 @@ subroutine get_r64_intermesh_field(self, source_mesh, target_mesh, field)
     type is (id_r64_field_pair_type)
       field => this%get_field()
     class default
-      call log_event('Paired ID object must be of r64 field type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of r64 field type', log_level_error)
   end select
 
 end subroutine get_r64_intermesh_field
@@ -1403,7 +1403,7 @@ subroutine get_integer_field(self, mesh, field)
     type is (id_integer_field_pair_type)
       field => this%get_field()
     class default
-      call log_event('Paired ID object must be of integer field type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of integer field type', log_level_error)
   end select
 
 end subroutine get_integer_field
@@ -1426,7 +1426,7 @@ subroutine get_r32_field_array(self, mesh, field_array)
     type is (id_r32_field_array_pair_type)
       field_array => this%get_field_array()
     class default
-      call log_event('Paired ID object must be of r32 field_array type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of r32 field_array type', log_level_error)
   end select
 
 end subroutine get_r32_field_array
@@ -1449,7 +1449,7 @@ subroutine get_r64_field_array(self, mesh, field_array)
     type is (id_r64_field_array_pair_type)
       field_array => this%get_field_array()
     class default
-      call log_event('Paired ID object must be of r64 field_array type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of r64 field_array type', log_level_error)
   end select
 
 end subroutine get_r64_field_array
@@ -1472,7 +1472,7 @@ subroutine get_integer_field_array(self, mesh, field_array)
     type is (id_integer_field_array_pair_type)
       field_array => this%get_field_array()
     class default
-      call log_event('Paired ID object must be of integer field_array type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of integer field_array type', log_level_error)
   end select
 
 end subroutine get_integer_field_array
@@ -1495,7 +1495,7 @@ subroutine get_integer(self, mesh, number)
     type is (id_integer_pair_type)
       number => this%get_integer()
     class default
-      call log_event('Paired ID object must be of integer type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of integer type', log_level_error)
   end select
 
 end subroutine get_integer
@@ -1518,7 +1518,7 @@ subroutine get_integer_array(self, mesh, numbers)
     type is (id_integer_array_pair_type)
       numbers => this%get_integer_array()
     class default
-      call log_event('Paired ID object must be of integer type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of integer type', log_level_error)
   end select
 
 end subroutine get_integer_array
@@ -1541,7 +1541,7 @@ subroutine get_real32(self, mesh, number)
     type is (id_real32_pair_type)
       number => this%get_real32()
     class default
-      call log_event('Paired ID object must be of real32 type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of real32 type', log_level_error)
   end select
 
 end subroutine get_real32
@@ -1564,7 +1564,7 @@ subroutine get_real64(self, mesh, number)
     type is (id_real64_pair_type)
       number => this%get_real64()
     class default
-      call log_event('Paired ID object must be of real64 type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of real64 type', log_level_error)
   end select
 
 end subroutine get_real64
@@ -1587,7 +1587,7 @@ subroutine get_logical(self, mesh, bool_flag)
     type is (id_logical_pair_type)
       bool_flag => this%get_logical()
     class default
-      call log_event('Paired ID object must be of logical type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of logical type', log_level_error)
   end select
 
 end subroutine get_logical
@@ -1610,7 +1610,7 @@ subroutine get_r32_operator(self, mesh, operator_out)
     type is (id_r32_operator_pair_type)
       operator_out => this%get_operator()
     class default
-      call log_event('Paired ID object must be of r32 operator type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of r32 operator type', log_level_error)
   end select
 
 end subroutine get_r32_operator
@@ -1633,7 +1633,7 @@ subroutine get_r64_operator(self, mesh, operator_out)
     type is (id_r64_operator_pair_type)
       operator_out => this%get_operator()
     class default
-      call log_event('Paired ID object must be of r64 operator type', LOG_LEVEL_ERROR)
+      call log_event('Paired ID object must be of r64 operator type', log_level_error)
   end select
 
 end subroutine get_r64_operator
@@ -1660,12 +1660,12 @@ function compute_intermesh_id(self, source_mesh, target_mesh) result(intermesh_i
   if (source_mesh_id < 1) then
     write(log_scratch_space, '(A,I8,A)') &
       'source_mesh_id', source_mesh_id, 'is not a positive integer'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
   if (target_mesh_id < 1) then
     write(log_scratch_space, '(A,I8,A)') &
       'target_mesh_id', target_mesh_id, 'is not a positive integer'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   ! Hash the source and target mesh IDs using the Hopcroft and Ullman pairing

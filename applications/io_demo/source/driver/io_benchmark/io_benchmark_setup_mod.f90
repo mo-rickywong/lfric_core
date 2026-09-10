@@ -14,11 +14,11 @@ module io_benchmark_setup_mod
   use field_collection_mod,          only: field_collection_type
   use field_mod,                     only: field_type
   use field_parent_mod,              only: read_interface, write_interface
-  use file_mod,                      only: FILE_MODE_WRITE
+  use file_mod,                      only: file_mode_write
   use fs_continuity_mod,             only: Wtheta
   use function_space_mod,            only: function_space_type
   use function_space_collection_mod, only: function_space_collection
-  use lfric_xios_file_mod,           only: lfric_xios_file_type, OPERATION_TIMESERIES
+  use lfric_xios_file_mod,           only: lfric_xios_file_type, operation_timeseries
   use lfric_xios_read_mod,           only: read_field_generic
   use lfric_xios_write_mod,          only: write_field_generic
   use linked_list_mod,               only: linked_list_type
@@ -98,8 +98,8 @@ contains
     file_list = linked_list_type()
     call file_list%insert_item( lfric_xios_file_type( "lfric_xios_write_benchmark",         &
                                                       xios_id="lfric_xios_write_benchmark", &
-                                                      io_mode=FILE_MODE_WRITE,              &
-                                                      operation=OPERATION_TIMESERIES,       &
+                                                      io_mode=file_mode_write,              &
+                                                      operation=operation_timeseries,       &
                                                       freq=diagnostic_frequency,            &
                                                       fields_in_file=io_benchmark_fields ) )
 

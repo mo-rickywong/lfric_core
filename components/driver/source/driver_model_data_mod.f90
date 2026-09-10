@@ -16,7 +16,7 @@ module driver_model_data_mod
   use field_collection_mod, only : field_collection_type
   use constants_mod,        only : i_def, l_def, str_def
   use log_mod,              only : log_event,       &
-                                   LOG_LEVEL_ERROR, &
+                                   log_level_error, &
                                    log_scratch_space
   use linked_list_mod,      only : linked_list_type, &
                                    linked_list_item_type
@@ -68,7 +68,7 @@ contains
       write(log_scratch_space, '(3A)') &
       'Field_collection name [', trim(field_collection%get_name()), &
       '] is an invalid field_collection name'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
 
     ! Check if field collection exists in collection already
@@ -77,7 +77,7 @@ contains
       write(log_scratch_space, '(3A)') &
         'Field collection [', trim(field_collection%get_name()), &
         '] already exists in model data'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
 
     ! Finished checking - so the field collection must be good to add
@@ -164,7 +164,7 @@ contains
                 'Field collection [',              &
                 trim(field_collection%get_name()), &
                 '] unexpectedly contains field(s)'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
 
   end subroutine add_empty_field_collection
@@ -197,7 +197,7 @@ contains
                'No field collection [',       &
                trim( field_collection_name ), &
                '] in model data'
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       end if
       ! Otherwise search list for the name of field collection we want
 

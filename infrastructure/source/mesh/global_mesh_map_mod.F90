@@ -12,7 +12,7 @@ module global_mesh_map_mod
 
   use constants_mod,        only: i_def, imdi, l_def
   use log_mod,              only: log_event, log_scratch_space, &
-                                  LOG_LEVEL_ERROR, LOG_LEVEL_TRACE
+                                  log_level_error, log_level_trace
   use linked_list_data_mod, only: linked_list_data_type
 
   implicit none
@@ -126,7 +126,7 @@ contains
     if (source_global_mesh_id == target_global_mesh_id) then
       write(log_scratch_space, '(A)') &
           'Global mesh ids are the same nothing to do.'
-      call log_event(log_scratch_space, LOG_LEVEL_TRACE)
+      call log_event(log_scratch_space, log_level_trace)
       call instance%set_id(imdi)
       return
     end if
@@ -176,7 +176,7 @@ contains
            size(self%global_mesh_map,1), ',',                       &
            size(self%global_mesh_map,2), ',', ncells_request,       &
            ') required.'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
       return
     end if
 

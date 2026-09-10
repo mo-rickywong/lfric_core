@@ -8,9 +8,9 @@
 !>
 module mesh_map_collection_mod_test
 
-  use constants_mod,              only: r_def, i_def, l_def, IMDI, &
+  use constants_mod,              only: r_def, i_def, l_def, imdi, &
                                         str_max_filename, str_def
-  use extrusion_mod,              only: uniform_extrusion_type, PRIME_EXTRUSION
+  use extrusion_mod,              only: uniform_extrusion_type, prime_extrusion
   use global_mesh_mod,            only: global_mesh_type
   use halo_comms_mod,             only: initialise_halo_comms, &
                                         finalise_halo_comms
@@ -102,7 +102,7 @@ contains
 
     ! Extrussion to be used for all meshes
     extrusion = uniform_extrusion_type( radius, domain_top, nlayers, &
-                                        PRIME_EXTRUSION )
+                                        prime_extrusion )
 
     ! Get coarse mesh
     name = 'C4'
@@ -192,7 +192,7 @@ contains
                       nsource_cells))
 
     ! For this test we don't care what's in the map
-    cell_map(:,:,:) = IMDI
+    cell_map(:,:,:) = imdi
 
     call mesh_map_collection%add_mesh_map( this%coarse_mesh%get_id(), &
                                            this%fine_mesh%get_id(),   &

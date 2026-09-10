@@ -25,9 +25,9 @@ use coord_transform_mod,       only : alphabetar2xyz,          &
                                       inverse_schmidt_transform_xyz
 use log_mod,                   only : log_event,               &
                                       log_scratch_space,       &
-                                      LOG_LEVEL_ERROR,         &
-                                      LOG_LEVEL_DEBUG,         &
-                                      LOG_LEVEL_WARNING
+                                      log_level_error,         &
+                                      log_level_debug,         &
+                                      log_level_warning
 use matrix_invert_mod,         only : matrix_invert_3x3
 
 ! Configuration modules
@@ -132,7 +132,7 @@ subroutine init_chi_transforms( geometry, topology, &
        (present(equator_lat_arg) .or. present(north_pole_arg)) ) then
     call log_event(                                                            &
       'init_chi_transform: mesh_compatible argument cannot be passed with ' // &
-      'another argument', LOG_LEVEL_ERROR                                      &
+      'another argument', log_level_error                                      &
     )
   end if
 
@@ -150,7 +150,7 @@ subroutine init_chi_transforms( geometry, topology, &
     else
       call log_event(                                                          &
         'init_chi_transform: unable to determine mesh rotation and ' //        &
-        'stretching because there are no meshes!', LOG_LEVEL_ERROR             &
+        'stretching because there are no meshes!', log_level_error             &
       )
     end if
 
@@ -167,7 +167,7 @@ subroutine init_chi_transforms( geometry, topology, &
       north_pole(2) = PI/2.0_r_def
       call log_event(                                                          &
         'Mesh North Pole not set, so using (lon=0, lat=pi/2) as default',      &
-         LOG_LEVEL_WARNING                                                     &
+         log_level_warning                                                     &
       )
     end if
     if ( abs(null_island(1) - rmdi) < EPS                                      &
@@ -176,7 +176,7 @@ subroutine init_chi_transforms( geometry, topology, &
       null_island(2) = 0.0_r_def
       call log_event(                                                          &
         'Mesh Null Island not set, so using (lon=0, lat=0) as default',        &
-         LOG_LEVEL_WARNING                                                     &
+         log_level_warning                                                     &
       )
     end if
     if ( abs(equatorial_latitude - rmdi) < EPS .or.                            &
@@ -184,7 +184,7 @@ subroutine init_chi_transforms( geometry, topology, &
       equatorial_latitude = 0.0_r_def
       call log_event(                                                          &
         'Equatorial latitude for mesh not set, so using 0.0 as default',       &
-         LOG_LEVEL_WARNING                                                     &
+         log_level_warning                                                     &
       )
     end if
   end if ! present(mesh_collection)
@@ -212,11 +212,11 @@ subroutine init_chi_transforms( geometry, topology, &
 
   write(log_scratch_space,'(A,L6,A,2E16.8)')                                   &
     'Mesh rotation: ', to_rotate, ' north pole: ', north_pole(1), north_pole(2)
-  call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+  call log_event(log_scratch_space, log_level_debug)
   write(log_scratch_space,'(A,L6,A,E16.8,A,E16.8)')                            &
     'Mesh stretching: ', to_stretch, ' stretching factor: ', stretch_factor,   &
     '   latitude of equator: ', equatorial_latitude
-  call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+  call log_event(log_scratch_space, log_level_debug)
 
 end subroutine init_chi_transforms
 
@@ -538,7 +538,7 @@ subroutine chi2abr( chi_1, chi_2, chi_3, panel_id,                   &
 
   if (topology /= topology_fully_periodic .or. geometry /= geometry_spherical) then
     call log_event(                                                            &
-  'chi2abr can only be used on cubed-sphere meshes', LOG_LEVEL_ERROR       &
+  'chi2abr can only be used on cubed-sphere meshes', log_level_error       &
   )
 
   else if (coord_system == coord_system_native) then

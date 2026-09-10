@@ -22,8 +22,8 @@ module init_io_demo_mod
   use fs_continuity_mod,                      only : Wtheta
   use key_value_mod,                          only : abstract_value_type
   use log_mod,                                only : log_event,       &
-                                                     LOG_LEVEL_TRACE, &
-                                                     LOG_LEVEL_ERROR
+                                                     log_level_trace, &
+                                                     log_level_error
   use mesh_mod,                               only : mesh_type
   use lfric_xios_read_mod,                    only : read_field_generic
   use lfric_xios_write_mod,                   only : write_field_generic
@@ -65,7 +65,7 @@ module init_io_demo_mod
     logical(l_def) :: write_diag
     logical(l_def) :: use_xios_io
 
-    call log_event( 'io_demo: Initialising miniapp ...', LOG_LEVEL_TRACE )
+    call log_event( 'io_demo: Initialising miniapp ...', log_level_trace )
 
     order_h = modeldb%config%finite_element%element_order_h()
     order_v = modeldb%config%finite_element%element_order_v()
@@ -81,7 +81,7 @@ module init_io_demo_mod
       class default
         call log_event( &
           "Error: the value called 'rng' is not a random_number_generator", &
-          LOG_LEVEL_ERROR &
+          log_level_error &
         )
     end select
     call rng%check_seed()
@@ -109,7 +109,7 @@ module init_io_demo_mod
     ! matrix diagonal fields and the geopotential field
     call create_io_demo_constants(mesh, chi, panel_id)
 
-    call log_event( 'io_demo: Miniapp initialised', LOG_LEVEL_TRACE )
+    call log_event( 'io_demo: Miniapp initialised', log_level_trace )
 
   end subroutine init_io_demo
 

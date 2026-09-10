@@ -148,7 +148,7 @@ contains
       if (.not. associated(loop)) then
         write(log_scratch_space, '(3A)') 'remove_event: No event [', &
             trim(actor_name), '] in event loop of model clock'
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event( log_scratch_space, log_level_error)
       end if
       ! extract payload object and remove from list
       select type(event_object => loop%payload)

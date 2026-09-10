@@ -15,7 +15,7 @@ module io_context_collection_mod
   use linked_list_data_mod, only : linked_list_data_type
   use io_context_mod,  only : io_context_type
   use hash_mod,        only : hash_string
-  use log_mod,         only : log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod,         only : log_event, log_scratch_space, log_level_error
 
   ! Types which can be stored in collection
   use empty_io_context_mod, only : empty_io_context_type
@@ -100,7 +100,7 @@ contains
       write(log_scratch_space, '(4A)') &
               'Context name [', trim(name), &
               '] already exists in collection: ', trim(this%name)
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
 
     hash = mod(hash_string(trim(name)), this%get_table_len())
@@ -127,7 +127,7 @@ contains
       if (.not. associated(loop)) then
         write(log_scratch_space, '(4A)') 'remove_context: No IO context [', &
           trim(context_name), '] in context collection: ', trim(this%name)
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event( log_scratch_space, log_level_error)
       end if
       name = get_context_name(loop%payload)
       if( trim(context_name) == trim(name)) then
@@ -167,7 +167,7 @@ contains
       if( .not. associated(loop) ) then
         write(log_scratch_space, '(4A)') 'Get io_context: No lfric_xios_context [', &
                 trim(context_name), '] in context collection: ', trim(this%name)
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
       end if
 
       ! Otherwise search list for the name of the context we want
@@ -212,7 +212,7 @@ contains
       if( .not. associated(loop) ) then
         write(log_scratch_space, '(4A)') 'Get field: No empty_io_context [', &
           trim(context_name), '] in context collection: ', trim(this%name)
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
       end if
 
       ! Otherwise search list for the name of the context we want
@@ -289,7 +289,7 @@ contains
 
     if ( this%table_len == 0 ) then
       call log_event("io_context_collection: Attempt to use uninitialised collection", &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
     end if
     table_len = this%table_len
 

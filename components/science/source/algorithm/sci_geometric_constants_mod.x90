@@ -16,13 +16,13 @@ module sci_geometric_constants_mod
 
   ! Infrastructure
   use constants_mod,                 only: i_def, r_def, l_def, str_def
-  use extrusion_mod,                 only: TWOD, PRIME_EXTRUSION
-  use fs_continuity_mod,             only: W0, W1, W2, W2H, W3, Wtheta
+  use extrusion_mod,                 only: twod, prime_extrusion
+  use fs_continuity_mod,             only: W0, W1, W2, W2h, W3, Wtheta
   use function_space_collection_mod, only: function_space_collection
-  use log_mod,                       only: log_event, LOG_LEVEL_ERROR
+  use log_mod,                       only: log_event, log_level_error
   use mesh_collection_mod,           only: mesh_collection
   use timing_mod,                    only: start_timing, stop_timing, &
-                                           tik, LPROF
+                                           tik, lprof
 
   ! Object types
   use config_mod,                  only: config_type
@@ -183,7 +183,7 @@ contains
     real(kind=r_def) :: f_lat, f_lon
     real(kind=r_def) :: scaled_radius
 
-    if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+    if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
     coord_system = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
@@ -203,7 +203,7 @@ contains
 
     local_mesh => mesh%get_local_mesh()
 
-    twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
+    twod_mesh => mesh_collection%get_mesh(mesh, twod)
     twod_fs => function_space_collection%get_fs(twod_mesh, k_h, k_v, &
                                                 space_id)
 
@@ -231,7 +231,7 @@ contains
                    setval_c(long, f_lon) )
     end if
 
-    if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+    if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
 
   end subroutine compute_latlon
 
@@ -259,15 +259,15 @@ contains
     integer(kind=i_def)                :: depth, max_halo_depth
     integer(kind=tik)                  :: id
 
-    if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+    if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
-    twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
+    twod_mesh => mesh_collection%get_mesh(mesh, twod)
     local_mesh => mesh%get_local_mesh()
-    w2h_2d_fs => function_space_collection%get_fs(twod_mesh, 0, 0, W2H)
+    w2h_2d_fs => function_space_collection%get_fs(twod_mesh, 0, 0, W2h)
     w3_2d_fs => function_space_collection%get_fs(twod_mesh, 0, 0, W3)
     max_halo_depth = twod_mesh%get_halo_depth()
 
-    ! Temporary W2H field, tracking the count for each face
+    ! Temporary W2h field, tracking the count for each face
     call face_counter%initialise(w2h_2d_fs, halo_depth=max_halo_depth)
 
     call face_selector_ew_inventory%add_field(                                 &
@@ -325,7 +325,7 @@ contains
       )
     end do
 
-    if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+    if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
 
   end subroutine compute_face_selectors
 
@@ -344,8 +344,8 @@ contains
     type(mesh_type),  pointer :: prime_extrusion_mesh
     type(field_type), pointer :: panel_id_ptr
 
-    if (mesh%get_extrusion_id() == TWOD) then
-      prime_extrusion_mesh => mesh_collection%get_mesh(mesh, PRIME_EXTRUSION)
+    if (mesh%get_extrusion_id() == twod) then
+      prime_extrusion_mesh => mesh_collection%get_mesh(mesh, prime_extrusion)
       call panel_id_inventory%get_field(prime_extrusion_mesh, panel_id_ptr)
     else
       call panel_id_inventory%get_field(mesh, panel_id_ptr)
@@ -365,8 +365,8 @@ contains
     type(mesh_type),  pointer :: prime_extrusion_mesh
     type(field_type), pointer :: coords_ptr(:)
 
-    if (mesh%get_extrusion_id() == TWOD) then
-      prime_extrusion_mesh => mesh_collection%get_mesh(mesh, PRIME_EXTRUSION)
+    if (mesh%get_extrusion_id() == twod) then
+      prime_extrusion_mesh => mesh_collection%get_mesh(mesh, prime_extrusion)
       call chi_inventory%get_field_array(prime_extrusion_mesh, coords_ptr)
     else
       call chi_inventory%get_field_array(mesh, coords_ptr)
@@ -412,7 +412,7 @@ contains
       chi => get_coordinates(mesh)
       panel_id => get_panel_id(mesh)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       wchi_fs => chi(1)%get_function_space()
       depth = mesh%get_halo_depth()
@@ -423,14 +423,14 @@ contains
       if (coord_system /= coord_system_native) then
         call log_event(                                                        &
                 "Extended coordinates only implemented for native " //         &
-                "coord_system option", LOG_LEVEL_ERROR                         &
+                "coord_system option", log_level_error                         &
         )
       end if
 
       call invoke( extend_chi_field_kernel_type(extended_chi, chi,             &
                                                 panel_id, depth) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     else
       ! Otherwise, return existing constant
       call extended_chi_inventory%get_field_array(mesh, extended_chi)
@@ -471,7 +471,7 @@ contains
       chi => get_coordinates(mesh)
       panel_id => get_panel_id(mesh)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       w2_k0_fs => function_space_collection%get_fs(mesh, 0, 0, W2)
       call dA_at_w2_inventory%add_field(dA_at_w2, w2_k0_fs, mesh)
@@ -479,7 +479,7 @@ contains
       call invoke( setval_c(dA_at_w2, 0.0_r_def),                              &
                    calc_dA_at_w2_kernel_type(dA_at_w2, chi, panel_id) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     else
       ! Otherwise, return existing constant
       call dA_at_w2_inventory%get_field(mesh, dA_at_w2)
@@ -546,7 +546,7 @@ contains
       panel_id => get_panel_id(mesh)
 
       ! Create the object as it doesn't exist yet
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       w3_fs => function_space_collection%get_fs( mesh,            &
                                                  element_order_h, &
@@ -569,7 +569,7 @@ contains
                    setval_c(detj_at_w3, 0.0_r_def),                            &
                    mm_diagonal_kernel_type(detj_at_w3, mm_w3) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
 
     ! Get existing constant
@@ -621,7 +621,7 @@ contains
       panel_id => get_panel_id(mesh)
 
       ! Create the object as it doesn't exist yet
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       w3_fs => function_space_collection%get_fs(mesh, 0, 0, W3)
       call detj_at_w3_inventory_fv%add_field(detj_at_w3, w3_fs, mesh)
@@ -640,7 +640,7 @@ contains
                    setval_c(detj_at_w3, 0.0_r_def),                            &
                    mm_diagonal_kernel_type(detj_at_w3, mm_w3) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
 
     ! Get existing constant
@@ -694,7 +694,7 @@ contains
       panel_id => get_panel_id(mesh)
 
       ! Create the object as it doesn't exist yet
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       w2_fs => function_space_collection%get_fs( mesh,            &
                                                  element_order_h, &
@@ -710,7 +710,7 @@ contains
                    setval_c(multiplicity_w2, 0.0_r_def),                       &
                    multiplicity_kernel_type(multiplicity_w2),                  &
                    inc_X_divideby_Y(detj_at_w2, multiplicity_w2) )
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
 
     ! Get existing constant
@@ -751,7 +751,7 @@ contains
       panel_id => get_panel_id(mesh)
 
       ! Create the object as it doesn't exist yet
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       w2_fs => function_space_collection%get_fs(mesh, 0, 0, W2)
       call multiplicity_w2%initialise( w2_fs )
@@ -764,7 +764,7 @@ contains
                    setval_c(multiplicity_w2, 0.0_r_def),                       &
                    multiplicity_kernel_type(multiplicity_w2),                  &
                    inc_X_divideby_Y(detj_at_w2, multiplicity_w2) )
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
 
     ! Get existing constant
@@ -803,14 +803,14 @@ contains
       ! Get height first to avoid potentially timing twice
       height_w2 => get_height_fv( config, mesh, W2 )
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       w3_fs => function_space_collection%get_fs(mesh, 0, 0, W3)
       call dz_w3_inventory%add_field(dz_w3, w3_fs, mesh)
 
       call invoke( get_dz_w3_kernel_type(dz_w3, height_w2) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     else
       ! Otherwise, return existing constant
       call dz_w3_inventory%get_field(mesh, dz_w3)
@@ -848,13 +848,13 @@ contains
       wt_k0_fs => function_space_collection%get_fs(mesh, 0, 0, Wtheta)
       dx_at_w2 => get_dx_at_w2(mesh)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       call delta_at_wtheta_inventory%add_field(delta_at_wtheta, wt_k0_fs, mesh)
 
       call invoke( calc_delta_at_wtheta_kernel_type(delta_at_wtheta, dx_at_w2) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
 
     ! Return constant
@@ -892,13 +892,13 @@ contains
       detj_at_w2 => get_detj_at_w2_fv(mesh)
       dA_at_w2 => get_dA_at_w2(mesh)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       depth = mesh%get_halo_depth()
       call dx_at_w2_inventory%add_field(dx_at_w2, w2_fs, mesh, halo_depth=depth)
       call invoke( X_divideby_Y(dx_at_w2, detj_at_w2, dA_at_w2) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
 
     ! Return constant
@@ -943,7 +943,7 @@ contains
       height_w3 => get_height_fv( config, mesh, W3 )
       height_wth => get_height_fv( config, mesh, Wtheta)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       wtheta_k0_fs => function_space_collection%get_fs(mesh, 0, 0, Wtheta)
 
@@ -952,7 +952,7 @@ contains
       call invoke( calc_dz_face_kernel_type(dz_at_wtheta, height_w3,           &
                                             height_wth, n_centres, ign_surf) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
 
     ! Return constant
@@ -1010,19 +1010,19 @@ contains
 
     ! Create constant if it doesn't already exist
     if (.not. constant_exists) then
-      prime_mesh => mesh_collection%get_mesh(mesh, PRIME_EXTRUSION)
-      twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
+      prime_mesh => mesh_collection%get_mesh(mesh, prime_extrusion)
+      twod_mesh => mesh_collection%get_mesh(mesh, twod)
       fs => function_space_collection%get_fs(twod_mesh, 0, 0, W3)
       dA_at_w2 => get_dA_at_w2(prime_mesh)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       call dA_msl_proj_inventory%add_field(dA_msl_proj, fs, local_mesh)
       call invoke( calc_da_msl_proj_kernel_type(dA_at_w2, dA_msl_proj,         &
                                                 planet_radius, domain_height,  &
                                                 geometry, geometry_spherical) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
 
     ! Return constant
@@ -1074,7 +1074,7 @@ contains
       long_inventory => long_w2_inventory_fe
       lat_inventory => lat_w2_inventory_fe
       inventory_name = "_w2_fe"
-    case (W2H)
+    case (W2h)
       long_inventory => long_w2h_inventory_fe
       lat_inventory => lat_w2h_inventory_fe
       inventory_name = "_w2h_fe"
@@ -1084,7 +1084,7 @@ contains
       inventory_name = "_w3_fe"
     case default
       long_ptr => null()
-      call log_event("Longitude not available on requested space", LOG_LEVEL_ERROR)
+      call log_event("Longitude not available on requested space", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -1136,7 +1136,7 @@ contains
       long_inventory => long_w2_inventory_fv
       lat_inventory => lat_w2_inventory_fv
       inventory_name = "_w2_fv"
-    case (W2H)
+    case (W2h)
       long_inventory => long_w2h_inventory_fv
       lat_inventory => lat_w2h_inventory_fv
       inventory_name = "_w2h_fv"
@@ -1146,7 +1146,7 @@ contains
       inventory_name = "_w3_fv"
     case default
       long_ptr => null()
-      call log_event("Longitude not available on requested space", LOG_LEVEL_ERROR)
+      call log_event("Longitude not available on requested space", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -1210,7 +1210,7 @@ contains
       long_inventory => long_w2_inventory_fe
       lat_inventory => lat_w2_inventory_fe
       inventory_name = "_w2_fe"
-    case (W2H)
+    case (W2h)
       long_inventory => long_w2h_inventory_fe
       lat_inventory => lat_w2h_inventory_fe
       inventory_name = "_w2h_fe"
@@ -1220,7 +1220,7 @@ contains
       inventory_name = "_w3_fe"
     case default
       lat_ptr => null()
-      call log_event("Latitude not available on requested space", LOG_LEVEL_ERROR)
+      call log_event("Latitude not available on requested space", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -1272,7 +1272,7 @@ contains
       long_inventory => long_w2_inventory_fv
       lat_inventory => lat_w2_inventory_fv
       inventory_name = "_w2_fv"
-    case (W2H)
+    case (W2h)
       long_inventory => long_w2h_inventory_fv
       lat_inventory => lat_w2h_inventory_fv
       inventory_name = "_w2h_fv"
@@ -1282,7 +1282,7 @@ contains
       inventory_name = "_w3_fv"
     case default
       lat_ptr => null()
-      call log_event("Latitude not available on requested space", LOG_LEVEL_ERROR)
+      call log_event("Latitude not available on requested space", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -1368,7 +1368,7 @@ contains
     case (W2)
       inventory => height_w2_inventory_fe
       inventory_name = "height_w2_fe"
-    case (W2H)
+    case (W2h)
       inventory => height_w2h_inventory_fe
       inventory_name = "height_w2h_fe"
     case (W3)
@@ -1379,7 +1379,7 @@ contains
       inventory_name = "height_wtheta_fe"
     case default
       height => null()
-      call log_event("Height not available on requested space", LOG_LEVEL_ERROR)
+      call log_event("Height not available on requested space", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -1393,7 +1393,7 @@ contains
       ! If this constant doesn't exist, create it
       chi => get_coordinates(mesh)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       space => function_space_collection%get_fs( mesh,            &
                                                  element_order_h, &
@@ -1430,7 +1430,7 @@ contains
         )
       end select
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     else
       call inventory%get_field(mesh, height)
     end if
@@ -1490,7 +1490,7 @@ contains
     case (W2)
       inventory => height_w2_inventory_fv
       inventory_name = "height_w2_fv"
-    case (W2H)
+    case (W2h)
       inventory => height_w2h_inventory_fv
       inventory_name = "height_w2h_fv"
     case (W3)
@@ -1501,7 +1501,7 @@ contains
       inventory_name = "height_wtheta_fv"
     case default
       height => null()
-      call log_event("Height not available on requested space", LOG_LEVEL_ERROR)
+      call log_event("Height not available on requested space", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -1515,7 +1515,7 @@ contains
       ! If this constant doesn't exist, create it
       chi => get_coordinates(mesh)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.geometric' )
 
       depth = mesh%get_halo_depth()
       space => function_space_collection%get_fs(mesh, 0, 0, space_id)
@@ -1550,7 +1550,7 @@ contains
         )
       end select
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.geometric' )
     else
       call inventory%get_field(mesh, height)
     end if

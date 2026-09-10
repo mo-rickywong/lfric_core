@@ -22,7 +22,7 @@ module gen_planar_mod
   use global_mesh_map_collection_mod, only: global_mesh_map_collection_type
   use global_mesh_map_mod,            only: generate_global_mesh_map_id
   use log_mod,                        only: log_event, log_scratch_space, &
-                                            LOG_LEVEL_ERROR, LOG_LEVEL_INFO
+                                            log_level_error, log_level_info
   use mesh_config_mod,                only: key_from_coord_sys,          &
                                             key_from_geometry,           &
                                             key_from_topology,           &
@@ -39,8 +39,8 @@ module gen_planar_mod
   use ugrid_generator_mod,            only: ugrid_generator_type
 
   use rotation_mod,                   only: rotate_mesh_coords, &
-                                            TRUE_NORTH_POLE_LL, &
-                                            TRUE_NULL_ISLAND_LL
+                                            true_north_pole_ll, &
+                                            true_null_island_ll
   use stretch_transform_mod,          only: stretch_transform,  &
                                             calculate_settings
   use polynomial_stretching_mod,      only: associated_axis_direction, &
@@ -70,18 +70,18 @@ module gen_planar_mod
 
   ! Set to -9999 to be used for fill value so meshes
   ! are more Cf-compliant.
-  integer(i_def), parameter :: VOID_ID = -9999
+  integer(i_def), parameter :: void_id = -9999
 
   ! For a planar meshes there is only one panel.
-  integer(i_def), parameter :: NPANELS  = 1
+  integer(i_def), parameter :: npanels  = 1
 
-  integer(i_def), parameter :: NBORDERS = 4
+  integer(i_def), parameter :: nborders = 4
 
   ! Prefix for error messages.
-  character(len=*), parameter :: PREFIX = "[Planar Mesh] "
+  character(len=*), parameter :: prefix = "[Planar Mesh] "
 
   ! Flag to print out mesh data for debugging purposes.
-  logical(l_def),   parameter :: DEBUG = .false.
+  logical(l_def),   parameter :: debug = .false.
 
   type, extends(ugrid_generator_type), public :: gen_planar_type
 
@@ -100,13 +100,13 @@ module gen_planar_mod
     integer(i_def)     :: fine_mesh_edge_cells_x
     integer(i_def)     :: fine_mesh_edge_cells_y
     integer(i_def)     :: stretch_function
-    integer(i_def)     :: npanels = NPANELS
+    integer(i_def)     :: npanels = npanels
     real(r_def)        :: domain_size(2)
     real(r_def)        :: domain_centre(2) = [0.0_r_def,0.0_r_def]
     real(r_def)        :: domain_extents(2,4)
-    real(r_def)        :: north_pole(2)  = TRUE_NORTH_POLE_LL
-    real(r_def)        :: null_island(2) = TRUE_NULL_ISLAND_LL
-    real(r_def)        :: equatorial_latitude = TRUE_NULL_ISLAND_LL(2)
+    real(r_def)        :: north_pole(2)  = true_north_pole_ll
+    real(r_def)        :: null_island(2) = true_null_island_ll
+    real(r_def)        :: equatorial_latitude = true_null_island_ll(2)
 
     character(str_longlong) :: constructor_inputs
 
@@ -291,8 +291,8 @@ function gen_planar_constructor( reference_element,          &
     type is (reference_cube_type)
       ! Carry on.
     class default
-      call log_event( PREFIX//'Un-supported reference element type. ' // &
-                      'Use reference_cube_type.', LOG_LEVEL_ERROR )
+      call log_event( prefix//'Un-supported reference element type. ' // &
+                      'Use reference_cube_type.', log_level_error )
   end select
 
   self%nodes_per_face = reference_element%get_number_2d_vertices()
@@ -309,12 +309,12 @@ function gen_planar_constructor( reference_element,          &
 
   if ( edge_cells_x < min_cells_x .or. &
        edge_cells_y < min_cells_y ) then
-    call log_event( PREFIX//"For chosen periodic bounds:.", LOG_LEVEL_INFO )
-    write(log_scratch_space,'(A,I0)') PREFIX//'minimum edge_cells_x = ', min_cells_x
-    call log_event( log_scratch_space, LOG_LEVEL_INFO )
-    write(log_scratch_space,'(A,I0)') PREFIX//'minimum edge_cells_y = ', min_cells_y
-    call log_event( log_scratch_space, LOG_LEVEL_INFO )
-    call log_event( PREFIX//"Invalid dimension choices.", LOG_LEVEL_ERROR )
+    call log_event( prefix//"For chosen periodic bounds:.", log_level_info )
+    write(log_scratch_space,'(A,I0)') prefix//'minimum edge_cells_x = ', min_cells_x
+    call log_event( log_scratch_space, log_level_info )
+    write(log_scratch_space,'(A,I0)') prefix//'minimum edge_cells_y = ', min_cells_y
+    call log_event( log_scratch_space, log_level_info )
+    call log_event( prefix//"Invalid dimension choices.", log_level_error )
   end if
 
   self%mesh_name    = trim(mesh_name)
@@ -335,8 +335,8 @@ function gen_planar_constructor( reference_element,          &
   self%domain_extents(:,:) = rmdi
 
   if ( ANY(self%domain_size(:) <= 0.0_r_def) ) then
-    call log_event( PREFIX//" domain size values must be > 0.0", &
-                    LOG_LEVEL_ERROR )
+    call log_event( prefix//" domain size values must be > 0.0", &
+                    log_level_error )
   end if
 
   if (present(rotate_mesh)) then
@@ -351,7 +351,7 @@ function gen_planar_constructor( reference_element,          &
       write(log_scratch_space,'(A)')                             &
          'Rotated meshes are only supported for meshes with ' // &
          'spherical geometry and coordinates.'
-      call log_event( trim(log_scratch_space), LOG_LEVEL_ERROR )
+      call log_event( trim(log_scratch_space), log_level_error )
     end if
   end if
 
@@ -381,14 +381,14 @@ function gen_planar_constructor( reference_element,          &
     else
       ! Default value is also given in degrees so
       ! convert to radians.
-      self%north_pole  = degrees_to_radians * TRUE_NORTH_POLE_LL
-      self%null_island = degrees_to_radians * TRUE_NULL_ISLAND_LL
+      self%north_pole  = degrees_to_radians * true_north_pole_ll
+      self%null_island = degrees_to_radians * true_null_island_ll
     end if
 
   case default
     write(log_scratch_space,'(A,I0)') &
         'Unset coordinate system enumeration: ',self%coord_sys
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
 
   end select
 
@@ -510,7 +510,7 @@ function gen_planar_constructor( reference_element,          &
             self%edge_cells_y == target_edge_cells_y(i)) then
           write(log_scratch_space, '(A)') &
                'Invalid target while attempting to map mesh to itself'
-          call log_event( trim(log_scratch_space), LOG_LEVEL_ERROR )
+          call log_event( trim(log_scratch_space), log_level_error )
         end if
 
         ! for x-axis.
@@ -532,7 +532,7 @@ function gen_planar_constructor( reference_element,          &
         if (remainder == 0_i_def) then
           self%target_edge_cells_x(i) = target_edge_cells_x(i)
         else
-          call log_event( trim(log_scratch_space), LOG_LEVEL_ERROR )
+          call log_event( trim(log_scratch_space), log_level_error )
         end if
 
         ! for y-axis.
@@ -553,7 +553,7 @@ function gen_planar_constructor( reference_element,          &
         if (remainder == 0_i_def) then
           self%target_edge_cells_y(i) = target_edge_cells_y(i)
         else
-          call log_event( trim(log_scratch_space), LOG_LEVEL_ERROR )
+          call log_event( trim(log_scratch_space), log_level_error )
         end if
 
       end do
@@ -562,7 +562,7 @@ function gen_planar_constructor( reference_element,          &
 
       write(log_scratch_space,'(A)') &
            'All optional array inputs for target meshes must be of the same length.'
-      call log_event(trim(log_scratch_space),  LOG_LEVEL_ERROR)
+      call log_event(trim(log_scratch_space),  log_level_error)
 
     end if
 
@@ -628,8 +628,8 @@ subroutine calc_adjacency(self)
 
   allocate( self%cell_next(nedges_cell, ncells ), stat=astat)
   if (astat /= 0_i_def) then
-    call log_event( PREFIX//"Failure to allocate cell_next.", &
-                    LOG_LEVEL_ERROR )
+    call log_event( prefix//"Failure to allocate cell_next.", &
+                    log_level_error )
   end if
 
   if (self%periodic_xy(1)) then
@@ -718,7 +718,7 @@ subroutine set_border_adjacency( self, edge_index, border_cells, border_type )
   select case(border_type)
   case(CLOSED)
     do i=1, ncells_border
-      self%cell_next(edge_index, border_cells(i)) = VOID_ID
+      self%cell_next(edge_index, border_cells(i)) = void_id
     end do
 
   case(PERIODIC)
@@ -753,7 +753,7 @@ subroutine set_border_adjacency( self, edge_index, border_cells, border_type )
     ! default .false., so it is consistence to make the default
     ! border type as non-periodic.
     do i=1, ncells_border
-      self%cell_next(edge_index, border_cells(i)) = VOID_ID
+      self%cell_next(edge_index, border_cells(i)) = void_id
     end do
 
   end select
@@ -789,8 +789,8 @@ subroutine calc_face_to_vert(self)
 
   allocate(verts_on_cell(nverts_cell, ncells), stat=astat)
   if (astat /= 0) then
-    call log_event( PREFIX//"Failure to allocate verts_on_cell array.", &
-                    LOG_LEVEL_ERROR )
+    call log_event( prefix//"Failure to allocate verts_on_cell array.", &
+                    log_level_error )
   end if
 
   verts_on_cell(:,:) = imdi
@@ -811,13 +811,13 @@ subroutine calc_face_to_vert(self)
 
 
   ! East neighbour.
-  if (self%cell_next(E, cell) /= VOID_ID ) then
+  if (self%cell_next(E, cell) /= void_id ) then
     verts_on_cell(NW , self%cell_next(E, cell)) = verts_on_cell(NE, cell)
     verts_on_cell(SW , self%cell_next(E, cell)) = verts_on_cell(SE, cell)
   end if
 
   ! South neighbour.
-  if (self%cell_next(S, cell) /= VOID_ID ) then
+  if (self%cell_next(S, cell) /= void_id ) then
     verts_on_cell(NW , self%cell_next(S, cell)) = verts_on_cell(SW, cell)
     verts_on_cell(NE , self%cell_next(S, cell)) = verts_on_cell(SE, cell)
   end if
@@ -836,7 +836,7 @@ subroutine calc_face_to_vert(self)
       verts_on_cell(SW , self%cell_next(E, cell)) = verts_on_cell(SE, cell)
 
       ! South neighbour.
-      if (self%cell_next(S, cell) /= VOID_ID ) then
+      if (self%cell_next(S, cell) /= void_id ) then
         verts_on_cell(NW , self%cell_next(S, cell)) = verts_on_cell(SW, cell)
         verts_on_cell(NE , self%cell_next(S, cell)) = verts_on_cell(SE, cell)
       end if
@@ -858,7 +858,7 @@ subroutine calc_face_to_vert(self)
     end if
 
     ! South neighbour.
-    if (self%cell_next(S, cell) /= VOID_ID ) then
+    if (self%cell_next(S, cell) /= void_id ) then
       verts_on_cell(NW , self%cell_next(S, cell)) = verts_on_cell(SW, cell)
       verts_on_cell(NE , self%cell_next(S, cell)) = verts_on_cell(SE, cell)
     end if
@@ -1377,8 +1377,8 @@ subroutine assign_stretched_mesh_coords(self)
 
   allocate(vert_coords(2, self%n_nodes), stat=astat)
   if (astat /= 0) then
-    call log_event( PREFIX//"Failure to allocate vert_coords.", &
-                    LOG_LEVEL_ERROR )
+    call log_event( prefix//"Failure to allocate vert_coords.", &
+                    log_level_error )
   end if
 
   self%domain_extents(:,1) = [           0.0_r_def, -1.0_r_def*self%domain_size(2) ]
@@ -1567,7 +1567,7 @@ subroutine assign_stretched_mesh_coords(self)
   case default
     write(log_scratch_space,'(A,I0)') &
         'Unset coordinate system enumeration: ', self%coord_sys
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
 
   end select
 
@@ -1606,8 +1606,8 @@ subroutine calc_coords(self)
 
   allocate(vert_coords(2, self%n_nodes), stat=astat)
   if (astat /= 0) then
-    call log_event( PREFIX//"Failure to allocate vert_coords.", &
-                    LOG_LEVEL_ERROR )
+    call log_event( prefix//"Failure to allocate vert_coords.", &
+                    log_level_error )
   end if
 
 !==========================================================
@@ -1685,7 +1685,7 @@ subroutine calc_coords(self)
   case default
     write(log_scratch_space,'(A,I0)') &
         'Unset coordinate system enumeration: ', self%coord_sys
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
 
   end select
 
@@ -1722,11 +1722,11 @@ subroutine stretch_coords(self)
           'stretch_function_inflation is not a true transformation' // &
           'and so the mesh has to be created directly, rather than' // &
           'by stretching the unit-mesh.'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
 
   case default
       call log_event( "Unrecognised value of stretch_function", &
-                      LOG_LEVEL_ERROR )
+                      log_level_error )
   end select
 
 end subroutine stretch_coords
@@ -1936,7 +1936,7 @@ function get_corner_gid(self, corner) result(corner_gid)
   case default
     write(log_scratch_space,'(A,I0)') &
         'Unrecognised corner enumeration, use (NW|NE|SW|SE)'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
 
   end select
 
@@ -1964,7 +1964,7 @@ subroutine calc_cell_centres(self)
   integer(i_def), parameter :: NVERTS_PER_CELL = 4
   integer(i_def) :: cell_verts(NVERTS_PER_CELL)
 
-  ncells = NPANELS*self%edge_cells_x*self%edge_cells_y
+  ncells = npanels*self%edge_cells_x*self%edge_cells_y
 
   ! 1.0 Initialise the face centres.
   if ( .not. allocated(self%cell_coords) ) allocate( self%cell_coords(2,ncells) )
@@ -2175,7 +2175,7 @@ subroutine generate(self)
     self%coord_units_y = 'degrees_north'
   end if
 
-  if (DEBUG) call write_mesh(self)
+  if (debug) call write_mesh(self)
 
   self%generated = .true.
 
@@ -2207,14 +2207,14 @@ subroutine calc_global_mesh_maps(self)
 
   source_id  = 1
   source_cpp = self%edge_cells_x*self%edge_cells_y
-  source_ncells = source_cpp*NPANELS
+  source_ncells = source_cpp*npanels
 
   do i=1, size(self%target_mesh_names)
 
     target_edge_cells_x  = self%target_edge_cells_x(i)
     target_edge_cells_y  = self%target_edge_cells_y(i)
     target_cpp           = target_edge_cells_x*target_edge_cells_y
-    target_ncells        = target_cpp*NPANELS
+    target_ncells        = target_cpp*npanels
     ntarget_per_source_x = max(1,target_edge_cells_x/self%edge_cells_x)
     ntarget_per_source_y = max(1,target_edge_cells_y/self%edge_cells_y)
     allocate(cell_map(ntarget_per_source_x,ntarget_per_source_y,source_ncells))
@@ -2340,7 +2340,7 @@ subroutine get_metadata( self,               &
   if (present(edge_cells_y)) edge_cells_y   = self%edge_cells_y
   if (present(nmaps))        nmaps          = self%nmaps
   if (present(rim_depth))    rim_depth      = imdi
-  if (present(void_cell))    void_cell    = VOID_ID
+  if (present(void_cell))    void_cell    = void_id
 
   if (present(constructor_inputs)) constructor_inputs = trim(self%constructor_inputs)
 
@@ -2460,13 +2460,13 @@ subroutine write_mesh(self)
 
   ncells = self%edge_cells_x * self%edge_cells_y
 
-  write(stdout,'(A)')    "====DEBUG INFO===="
+  write(stdout,'(A)')    "====debug INFO===="
   write(stdout,'(A)')    "Mesh name: "// trim(self%mesh_name)
   write(stdout,'(A)')    "Geometry:  "// trim(key_from_geometry(self%geometry))
   write(stdout,'(A)')    "Topology:  "// trim(key_from_topology(self%topology))
   write(stdout,'(A,L1)') "Periodic in x-axis: ", self%periodic_xy(1)
   write(stdout,'(A,L1)') "Periodic in y-axis: ", self%periodic_xy(2)
-  write(stdout,'(A,I0)') "Panels:    ", NPANELS
+  write(stdout,'(A,I0)') "Panels:    ", npanels
   write(stdout,'(A,I0)') "Panel edge cells (x): ", self%edge_cells_x
   write(stdout,'(A,I0)') "Panel edge cells (y): ", self%edge_cells_y
   write(stdout,'(A,I0)') 'Number of nodes: ', self%n_nodes
@@ -2567,7 +2567,7 @@ subroutine write_mesh(self)
     end do
   end do
 
-  write(stdout,'(A)')    "====END DEBUG INFO===="
+  write(stdout,'(A)')    "====END debug INFO===="
 
   return
 end subroutine write_mesh
@@ -2635,7 +2635,7 @@ subroutine set_partition_parameters( decomposition, partitioner_ptr )
   partitioner_ptr => null()
 
   partitioner_ptr => partitioner_planar
-  call log_event( "Using planar partitioner", LOG_LEVEL_INFO )
+  call log_event( "Using planar partitioner", log_level_info )
 
   select case(panel_decomposition)
     case( panel_decomposition_auto )
@@ -2659,11 +2659,11 @@ subroutine set_partition_parameters( decomposition, partitioner_ptr )
 
     case default
       call log_event( "Missing entry for panel decomposition, "// &
-                    "specify 'auto' if unsure.", LOG_LEVEL_ERROR )
+                    "specify 'auto' if unsure.", log_level_error )
 
   end select
 
-  call log_event( log_scratch_space, LOG_LEVEL_INFO )
+  call log_event( log_scratch_space, log_level_info )
 
 end subroutine set_partition_parameters
 

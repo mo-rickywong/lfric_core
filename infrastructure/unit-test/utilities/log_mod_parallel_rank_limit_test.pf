@@ -91,7 +91,7 @@ contains
     call initialise_logging( context%getMpiCommunicator(), name, &
                              log_to_rank_zero_only=.true. )
     call log_forget_timestep()
-    call log_output_test_serial( log_level_debug, ':DEBUG:' )
+    call log_output_test_serial( log_level_debug, ':debug:' )
     call finalise_logging()
 
   end subroutine log_output_test_single_debug
@@ -113,7 +113,7 @@ contains
     ! Validate that rank 0 outputs the expected log information
     if (this_rank == 0) then
       call log_output_test( context%getProcessRank(), log_level_debug, &
-                            expected_tag=':DEBUG :' )
+                            expected_tag=':debug :' )
     else
       ! validate that all other ranks produce no file
       call log_output_test_exists( context%getProcessRank(), exists=.false. )
@@ -178,7 +178,7 @@ contains
     read( log_unit, '(I14,A1,I3,I5,A3,A8,A)', iostat = status ) &
         found_stamp, found_point, found_subseconds, found_zone, &
         found_proc, found_tag, found_message
-    if ( level >= LOG_LEVEL_INFO ) then
+    if ( level >= log_level_info ) then
       @assertEqual( 0,             status )
       @assertEqual( '.',           found_point )
       @assertEqual( expected_proc, found_proc )
@@ -247,8 +247,8 @@ contains
     read( INFO_UNIT, '(I14,A1,I3,I5,A8,A)', iostat = status ) &
         found_stamp, found_point, found_subseconds, found_zone, &
         found_tag, found_message
-    if ( ( level >= LOG_LEVEL_INFO ) &
-         .and. ( level < LOG_LEVEL_WARNING ) ) then
+    if ( ( level >= log_level_info ) &
+         .and. ( level < log_level_warning ) ) then
       @assertEqual( 0,            status )
       @assertEqual( '.',          found_point )
       @assertEqual( expected_tag, found_tag )
@@ -263,7 +263,7 @@ contains
     read( ALERT_UNIT, '(I14,A1,I3,I5,A8,A)', iostat = status ) &
         found_stamp, found_point, found_subseconds, found_zone, &
         found_tag, found_message
-    if ( level >= LOG_LEVEL_WARNING ) then
+    if ( level >= log_level_warning ) then
       @assertEqual( 0,            status )
       @assertEqual( '.',          found_point )
       @assertEqual( expected_tag, found_tag )

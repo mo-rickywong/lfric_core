@@ -17,7 +17,7 @@ module global_mesh_map_collection_mod
   use linked_list_mod,     only: linked_list_type, linked_list_item_type
   use global_mesh_map_mod, only: global_mesh_map_type, generate_global_mesh_map_id
   use log_mod,             only: log_event, log_scratch_space, &
-                                 LOG_LEVEL_TRACE, LOG_LEVEL_ERROR
+                                 log_level_trace, log_level_error
 
   implicit none
 
@@ -114,7 +114,7 @@ subroutine add_global_mesh_map( self,                  &
     write(log_scratch_space, '(A,I0,A)')                            &
         'Skipping task: Global mesh map (id: ', global_mesh_map_id, &
         ') already exists.'
-    call log_event(log_scratch_space, LOG_LEVEL_TRACE)
+    call log_event(log_scratch_space, log_level_trace)
     return
 
   else
@@ -188,7 +188,7 @@ function get_global_mesh_map( self,                   &
     write(log_scratch_space, '(A,I0,A)')                       &
         'Requested global mesh map (id: ', global_mesh_map_id, &
         ') does not exist.'
-    call log_event(log_scratch_space, LOG_LEVEL_TRACE)
+    call log_event(log_scratch_space, log_level_trace)
     return
 
   end if

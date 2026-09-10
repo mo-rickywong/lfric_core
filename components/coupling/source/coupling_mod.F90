@@ -32,9 +32,9 @@ module coupling_mod
                                             lfric_comm_type
   use log_mod,                       only : log_event,         &
                                             log_scratch_space, &
-                                            LOG_LEVEL_ERROR,   &
-                                            LOG_LEVEL_INFO,   &
-                                            LOG_LEVEL_DEBUG
+                                            log_level_error,   &
+                                            log_level_info,   &
+                                            log_level_debug
   use mesh_mod,                      only : mesh_type
   use sort_mod,                      only : bubble_sort
 
@@ -155,7 +155,7 @@ contains
     if (twod_mesh%get_nlayers() > 1) then
       write(log_scratch_space,'(2A)') "define_coupling_partitions:", &
         "Currently, coupling only supports 2D meshes"
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     endif
     cpl_fs => function_space_collection%get_fs( twod_mesh, 0, 0, W3 )
     self%cpl_size = cpl_fs%get_last_dof_owned()
@@ -169,7 +169,7 @@ contains
     if (maxval(global_index) > int(huge(i_def), i_halo_index)) then
       write(log_scratch_space,'(3A)') "define_coupling_partitions: ", &
          "Too many points for the coupler to deal with"
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     else
       global_index(1:self%cpl_size) = &
                       int(global_index_ptr(1:self%cpl_size), i_def)
@@ -211,7 +211,7 @@ contains
 #else
     write(log_scratch_space, * ) &
          "define_partitions: to use OASIS, cpp directive MCT must be set"
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
 #endif
 
   end subroutine define_partitions
@@ -288,7 +288,7 @@ contains
 
           write(log_scratch_space, '(A)' ) &
                     "cpl_define: field "//trim(var_name_lev)//" receive"
-          call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+          call log_event( log_scratch_space, log_level_debug )
         enddo
       else
         call oasis_def_var( var_id,          &
@@ -303,7 +303,7 @@ contains
 
         write(log_scratch_space, '(A)' ) &
                      "cpl_define: field "//trim(var_name)//" receive"
-        call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+        call log_event( log_scratch_space, log_level_debug )
 
       endif
       field_iter   => null()
@@ -332,7 +332,7 @@ contains
 
           write(log_scratch_space, '(A)' ) &
                        "cpl_define: field "//trim(var_name_lev)//" send"
-          call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+          call log_event( log_scratch_space, log_level_debug )
         enddo
       else
         call oasis_def_var( var_id,          &
@@ -347,7 +347,7 @@ contains
 
         write(log_scratch_space, '(A)' ) &
                           "cpl_define: field "//trim(var_name)//" send"
-        call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+        call log_event( log_scratch_space, log_level_debug )
       endif
       field_iter   => null()
     end do
@@ -369,12 +369,12 @@ contains
 
       write(log_scratch_space, '(A)' ) &
                        "cpl_define: field "//trim(var_name)//" send"
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     end do
 #else
     write(log_scratch_space, * ) &
                "define_variables: to use OASIS, cpp directive MCT must be set"
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
 #endif
 
   end subroutine define_variables
@@ -443,7 +443,7 @@ contains
             write(log_scratch_space, '(3A)' ) "ERROR: coupling field ", &
                    trim(var_name_lev),                                 &
                    " has different coupling frequencies for different components"
-            call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+            call log_event( log_scratch_space, log_level_error )
           endif
         enddo
       else
@@ -455,7 +455,7 @@ contains
           write(log_scratch_space, '(3A)' ) "ERROR: coupling field ", &
                  trim(var_name),                                     &
                  " has different coupling frequencies for different components"
-          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+          call log_event( log_scratch_space, log_level_error )
         endif
       endif
     end do
@@ -473,13 +473,13 @@ contains
         write(log_scratch_space, '(3A)' ) "ERROR: coupling field ", &
                trim(var_name),                                     &
                " has different coupling frequencies for different components"
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       endif
     end do
 #else
     write(log_scratch_space, * ) &
                "end_definition: to use OASIS, cpp directive MCT must be set"
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
 #endif
 
   end subroutine end_definition
@@ -511,16 +511,16 @@ contains
     if (kinfo /= prism_ok) then
       write(log_scratch_space,'(A, I4)') &
           "finalise: oasis_terminate error: ", kinfo
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
       call oasis_abort(self%comp_id, 'finalise','abort1')
     else
       write(log_scratch_space,'(A)') "finalise : oasis_terminated OK"
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     endif
 #else
     write(log_scratch_space, * ) &
           "finalise: to use OASIS, cpp directive MCT must be set"
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
 #endif
 
   end subroutine finalise
@@ -548,7 +548,7 @@ contains
 #else
     write(log_scratch_space, * ) &
           "get_coupling_fields: to use OASIS, cpp directive MCT must be set"
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
 #endif
   end subroutine get_coupling_fields
 
@@ -576,7 +576,7 @@ contains
       class default
         write(log_scratch_space, * ) &
           "Error: the value called "//trim(name)//" is not a coupling object"
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
     end select
 
   end function get_coupling_from_collection

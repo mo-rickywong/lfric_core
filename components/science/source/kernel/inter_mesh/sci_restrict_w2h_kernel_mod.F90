@@ -4,11 +4,11 @@
 ! under which the code may be used.
 !-----------------------------------------------------------------------------
 !
-!> @brief The restriction operation from a fine W2H field to a coarse W2H field
-!> @details Restrict the W2H field from a fine mesh into a W2H field on a coarse
+!> @brief The restriction operation from a fine W2h field to a coarse W2h field
+!> @details Restrict the W2h field from a fine mesh into a W2h field on a coarse
 !!          mesh. The fields are extensive -- i.e. this works on flux values and
 !!          not pointwise values.
-!!          This method is only designed for the lowest order W2H space.
+!!          This method is only designed for the lowest order W2h space.
 module sci_restrict_w2h_kernel_mod
 
 use, intrinsic :: iso_fortran_env, only: real32, real64
@@ -21,7 +21,7 @@ use argument_mod,                  only: arg_type, GH_INTEGER,                 &
                                          ANY_DISCONTINUOUS_SPACE_2,            &
                                          ANY_DISCONTINUOUS_SPACE_3
 use constants_mod,                 only: i_def, r_def
-use fs_continuity_mod,             only: W2H
+use fs_continuity_mod,             only: W2h
 use kernel_mod,                    only: kernel_type
 use reference_element_mod,         only: W, S, E, N
 use sci_face_selector_support_mod, only: face_from_face_selector
@@ -67,7 +67,7 @@ public :: restrict_w2h_code
 
 contains
 
-  !> @brief Restrict a fine W2H field to a coarse mesh
+  !> @brief Restrict a fine W2h field to a coarse mesh
   !> @param[in]     nlayers                  Number of layers in a model column
   !> @param[in]     cell_map                 A 2D index map of which fine grid
   !!                                         cells lie in the coarse grid cell
@@ -77,8 +77,8 @@ contains
   !!                                         cell in the horizontal y-direction
   !> @param[in]     ncell_fine               Number of cells in the partition
   !!                                         for the fine grid
-  !> @param[in,out] coarse_field             Coarse grid W2H field to compute
-  !> @param[in]     fine_field               Fine grid  W2H field to restrict
+  !> @param[in,out] coarse_field             Coarse grid W2h field to compute
+  !> @param[in]     fine_field               Fine grid  W2h field to restrict
   !> @param[in]     face_selector_ew         2D field indicating which W/E faces
   !!                                         to loop over in this column
   !> @param[in]     face_selector_ns         2D field indicating which N/S faces

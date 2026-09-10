@@ -26,7 +26,7 @@ module field_collection_iterator_mod
   use integer_field_mod,       only: integer_field_type, &
                                      integer_field_pointer_type
   use log_mod,                 only: log_event, log_scratch_space, &
-                                     LOG_LEVEL_ERROR
+                                     log_level_error
   use linked_list_data_mod,    only: linked_list_data_type
   use linked_list_mod,         only: linked_list_type, &
                                      linked_list_item_type

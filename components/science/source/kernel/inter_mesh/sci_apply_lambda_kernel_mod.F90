@@ -26,8 +26,8 @@ use argument_mod,            only: arg_type, GH_REAL,         &
                                    ANY_DISCONTINUOUS_SPACE_2
 use log_mod,                 only: log_event,          &
                                    log_scratch_space,  &
-                                   LOG_LEVEL_ALWAYS,   &
-                                   LOG_LEVEL_ERROR
+                                   log_level_always,   &
+                                   log_level_error
 implicit none
 
 private

@@ -20,7 +20,7 @@
 module quadrature_edge_mod
 
 use constants_mod,           only: r_def, i_def, PI, EPS
-use log_mod,                 only: LOG_LEVEL_ERROR, log_event, log_scratch_space
+use log_mod,                 only: log_level_error, log_event, log_scratch_space
 use quadrature_rule_mod,     only: quadrature_rule_type
 use quadrature_mod,          only: quadrature_type
 use function_space_mod,      only: function_space_type
@@ -135,7 +135,7 @@ function init_quadrature(np_1, horizontal_edges, vertical_edges, &
 
   if ( .not. (horizontal_edges .or. vertical_edges) ) then
       write( log_scratch_space, '(A)' )  'Invalid edge choice for quadrature'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
   end if
 
   if ( horizontal_edges ) then

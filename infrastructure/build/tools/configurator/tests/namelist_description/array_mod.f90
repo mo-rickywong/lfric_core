@@ -12,7 +12,7 @@ module aerial_config_mod
                            str_def
   use lfric_mpi_mod, only: global_mpi
   use log_mod,       only: log_event, log_scratch_space &
-                         , LOG_LEVEL_ERROR, LOG_LEVEL_DEBUG, LOG_LEVEL_INFO
+                         , log_level_error, log_level_debug, log_level_info
 
   use namelist_mod,      only: namelist_type
   use namelist_item_mod, only: namelist_item_type
@@ -95,21 +95,21 @@ contains
     if (condition /= 0) then
       write( log_scratch_space, '(A)' ) &
             'Unable to allocate temporary array for "inlist"'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
     if (allocated(outlist)) deallocate(outlist)
     allocate( outlist(max_array_size), stat=condition )
     if (condition /= 0) then
       write( log_scratch_space, '(A)' ) &
             'Unable to allocate temporary array for "outlist"'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
     if (allocated(unknown)) deallocate(unknown)
     allocate( unknown(max_array_size), stat=condition )
     if (condition /= 0) then
       write( log_scratch_space, '(A)' ) &
             'Unable to allocate temporary array for "unknown"'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
 
     absolute = cmdi
@@ -122,7 +122,7 @@ contains
 
       read( file_unit, nml=aerial, iostat=condition, iomsg=log_scratch_space )
       if (condition /= 0) then
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       end if
 
     end if
@@ -254,13 +254,13 @@ contains
           '"aerial:inlist" not allocated, '// &
           'deferred size "lsize" '//   &
           'has not been specified.'
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
       array_size = 0
     end if
     allocate( new_inlist(array_size), stat=condition )
     if (condition /= 0) then
       write(log_scratch_space, '(A)') 'Unable to allocate "inlist"'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
     new_inlist(:array_size) = inlist(:array_size)
     call move_alloc( new_inlist, inlist )
@@ -272,13 +272,13 @@ contains
           '"aerial:outlist" not allocated, '// &
           'deferred size "esize" '//   &
           'has not been specified.'
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
       array_size = 0
     end if
     allocate( new_outlist(array_size), stat=condition )
     if (condition /= 0) then
       write(log_scratch_space, '(A)') 'Unable to allocate "outlist"'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
     new_outlist(:array_size) = outlist(:array_size)
     call move_alloc( new_outlist, outlist )
@@ -291,7 +291,7 @@ contains
     allocate( new_unknown(array_size), stat=condition )
     if (condition /= 0) then
       write(log_scratch_space, '(A)') 'Unable to allocate "unknown"'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
     new_unknown(:array_size) = unknown(:array_size)
     call move_alloc( new_unknown, unknown )

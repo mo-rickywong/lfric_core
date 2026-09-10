@@ -8,7 +8,7 @@
 module lfric_xios_utils_mod
 
   use constants_mod,            only: i_def, r_def, str_def, str_long
-  use file_mod,                 only: FILE_OP_OPEN, FILE_MODE_READ
+  use file_mod,                 only: FILE_OP_OPEN, file_mode_read
   use lfric_ncdf_dims_mod,      only: lfric_ncdf_dims_type
   use lfric_ncdf_field_mod,     only: lfric_ncdf_field_type
   use lfric_ncdf_file_mod,      only: lfric_ncdf_file_type
@@ -16,8 +16,8 @@ module lfric_xios_utils_mod
   use lfric_xios_constants_mod, only: lx_year, lx_month, lx_day, lx_second
   use lfric_xios_field_mod,     only: lfric_xios_field_type
   use log_mod,                  only: log_event, log_scratch_space, &
-                                      LOG_LEVEL_ERROR, LOG_LEVEL_INFO, &
-                                      LOG_LEVEL_TRACE
+                                      log_level_error, log_level_info, &
+                                      log_level_trace
   use mesh_mod,                 only: mesh_type
   use xios,                     only: xios_date, xios_duration,        &
                                       xios_get_time_origin,            &
@@ -173,12 +173,12 @@ module lfric_xios_utils_mod
     type(lfric_ncdf_field_type) :: time_var
 
     call log_event( "Reading time data from file ["//trim(file_path)//"]", &
-                    LOG_LEVEL_TRACE )
+                    log_level_trace )
 
     if (global_mpi%get_comm_rank() == 0) then
       file_ncdf = lfric_ncdf_file_type( trim(file_path)//".nc", &
                                         open_mode=FILE_OP_OPEN, &
-                                        io_mode=FILE_MODE_READ )
+                                        io_mode=file_mode_read )
 
       ! Some JULES surface ancils have non-CF-compliant time representation
       ! so we need to account for that for the time being
@@ -209,7 +209,7 @@ module lfric_xios_utils_mod
         if ( .not. any( valid_units == trim(adjustl(time_units)) ) ) then
           write( log_scratch_space,'(A,A)' ) "Invalid units of ["//trim(time_units)// &
                                             "] for time axis in file: "// trim(file_path)
-          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+          call log_event( log_scratch_space, log_level_error )
         end if
         ref_date_str = unit_attr( len(trim(unit_attr))-len_date : len(trim(unit_attr)) )
       else if (trim(var_id) == "month_number") then

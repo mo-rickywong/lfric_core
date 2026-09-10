@@ -20,7 +20,7 @@ module domain_mod
 
   use constants_mod, only: r_def, l_def, str_def, i_def
   use log_mod,       only: log_event, log_scratch_space, &
-                           LOG_LEVEL_ERROR, LOG_LEVEL_DEBUG
+                           log_level_error, log_level_debug
 
   implicit none
 
@@ -102,7 +102,7 @@ contains
     write( log_scratch_space,'(A)')                  &
         'Domain type axis integers [1:3] map to '//  &
         trim(self%axis_info)
-    call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+    call log_event( log_scratch_space, log_level_debug )
 
     !> @todo Need to do a global reduction of maxs and mins when the
     !> code is parallel
@@ -142,7 +142,7 @@ contains
             'Invalid domain axis (', axis,                &
             '),valid axis choices [1:3] which map to ' // &
             trim(self%axis_info)
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
 
       end select
     else
@@ -150,7 +150,7 @@ contains
       write(log_scratch_space,'(A,I0,A)')                 &
           'Invalid function, domain does not employ a '// &
           'spherical co-ordinate system.'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
 
     end if
 
@@ -188,7 +188,7 @@ contains
             'Invalid domain axis (', axis,                &
             '),valid axis choices [1:3] which map to ' // &
             trim(self%axis_info)
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
 
       end select
 
@@ -197,7 +197,7 @@ contains
       write(log_scratch_space,'(A,I0,A)')                 &
           'Invalid function, domain does not employ a '// &
           'spherical co-ordinate system.'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
 
     end if
 
@@ -236,7 +236,7 @@ contains
             'Invalid domain axis (', axis,                &
             '),valid axis choices [1:3] which map to ' // &
             trim(self%axis_info)
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
 
       end select
     else
@@ -244,7 +244,7 @@ contains
       write(log_scratch_space,'(A,I0,A)')                 &
           'Invalid function, domain does not employ a '// &
           'cartesian co-ordinate system.'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
 
     end if
 
@@ -283,7 +283,7 @@ contains
             'Invalid domain axis (', axis,                &
             '),valid axis choices [1:3] which map to ' // &
             trim(self%axis_info)
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
 
       end select
     else
@@ -291,7 +291,7 @@ contains
       write(log_scratch_space,'(A,I0,A)')                 &
           'Invalid function, domain does not employ a '// &
           'cartesian co-ordinate system.'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
 
     end if
 

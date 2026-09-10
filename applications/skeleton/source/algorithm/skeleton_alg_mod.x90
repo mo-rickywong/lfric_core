@@ -73,7 +73,7 @@ contains
 
     ! The divergence of a constant field should be zero so lets check this by
     ! printing the min/max values in field_1
-    call log_field_minmax( LOG_LEVEL_INFO, 'field_1', field_1 )
+    call log_field_minmax( log_level_info, 'field_1', field_1 )
 
     call log_event( "skeleton: finished algorithm", log_level_info )
 

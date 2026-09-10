@@ -4,7 +4,7 @@
 ! under which the code may be used.
 !-----------------------------------------------------------------------------
 !> @brief Computes a W3 scalar field at W2 points by averaging.
-!> @details Kernel to average a W3 lowest-order field to W2 or W2H points.
+!> @details Kernel to average a W3 lowest-order field to W2 or W2h points.
 
 module sci_w3_to_w2_average_kernel_mod
 
@@ -56,7 +56,7 @@ module sci_w3_to_w2_average_kernel_mod
 
   !> @brief Computes a W3 scalar field at W2 points by averaging.
   !> @param[in]     nlayers       Number of layers in the mesh
-  !> @param[in,out] field_w2      Output field in W2 or W2H space
+  !> @param[in,out] field_w2      Output field in W2 or W2h space
   !> @param[in]     field_w3      Input field in W3 space
   !> @param[in]     rmultiplicity Reciprocal multiplicity of W2 DoFs
   !> @param[in]     ndf_w2        Number of degrees of freedom per cell for W2
@@ -99,7 +99,7 @@ module sci_w3_to_w2_average_kernel_mod
       end do
     end do
 
-    ! Loop over vertical DoFs, if the output field is in W2 rather than W2H
+    ! Loop over vertical DoFs, if the output field is in W2 rather than W2h
     if (ndf_w2 == 6) then
       ! At bottom boundary, take the value from the bottom cell
       field_w2(map_w2(B)) = field_w3(map_w3(1))
@@ -117,7 +117,7 @@ module sci_w3_to_w2_average_kernel_mod
 
   !> @brief Computes a W3 scalar field at W2 points by averaging.
   !> @param[in]     nlayers       Number of layers in the mesh
-  !> @param[in,out] field_w2      Output field in W2 or W2H space
+  !> @param[in,out] field_w2      Output field in W2 or W2h space
   !> @param[in]     field_w3      Input field in W3 space
   !> @param[in]     rmultiplicity Reciprocal multiplicity of W2 DoFs
   !> @param[in]     ndf_w2        Number of degrees of freedom per cell for W2
@@ -160,7 +160,7 @@ module sci_w3_to_w2_average_kernel_mod
       end do
     end do
 
-    ! Loop over vertical DoFs, if the output field is in W2 rather than W2H
+    ! Loop over vertical DoFs, if the output field is in W2 rather than W2h
     if (ndf_w2 == 6) then
       ! At bottom boundary, take the value from the bottom cell
       field_w2(map_w2(B)) = field_w3(map_w3(1))

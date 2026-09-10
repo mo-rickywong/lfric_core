@@ -29,7 +29,7 @@ contains
 !!                                  integer field, which contains 2 when
 !!                                  iterating over the North and South faces of
 !!                                  a cell, or 1 when just the South face.
-!> @param[in,out] face_counter      An integer W2H field, counting the number of
+!> @param[in,out] face_counter      An integer W2h field, counting the number of
 !!                                  times that each face has been iterated over
 !> @param[in]     ndf_w3            Num of DoFs for W3 per cell
 !> @param[in]     undf_w3           Num of DoFs for this partition for W3

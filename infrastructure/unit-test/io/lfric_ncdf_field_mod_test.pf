@@ -9,7 +9,7 @@
 module lfric_ncdf_field_mod_test
 
   use constants_mod,        only: dp_native, r_def, str_def
-  use file_mod,             only: FILE_MODE_READ, FILE_MODE_WRITE, &
+  use file_mod,             only: file_mode_read, file_mode_write, &
                                   FILE_OP_OPEN, FILE_OP_CREATE
   use lfric_ncdf_dims_mod,  only: lfric_ncdf_dims_type
   use lfric_ncdf_file_mod,  only: lfric_ncdf_file_type
@@ -46,7 +46,7 @@ contains
     test_attr_real = 123.4_r_def
 
     file1 = lfric_ncdf_file_type("test_field.nc", open_mode=FILE_OP_CREATE, &
-                                  io_mode=FILE_MODE_WRITE)
+                                  io_mode=file_mode_write)
     dims1 = lfric_ncdf_dims_type("dims1", file1, 10)
     field1 = lfric_ncdf_field_type("test_field", file1, dims1)
     scalar_field = lfric_ncdf_field_type("scalar_field", file1)
@@ -62,7 +62,7 @@ contains
     call file1%close_file()
 
     file2 = lfric_ncdf_file_type("test_field.nc", open_mode=FILE_OP_OPEN, &
-                                  io_mode=FILE_MODE_WRITE)
+                                  io_mode=file_mode_write)
     dims2 = lfric_ncdf_dims_type("dims1", file2)
     field2 = lfric_ncdf_field_type("test_field", file2, dims2)
     return_scalar_field = lfric_ncdf_field_type("scalar_field", file2)
@@ -78,7 +78,7 @@ contains
     call file2%close_file()
 
     file3 = lfric_ncdf_file_type("test_field.nc", open_mode=FILE_OP_OPEN, &
-                                  io_mode=FILE_MODE_READ)
+                                  io_mode=file_mode_read)
     dims3 = lfric_ncdf_dims_type("dims1", file3)
     field3 = lfric_ncdf_field_type("test_field", file3, dims3)
 

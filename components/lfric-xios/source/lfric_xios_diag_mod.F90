@@ -94,7 +94,7 @@ contains
     if (.not. xios_is_valid_file(file_id)) then
       write(log_scratch_space, '(A, A)')                                      &
         'Invalid XIOS file:', file_id
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
     end if
     call xios_is_defined_file_attr(file_id, enabled=has_enabled_flag)
     if (has_enabled_flag) then
@@ -120,7 +120,7 @@ contains
     if (.not. xios_is_valid_file(file_id)) then
       write(log_scratch_space, '(A, A)')                                      &
         'Invalid XIOS file:', file_id
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
     end if
     tagged = .false.
     call xios_is_defined_file_attr(file_id, comment=def)
@@ -142,7 +142,7 @@ contains
     if (.not. xios_is_valid_file(file_id)) then
       write(log_scratch_space, '(A, A)')                                      &
         'Invalid XIOS file:', file_id
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
     end if
     call xios_is_defined_file_attr(file_id, name=def)
     if (def) then
@@ -173,7 +173,7 @@ contains
     if (.not. xios_is_valid_field(unique_id)) then
       write(log_scratch_space, '(A, A)')                                      &
       'Invalid XIOS field:', unique_id
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     else
       call xios_is_defined_field_attr(unique_id, enabled=has_enabled_flag)
       if (has_enabled_flag) then
@@ -197,7 +197,7 @@ contains
     if (.not. xios_is_valid_field(unique_id)) then
       write(log_scratch_space, '(A, A)')                                      &
       'Invalid XIOS field:', unique_id
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     else
       active = xios_field_is_active(unique_id, at_current_timestep)
     end if
@@ -211,7 +211,7 @@ contains
     if (.not. xios_is_valid_field(unique_id)) then
       write(log_scratch_space, '(A, A)')                                      &
       'Invalid XIOS field:', unique_id
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     else
       call xios_set_field_attr(unique_id, enabled=.true.)
     end if
@@ -318,7 +318,7 @@ contains
       if (strict) then
         write(log_scratch_space, '(A, A)')                                    &
         'Invalid XIOS axis:', unique_id
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
       end if
     end if
   end subroutine set_axis_dimension
@@ -345,7 +345,7 @@ contains
       if (strict) then
         write(log_scratch_space, '(A, A)')                                    &
         'Invalid XIOS zoom_axis:', unique_id
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
       end if
     end if
   end subroutine set_zoom_axis_attr

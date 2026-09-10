@@ -19,10 +19,10 @@ module lfric_xios_write_mod_test
   use local_mesh_mod,                 only : local_mesh_type
   use mesh_collection_mod,            only : mesh_collection_type, &
                                              mesh_collection
-  use mesh_mod,                       only : mesh_type, PLANE_BI_PERIODIC
+  use mesh_mod,                       only : mesh_type, plane_bi_periodic
   use field_mod,                      only : field_type, field_proxy_type
   use function_space_mod,             only : function_space_type
-  use fs_continuity_mod,              only : W0, W2H, WTheta, W3
+  use fs_continuity_mod,              only : W0, W2h, WTheta, W3
   use lfric_xios_mock_mod,            only : get_latest_data
 
   use funit
@@ -78,7 +78,7 @@ contains
     unit_test_local_mesh_ptr => this%get_local_mesh_ptr()
 
     ! Dummy mesh mod has 9 cells, 3 layers and is uniform in vertical
-    unit_test_mesh = mesh_type( PLANE_BI_PERIODIC, unit_test_local_mesh_ptr )
+    unit_test_mesh = mesh_type( plane_bi_periodic, unit_test_local_mesh_ptr )
     mesh_id = mesh_collection%add_new_mesh( unit_test_mesh )
     this%mesh => mesh_collection%get_mesh( mesh_id )
 
@@ -90,7 +90,7 @@ contains
                                                     element_order_v, W0 )
     this%w2h_fs => function_space_collection%get_fs( this%mesh, &
                                                     element_order_h, &
-                                                    element_order_v, W2H )
+                                                    element_order_v, W2h )
     this%wth_fs => function_space_collection%get_fs( this%mesh, &
                                                     element_order_h, &
                                                     element_order_v, WTheta )
@@ -139,11 +139,11 @@ contains
     class(write_test_type), intent(inout) :: this
 
     ! Fields to be written
-    type(field_type) :: W0_field, W2H_field, WTheta_field, W3_field
+    type(field_type) :: W0_field, W2h_field, WTheta_field, W3_field
     type(field_proxy_type) :: test_proxy
-    real(r_def), allocatable :: W0_data(:), W2H_data(:), WTheta_data(:), W3_data(:)
+    real(r_def), allocatable :: W0_data(:), W2h_data(:), WTheta_data(:), W3_data(:)
     ! Return values from XIOS use XIOS kind which might be different from r_def
-    real(dp_xios), allocatable :: W0_result(:), W2H_result(:), WTheta_result(:), W3_result(:)
+    real(dp_xios), allocatable :: W0_result(:), W2h_result(:), WTheta_result(:), W3_result(:)
     integer(i_def), allocatable :: int_data(:), int_result(:)
     integer(i_def) :: i
 
@@ -161,7 +161,7 @@ contains
                   26.0_r_def, 35.0_r_def, 9.0_r_def, 18.0_r_def, 27.0_r_def, &
                   36.0_r_def /) )
 
-    allocate (W2H_data(54), source = (/                                       &
+    allocate (W2h_data(54), source = (/                                       &
                   1.00_r_def, 19.0_r_def, 37.0_r_def, 2.00_r_def, 20.0_r_def, &
                   38.0_r_def, 3.00_r_def, 21.0_r_def, 39.0_r_def, 4.00_r_def, &
                   22.0_r_def, 40.0_r_def, 5.00_r_def, 23.0_r_def, 41.0_r_def, &
@@ -210,14 +210,14 @@ contains
     ! Test edge write
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    call W2H_field%initialise( this%w2h_fs )
-    test_proxy = W2H_field%get_proxy()
-    test_proxy%data = W2H_data
-    call write_field_generic("W2H_field", test_proxy)
+    call W2h_field%initialise( this%w2h_fs )
+    test_proxy = W2h_field%get_proxy()
+    test_proxy%data = W2h_data
+    call write_field_generic("W2h_field", test_proxy)
 
-    allocate(W2H_result(size(W2H_data)))
-    call get_latest_data(W2H_result)
-    @assertEqual( test_proxy%data(::3), W2H_result(1:18) )
+    allocate(W2h_result(size(W2h_data)))
+    call get_latest_data(W2h_result)
+    @assertEqual( test_proxy%data(::3), W2h_result(1:18) )
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! Test face write
@@ -241,7 +241,7 @@ contains
     call get_latest_data(W3_result)
     @assertEqual( test_proxy%data(::3), W3_result(1:9) )
 
-    deallocate( W0_result, W2H_result, WTheta_result, W3_result )
+    deallocate( W0_result, W2h_result, WTheta_result, W3_result )
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! Test writing io_value_type

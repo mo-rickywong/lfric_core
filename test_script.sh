@@ -1,0 +1,56 @@
+find . -type f \( -name "*.f90" -o -name "*.F90" -o -name "*.x90" -o -name "*.X90" -o -name "*.pf" \) -exec sed -i \
+-e 's/\bIMDI\b/\L&/g' \
+-e 's/\bRMDI\b/\L&/g' \
+-e 's/\bCMDI\b/\L&/g' \
+-e 's/\bEMDI\b/\L&/g' \
+-e 's/\bGEOMETRY_SPHERICAL\b/\L&/g' \
+-e 's/\bGEOMETRY_PLANAR\b/\L&/g' \
+-e 's/\bTOPOLOGY_PERIODIC\b/\L&/g' \
+-e 's/\bTOPOLOGY_NON_PERIODIC\b/\L&/g' \
+-e 's/\bTOPOLOGY_CHANNEL\b/\L&/g' \
+-e 's/\bCOORD_SYS_LL\b/\L&/g' \
+-e 's/\bCOORD_SYS_XYZ\b/\L&/g' \
+-e 's/\bLOG_LEVEL_INFO\b/\L&/g' \
+-e 's/\bLOG_LEVEL_WARNING\b/\L&/g' \
+-e 's/\bLOG_LEVEL_DEBUG\b/\L&/g' \
+-e 's/\bLOG_LEVEL_TRACE\b/\L&/g' \
+-e 's/\bRUN_LOG_LEVEL_ERROR\b/\L&/g' \
+-e 's/\bRUN_LOG_LEVEL_INFO\b/\L&/g' \
+-e 's/\bRUN_LOG_LEVEL_WARNING\b/\L&/g' \
+-e 's/\bRUN_LOG_LEVEL_DEBUG\b/\L&/g' \
+-e 's/\bRUN_LOG_LEVEL_TRACE\b/\L&/g' \
+-e 's/\bRUN_LOG_LEVEL_ERROR\b/\L&/g' \
+-e 's/\bLOG_LEVEL_ALWAYS\b/\L&/g' \
+-e 's/\bLOCAL_MESH_FLAG\b/\L&/g' \
+-e 's/\bGLOBAL_MESH_FLAG\b/\L&/g' \
+-e 's/\bFILE_MODE_READ\b/\L&/g' \
+-e 's/\bFILE_MODE_WRITE\b/\L&/g' \
+-e 's/\bOPERATION_ONCE\b/\L&/g' \
+-e 's/\bOPERATION_TIMESERIES\b/\L&/g' \
+-e 's/\bTWOD\b/\L&/g' \
+-e 's/\bPRIME_EXTRUSION\b/\L&/g' \
+-e 's/\bPLANE\b/\L&/g' \
+-e 's/\bPLANE_BI_PERIODIC\b/\L&/g' \
+-e 's/\bPLANE_TWOD\b/\L&/g' \
+-e 's/\bPLANE_TWOD_BI_PERIODIC\b/\L&/g' \
+-e 's/\bMAXCOLS\b/\L&/g' \
+-e 's/\bW2H/W2h/g' \
+-e 's/\bW2V/W2v/g' \
+-e 's/\bWTHETA/Wtheta/g' \
+-e 's/\bROTATION_TARGET_NULL_ISLAND\b/\L&/g' \
+-e 's/\bROTATION_TARGET_NORTH_POLE\b/\L&/g' \
+-e 's/\bSTRETCH_FUNCTION_INFLATION\b/\L&/g' \
+-e 's/\bSTRETCH_FUNCTION_POLYNOMIAL\b/\L&/g' \
+-e 's/\bTRUE_NORTH_POLE_XYZ\b/\L&/g' \
+-e 's/\bTRUE_NORTH_POLE_LL\b/\L&/g' \
+-e 's/\bTRUE_NULL_ISLAND_LL\b/\L&/g' \
+-e 's/\bPANEL_ROTATIONS/\B\L&/g' \
+-e 's/\bVOID_ID\b/\L&/g' \
+-e 's/\bNPANELS\b/\L&/g' \
+-e 's/\bNBORDERS/\B\L&/g' \
+-e 's/\bPREFIX\b/\L&/g' \
+-e 's/\bDEBUG\b/\L&/g' \
+-e 's/\bLPROF\b/\L&/g' \
+{} +
+
+

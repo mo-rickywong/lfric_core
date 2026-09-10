@@ -28,8 +28,8 @@ module extrusion_mod
   private
 
   ! Enumerators for different extrusion types
-  integer(i_def), parameter, public :: PRIME_EXTRUSION = 8881
-  integer(i_def), parameter, public :: TWOD = 6424
+  integer(i_def), parameter, public :: prime_extrusion = 8881
+  integer(i_def), parameter, public :: twod = 6424
   integer(i_def), parameter, public :: SHIFTED = 1298
   integer(i_def), parameter, public :: DOUBLE_LEVEL = 734
 

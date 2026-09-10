@@ -13,7 +13,7 @@ module test_db_mod
   use config_loader_mod,              only: read_configuration
   use constants_mod,                  only: i_def, r_def, str_def, imdi, &
                                             r_second, i_timestep
-  use extrusion_mod,                  only: TWOD
+  use extrusion_mod,                  only: twod
   use field_collection_mod,           only: field_collection_type
   use field_parent_mod,               only: read_interface, write_interface
   use field_mod,                      only: field_type, field_proxy_type
@@ -31,17 +31,17 @@ module test_db_mod
   use log_mod,                        only: initialise_logging, &
                                             finalise_logging,   &
                                             log_set_level, log_event, &
-                                            LOG_LEVEL_TRACE, LOG_LEVEL_ERROR
+                                            log_level_trace, log_level_error
   use lfric_xios_read_mod,            only: read_field_generic
   use lfric_xios_write_mod,           only: write_field_generic
   use local_mesh_collection_mod,      only: local_mesh_collection_type, &
                                             local_mesh_collection
   use mesh_collection_mod,            only: mesh_collection_type, &
                                             mesh_collection
-  use mesh_mod,                       only: mesh_type, PLANE, PLANE_TWOD
+  use mesh_mod,                       only: mesh_type, plane, plane_twod
   use model_clock_mod,                only: model_clock_type
   use function_space_mod,             only: function_space_type
-  use fs_continuity_mod,              only: Wchi, W0, W2H, W3
+  use fs_continuity_mod,              only: Wchi, W0, W2h, W3
   use step_calendar_mod,              only: step_calendar_type
 
   implicit none
@@ -107,7 +107,7 @@ contains
     call global_mpi%initialise(self%comm)
     call initialise_halo_comms(self%comm)
     call initialise_logging(self%comm%get_comm_mpi_val(), 'lfric_xios_context_test')
-    call log_set_level(LOG_LEVEL_TRACE)
+    call log_set_level(log_level_trace)
 
     call self%config%initialise("lfric_xios_integration_tests")
     call read_configuration(trim(adjustl(filename)), config=self%config)
@@ -130,11 +130,11 @@ contains
     local_mesh_id = local_mesh_collection%add_new_local_mesh( local_mesh )
     local_mesh_ptr => local_mesh_collection%get_mesh_by_id(local_mesh_id)
 
-    mesh = mesh_type(PLANE, local_mesh_ptr)
+    mesh = mesh_type(plane, local_mesh_ptr)
     mesh_id = mesh_collection%add_new_mesh(mesh)
     mesh_ptr => mesh_collection%get_mesh_by_id(mesh_id)
 
-    twod_mesh = mesh_type(PLANE_TWOD, local_mesh_ptr)
+    twod_mesh = mesh_type(plane_twod, local_mesh_ptr)
     twod_mesh_id = mesh_collection%add_new_mesh(twod_mesh)
     twod_mesh_ptr => mesh_collection%get_mesh_by_id(twod_mesh_id)
 
@@ -142,10 +142,10 @@ contains
     wchi_fs => function_space_collection%get_fs(mesh_ptr, 0, 0, WChi)
 
     tmp_fs => function_space_collection%get_fs(mesh_ptr, 0, 0, W0)
-    tmp_fs => function_space_collection%get_fs(mesh_ptr, 0, 0, W2H)
+    tmp_fs => function_space_collection%get_fs(mesh_ptr, 0, 0, W2h)
     tmp_fs => function_space_collection%get_fs(mesh_ptr, 0, 0, W3)
     tmp_fs => function_space_collection%get_fs(twod_mesh_ptr, 0, 0, W0)
-    tmp_fs => function_space_collection%get_fs(twod_mesh_ptr, 0, 0, W2H)
+    tmp_fs => function_space_collection%get_fs(twod_mesh_ptr, 0, 0, W2h)
     tmp_fs => function_space_collection%get_fs(twod_mesh_ptr, 0, 0, W3)
 
     ! Create coordinate fields
@@ -190,7 +190,7 @@ contains
                                            trim(adjustl(calendar_start)) ), &
                                            stat=rc )
     if (rc /= 0) then
-      call log_event( "Unable to allocate calendar", LOG_LEVEL_ERROR )
+      call log_event( "Unable to allocate calendar", log_level_error )
     end if
 
 
@@ -205,7 +205,7 @@ contains
                                          stat=rc )
 
     if (rc /= 0) then
-      call log_event( "Unable to allocate model clock", LOG_LEVEL_ERROR )
+      call log_event( "Unable to allocate model clock", log_level_error )
     end if
 
     ! Create field for reading

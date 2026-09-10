@@ -11,7 +11,7 @@ module load_global_mesh_mod
   use global_mesh_mod,     only: global_mesh_type
   use log_mod,             only: log_event,         &
                                  log_scratch_space, &
-                                 LOG_LEVEL_INFO
+                                 log_level_info
   use ugrid_mesh_data_mod, only: ugrid_mesh_data_type
 
 
@@ -75,7 +75,7 @@ subroutine load_global_mesh_single( input_mesh_file, &
 
     write(log_scratch_space,'(A)') &
         'Reading global mesh: "'//trim(mesh_name)//'"'
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
 
     ! Load mesh data into global_mesh
     call ugrid_mesh_data%read_from_file( trim(input_mesh_file), &

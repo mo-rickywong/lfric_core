@@ -26,7 +26,7 @@ module lfric_xios_read_mod
   use field_collection_mod,     only: field_collection_type
   use field_parent_mod,         only: field_parent_type, &
                                       field_parent_proxy_type
-  use fs_continuity_mod,        only: W3, WTheta, W2H, W2, &
+  use fs_continuity_mod,        only: W3, WTheta, W2h, W2, &
                                       is_fs_horizontally_continuous
   use integer_field_mod,        only: integer_field_type, &
                                       integer_field_proxy_type
@@ -38,11 +38,11 @@ module lfric_xios_read_mod
   use mesh_mod,                 only: mesh_type
   use log_mod,                  only: log_event,         &
                                       log_scratch_space, &
-                                      LOG_LEVEL_INFO,    &
-                                      LOG_LEVEL_ERROR,   &
-                                      LOG_LEVEL_TRACE
+                                      log_level_info,    &
+                                      log_level_error,   &
+                                      log_level_trace
   use timing_mod,               only: start_timing, stop_timing, &
-                                      tik, LPROF
+                                      tik, lprof
 #ifdef UNIT_TEST
   use lfric_xios_mock_mod,      only: xios_recv_field,      &
                                       xios_get_domain_attr, &
@@ -98,7 +98,7 @@ subroutine checkpoint_read_xios(xios_field_name, file_name, field_proxy)
   integer(i_def) :: fs_id
   integer(tik)   :: timing_id
 
-  if ( LPROF ) call start_timing(timing_id, 'lfric_xios.chkpt_readf')
+  if ( lprof ) call start_timing(timing_id, 'lfric_xios.chkpt_readf')
 
   ! We only read in up to undf for the partition
   undf = field_proxy%vspace%get_last_dof_owned()
@@ -115,10 +115,10 @@ subroutine checkpoint_read_xios(xios_field_name, file_name, field_proxy)
       end if
 
     class default
-      call log_event( "Invalid type for input field proxy", LOG_LEVEL_ERROR )
+      call log_event( "Invalid type for input field proxy", log_level_error )
 
   end select
-  if ( LPROF ) call stop_timing(timing_id, 'lfric_xios.chkpt_readf')
+  if ( lprof ) call stop_timing(timing_id, 'lfric_xios.chkpt_readf')
 
 end subroutine checkpoint_read_xios
 
@@ -134,7 +134,7 @@ subroutine checkpoint_read_r_def_value(io_value, value_name)
   integer(tik)   :: timing_id
   real(dp_xios), allocatable  :: dp_equiv(:)
 
-  if ( LPROF ) call start_timing(timing_id, 'lfric_xios.chkpt_readrv')
+  if ( lprof ) call start_timing(timing_id, 'lfric_xios.chkpt_readrv')
 
   if(present(value_name)) then
     restart_id = trim(value_name)
@@ -151,10 +151,10 @@ subroutine checkpoint_read_r_def_value(io_value, value_name)
     deallocate(dp_equiv)
   else
     call log_event( 'No XIOS field with id="'//trim(restart_id)//'" is defined', &
-                    LOG_LEVEL_ERROR )
+                    log_level_error )
   end if
 
-  if ( LPROF ) call stop_timing(timing_id, 'lfric_xios.chkpt_readrv')
+  if ( lprof ) call stop_timing(timing_id, 'lfric_xios.chkpt_readrv')
 
 end subroutine checkpoint_read_r_def_value
 
@@ -170,7 +170,7 @@ subroutine checkpoint_read_integer_value(io_value, value_name)
   integer(tik)   :: timing_id
   real(dp_xios), allocatable  :: dp_equiv(:)
 
-  if ( LPROF ) call start_timing(timing_id, 'lfric_xios.chkpt_readiv')
+  if ( lprof ) call start_timing(timing_id, 'lfric_xios.chkpt_readiv')
 
   if(present(value_name)) then
     restart_id = trim(value_name)
@@ -187,10 +187,10 @@ subroutine checkpoint_read_integer_value(io_value, value_name)
     deallocate(dp_equiv)
   else
     call log_event( 'No XIOS field with id="'//trim(restart_id)//'" is defined', &
-                    LOG_LEVEL_ERROR )
+                    log_level_error )
   end if
 
-  if ( LPROF ) call stop_timing(timing_id, 'lfric_xios.chkpt_readiv')
+  if ( lprof ) call stop_timing(timing_id, 'lfric_xios.chkpt_readiv')
 
 end subroutine checkpoint_read_integer_value
 
@@ -232,7 +232,7 @@ subroutine read_field_generic(xios_field_name, field_proxy)
   logical(l_def) :: legacy
   integer(tik)   :: timing_id
 
-  if ( LPROF ) call start_timing(timing_id, 'lfric_xios.read_fldg')
+  if ( lprof ) call start_timing(timing_id, 'lfric_xios.read_fldg')
 
   undf = field_proxy%vspace%get_last_dof_owned() ! total dimension
 
@@ -241,7 +241,7 @@ subroutine read_field_generic(xios_field_name, field_proxy)
   hdim = undf/vdim
 
   call log_event( "Reading from XIOS field [" // trim(xios_field_name // "]"), &
-                  LOG_LEVEL_TRACE )
+                  log_level_trace )
 
   ! detect field with legacy checkpointing domain
   legacy = (index(get_field_domain_ref(xios_field_name), 'checkpoint_') == 1)
@@ -263,7 +263,7 @@ subroutine read_field_generic(xios_field_name, field_proxy)
 
   deallocate(xios_data)
 
-  if ( LPROF ) call stop_timing(timing_id, 'lfric_xios.read_fldg')
+  if ( lprof ) call stop_timing(timing_id, 'lfric_xios.read_fldg')
 
 end subroutine read_field_generic
 
@@ -302,9 +302,9 @@ subroutine read_field_time_var(xios_field_name, field_proxy, time_indices, time_
   local_mesh_name = local_mesh%get_mesh_name()
 
   fs_id = field_proxy%vspace%which()
-  if ( fs_id /= W3 .and. fs_id /= WTheta .and. fs_id /= W2H ) then
-    call log_event( 'Time varying fields only readable for W3, WTheta or W2H function spaces', &
-                     LOG_LEVEL_ERROR )
+  if ( fs_id /= W3 .and. fs_id /= WTheta .and. fs_id /= W2h ) then
+    call log_event( 'Time varying fields only readable for W3, WTheta or W2h function spaces', &
+                     log_level_error )
   end if
 
   ! Get the number of layers to distiniguish between 2D and 3D fields
@@ -326,12 +326,12 @@ subroutine read_field_time_var(xios_field_name, field_proxy, time_indices, time_
     else if ( fs_id == WTheta ) then
       call xios_get_domain_attr( 'face', ni=domain_size )
       call xios_get_axis_attr( 'vert_axis_full_levels', n_glo=vert_axis_size )
-    else if ( fs_id == W2H ) then
+    else if ( fs_id == W2h ) then
       call xios_get_domain_attr( 'edge', ni=domain_size )
       call xios_get_axis_attr( 'vert_axis_half_levels', n_glo=vert_axis_size )
     else
-      call log_event( 'Time varying fields only readable for W3, WTheta or W2H function spaces', &
-                      LOG_LEVEL_ERROR )
+      call log_event( 'Time varying fields only readable for W3, WTheta or W2h function spaces', &
+                      log_level_error )
     end if
   else
     if ( fs_id == W3 ) then
@@ -340,12 +340,12 @@ subroutine read_field_time_var(xios_field_name, field_proxy, time_indices, time_
     else if ( fs_id == WTheta ) then
       call xios_get_domain_attr( trim(adjustl(local_mesh_name))//"_face", ni=domain_size )
       call xios_get_axis_attr( 'vert_axis_full_levels', n_glo=vert_axis_size )
-    else if ( fs_id == W2H ) then
+    else if ( fs_id == W2h ) then
       call xios_get_domain_attr( trim(adjustl(local_mesh_name))//"_edge", ni=domain_size )
       call xios_get_axis_attr( 'vert_axis_half_levels', n_glo=vert_axis_size )
     else
-      call log_event( 'Time varying fields only readable for W3, WTheta or W2H function spaces', &
-                      LOG_LEVEL_ERROR )
+      call log_event( 'Time varying fields only readable for W3, WTheta or W2h function spaces', &
+                      log_level_error )
     end if
   end if
 
@@ -395,7 +395,7 @@ subroutine read_field_time_var(xios_field_name, field_proxy, time_indices, time_
            .not. field_proxy%vspace%is_ndata_first() ) then
         write( log_scratch_space,'(A,A)' ) "Only ndata_first ordering supported for read_field_time_var: "// &
                                       trim( xios_field_name )
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
 
       else
         do k = 0, vert_levels-1
@@ -418,7 +418,7 @@ subroutine read_field_time_var(xios_field_name, field_proxy, time_indices, time_
 
   ! Halo exchange necessary to ensure annexed dofs contain safe initial data
   ! This is only needed for horizontally continuous fields
-  if (fs_id == W2H) then
+  if (fs_id == W2h) then
     call field_proxy%halo_exchange(depth=1)
   end if
 
@@ -462,7 +462,7 @@ subroutine read_state(state, prefix, suffix)
       type is (field_real32_type)
         if ( fld%can_read() ) then
           call log_event( 'Reading '//trim(adjustl(fld%get_name())), &
-                          LOG_LEVEL_INFO )
+                          log_level_info )
 
           ! Construct the XIOS field ID from the LFRic field name and optional arguments
           xios_field_id = trim(adjustl(fld%get_name()))
@@ -472,13 +472,13 @@ subroutine read_state(state, prefix, suffix)
           call fld%read_field(xios_field_id)
         else
           call log_event('Read method for  '//trim(adjustl(fld%get_name()))// &
-                         ' not set up', LOG_LEVEL_INFO )
+                         ' not set up', log_level_info )
         end if
 
       type is (field_real64_type)
         if ( fld%can_read() ) then
           call log_event( 'Reading '//trim(adjustl(fld%get_name())), &
-                          LOG_LEVEL_INFO )
+                          log_level_info )
 
           ! Construct the XIOS field ID from the LFRic field name and optional arguments
           xios_field_id = trim(adjustl(fld%get_name()))
@@ -488,14 +488,14 @@ subroutine read_state(state, prefix, suffix)
           call fld%read_field(xios_field_id)
         else
           call log_event('Read method for  '//trim(adjustl(fld%get_name()))// &
-                         ' not set up', LOG_LEVEL_INFO )
+                         ' not set up', log_level_info )
         end if
 
       type is (integer_field_type)
         if ( fld%can_read() ) then
           call log_event( &
             'Reading '//trim(adjustl(fld%get_name())), &
-            LOG_LEVEL_INFO)
+            log_level_info)
 
           ! Construct the XIOS field ID from the LFRic field name and optional arguments
           xios_field_id = trim(adjustl(fld%get_name()))
@@ -505,7 +505,7 @@ subroutine read_state(state, prefix, suffix)
           call fld%read_field(xios_field_id)
         else
           call log_event( 'Read method for  '// trim(adjustl(fld%get_name())) // &
-                          ' not set up', LOG_LEVEL_INFO )
+                          ' not set up', log_level_info )
         end if
 
     end select
@@ -557,54 +557,54 @@ subroutine read_checkpoint(state, timestep, checkpoint_stem_name, prefix, suffix
        if ( fld%can_checkpoint() ) then
 
           call log_event( 'Reading checkpoint file to restart '// &
-               xios_field_id, LOG_LEVEL_INFO )
+               xios_field_id, log_level_info )
           call fld%read_checkpoint( xios_field_id, &
                trim(ts_fname(checkpoint_stem_name, "",    &
                xios_field_id, timestep,"")) )
        else if ( fld%can_read() ) then
           write(log_scratch_space,'(2A)') &
                "Reading UGRID checkpoint for ", xios_field_id
-          call log_event(log_scratch_space, LOG_LEVEL_INFO)
+          call log_event(log_scratch_space, log_level_info)
           call fld%read_field( "restart_" // xios_field_id )
        else
           call log_event( 'Reading not set up for  '// xios_field_id, &
-               LOG_LEVEL_INFO )
+               log_level_info )
        end if
     type is (field_real64_type)
        if ( fld%can_checkpoint() ) then
 
           call log_event( 'Reading checkpoint file to restart '// &
-              xios_field_id, LOG_LEVEL_INFO )
+              xios_field_id, log_level_info )
           call fld%read_checkpoint( xios_field_id, &
                trim(ts_fname(checkpoint_stem_name, "",    &
                xios_field_id, timestep,"")) )
        else if ( fld%can_read() ) then
           write(log_scratch_space,'(2A)') &
                "Reading UGRID checkpoint for ", xios_field_id
-          call log_event(log_scratch_space, LOG_LEVEL_INFO)
+          call log_event(log_scratch_space, log_level_info)
           call fld%read_field( "restart_" // xios_field_id )
        else
           call log_event( 'Reading not set up for  '// xios_field_id, &
-               LOG_LEVEL_INFO )
+               log_level_info )
        end if
     type is (integer_field_type)
        if ( fld%can_checkpoint() ) then
           call log_event( 'Reading checkpoint file to restart '// &
-               xios_field_id, LOG_LEVEL_INFO )
+               xios_field_id, log_level_info )
           call fld%read_checkpoint( xios_field_id, &
                trim(ts_fname(checkpoint_stem_name, "",    &
                xios_field_id,timestep,"")) )
        else if ( fld%can_read() ) then
           write(log_scratch_space,'(2A)') &
                "Reading UGRID checkpoint for ", xios_field_id
-          call log_event(log_scratch_space, LOG_LEVEL_INFO)
+          call log_event(log_scratch_space, log_level_info)
           call fld%read_field( "restart_" // xios_field_id )
        else
           call log_event( 'Reading not set up for  '// xios_field_id, &
-               LOG_LEVEL_INFO )
+               log_level_info )
        end if
     class default
-       call log_event('read_checkpoint:Invalid type of field, not supported',LOG_LEVEL_ERROR)
+       call log_event('read_checkpoint:Invalid type of field, not supported',log_level_error)
     end select
   end do
 

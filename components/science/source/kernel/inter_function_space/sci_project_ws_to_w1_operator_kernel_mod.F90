@@ -25,7 +25,7 @@ use argument_mod,            only : arg_type, func_type,       &
                                     CELL_COLUMN, GH_QUADRATURE_XYoZ
 use constants_mod,           only : r_def, i_def
 use fs_continuity_mod,       only : W1
-use log_mod,                 only : log_event, LOG_LEVEL_ERROR
+use log_mod,                 only : log_event, log_level_error
 
 use base_mesh_config_mod, only: geometry_spherical, geometry_planar
 
@@ -211,7 +211,7 @@ subroutine project_ws_to_w1_operator_code( cell, nlayers,              &
           else
             call log_event('project_ws_to_w1_kernel is not implemented ' //    &
                             'with your geometry',       &
-                            LOG_LEVEL_ERROR)
+                            log_level_error)
           end if
 
           do df_1 = 1,ndf_w1

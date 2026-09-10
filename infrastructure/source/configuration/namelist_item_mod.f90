@@ -36,7 +36,7 @@ module namelist_item_mod
   use, intrinsic :: iso_fortran_env, only: int32, int64, real32, real64
 
   use constants_mod,  only: imdi, rmdi, cmdi, str_def
-  use log_mod,        only: log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod,        only: log_event, log_scratch_space, log_level_error
   use key_value_mod,  only: key_value_type,             &
                             int32_key_value_type,       &
                             int64_key_value_type,       &
@@ -472,7 +472,7 @@ subroutine value_int32( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected int32_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -495,7 +495,7 @@ subroutine value_int64( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected int64_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -518,7 +518,7 @@ subroutine value_real32( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected real32_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -541,7 +541,7 @@ subroutine value_real64( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected real64_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -564,7 +564,7 @@ subroutine value_logical( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected logical_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -587,7 +587,7 @@ subroutine value_str( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected str_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -612,7 +612,7 @@ subroutine value_int32_arr( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected int32_arr_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -635,7 +635,7 @@ subroutine value_int64_arr( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected int64_arr_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -659,7 +659,7 @@ subroutine value_real32_arr( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected real32_arr_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -683,7 +683,7 @@ subroutine value_real64_arr( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected real64_arr_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -707,7 +707,7 @@ subroutine value_logical_arr( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected logical_arr_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return
@@ -739,7 +739,7 @@ subroutine value_str_arr( self, value )
   class default
     write( log_scratch_space, '(A)' ) &
         'Object is not the expected str_arr_key_value_type.'
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   end select
 
   return

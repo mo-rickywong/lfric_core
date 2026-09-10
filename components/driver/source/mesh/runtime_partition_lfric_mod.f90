@@ -27,7 +27,7 @@ module runtime_partition_lfric_mod
                                      panel_decomposition_auto_nonuniform, &
                                      panel_decomposition_guided_nonuniform
 
-  use log_mod, only: log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod, only: log_event, log_scratch_space, log_level_error
 
   implicit none
 
@@ -97,7 +97,7 @@ subroutine get_partition_parameters( partitioning_nml, &
   case default
     ! Not clear it's possible to still error at this point but no harm in checking
     call log_event( "Missing entry for panel decomposition, "// &
-                    "specify 'auto' if unsure.", LOG_LEVEL_ERROR )
+                    "specify 'auto' if unsure.", log_level_error )
 
   end select
 

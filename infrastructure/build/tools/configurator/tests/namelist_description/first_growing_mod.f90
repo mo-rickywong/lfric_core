@@ -10,7 +10,7 @@ module test_config_mod
   use constants_mod, only: i_def
   use lfric_mpi_mod, only: global_mpi
   use log_mod,       only: log_event, log_scratch_space &
-                         , LOG_LEVEL_ERROR, LOG_LEVEL_DEBUG, LOG_LEVEL_INFO
+                         , log_level_error, log_level_debug, log_level_info
 
   use namelist_mod,      only: namelist_type
   use namelist_item_mod, only: namelist_item_type
@@ -83,7 +83,7 @@ contains
 
       read( file_unit, nml=test, iostat=condition, iomsg=log_scratch_space )
       if (condition /= 0) then
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       end if
 
     end if

@@ -9,7 +9,7 @@
 module mesh_collection_mod_test
 
     use constants_mod,        only : i_def, r_def, str_def
-    use extrusion_mod,        only : uniform_extrusion_type, PRIME_EXTRUSION
+    use extrusion_mod,        only : uniform_extrusion_type, prime_extrusion
     use global_mesh_mod,      only : global_mesh_type
     use partition_mod,        only : partition_type
     use global_mesh_collection_mod, &
@@ -22,7 +22,7 @@ module mesh_collection_mod_test
     use local_mesh_mod,       only : local_mesh_type
     use mesh_collection_mod,  only : mesh_collection_type,                  &
                                      mesh_collection
-    use mesh_mod,             only : mesh_type, PLANE_BI_PERIODIC, PLANE
+    use mesh_mod,             only : mesh_type, plane_bi_periodic, plane
     use pfunit
 
   implicit none
@@ -81,7 +81,7 @@ contains
     this%extrusion   = uniform_extrusion_type( domain_bottom, &
                                                domain_top,    &
                                                nlayers,       &
-                                               PRIME_EXTRUSION )
+                                               prime_extrusion )
 
   end subroutine setUp
 
@@ -142,7 +142,7 @@ contains
     mesh = mesh_type( local_mesh_ptr, this%extrusion )
     mesh_id = mesh_collection%add_new_mesh( mesh )
 
-    unit_test_mesh = mesh_type( PLANE_BI_PERIODIC, local_mesh_ptr )
+    unit_test_mesh = mesh_type( plane_bi_periodic, local_mesh_ptr )
     mesh_test_id = mesh_collection%add_new_mesh( unit_test_mesh )
 
     ! Two consecutively created meshes should have consecutive ids
@@ -182,7 +182,7 @@ contains
     @assertTrue(associated( mesh_by_name, mesh_ptr ))
 
     ! Check you can extract mesh variant
-    mesh_variant => mesh_collection % get_mesh(mesh_ptr, PRIME_EXTRUSION)
+    mesh_variant => mesh_collection % get_mesh(mesh_ptr, prime_extrusion)
     @assertAssociated( mesh_variant )
 
     ! Check it's the same mesh as the one extracted by id
@@ -192,7 +192,7 @@ contains
     @assertTrue(mesh_collection % check_for_by_name(mesh_name))
 
     ! Check mesh exists in collection by extrusion
-    @assertTrue(mesh_collection % check_for_by_extrusion(mesh_ptr, PRIME_EXTRUSION))
+    @assertTrue(mesh_collection % check_for_by_extrusion(mesh_ptr, prime_extrusion))
 
     call mesh_collection%clear()
 

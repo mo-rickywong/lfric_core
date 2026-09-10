@@ -15,8 +15,8 @@ module mesh_colouring_mod
   use constants_mod,         only : i_def, l_def
   use local_mesh_mod,        only : local_mesh_type
   use log_mod,               only : log_event,       &
-                                    LOG_LEVEL_ERROR, &
-                                    LOG_LEVEL_DEBUG, &
+                                    log_level_error, &
+                                    log_level_debug, &
                                     log_scratch_space
   use reference_element_mod, only : W, S, E, N
 
@@ -26,7 +26,7 @@ module mesh_colouring_mod
 
   public :: set_colours
 
-  integer, parameter               :: MAXCOLS = 50 ! Temporary hardcode until
+  integer, parameter               :: maxcols = 50 ! Temporary hardcode until
                                                    ! dynamic palette
 
 contains
@@ -103,7 +103,7 @@ contains
       ! colour correctly In all cases, use a generic colour algorithm.
       write(log_scratch_space,*) &
                            'set_colours: Applying generic colouring algorithm'
-      call log_event(log_scratch_space,LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space,log_level_debug)
       call set_colours_generic(num_cells,               &
                               cell_next,               &
                               num_colours,             &
@@ -117,12 +117,12 @@ contains
     ! Report the result when running with debug
     write(log_scratch_space,*) 'set_colours: Local mesh coloured with ', &
                                num_colours, ' colours'
-    call log_event(log_scratch_space,LOG_LEVEL_DEBUG)
+    call log_event(log_scratch_space,log_level_debug)
 
     do i=1,num_colours
       write(log_scratch_space,*) 'Number of cells in colour ',i, &
                                 ' are ',num_cell_per_colour(i)
-      call log_event(log_scratch_space,LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space,log_level_debug)
     end do
 
   end subroutine set_colours
@@ -170,7 +170,7 @@ contains
 
     ! Local Variables
 
-    integer(i_def) :: cells_per_colour(MAXCOLS)
+    integer(i_def) :: cells_per_colour(maxcols)
 
     ! Stores error status from allocate statement
     integer(i_def) :: astat
@@ -208,7 +208,7 @@ contains
         'set_colours_cubed_sphere: cells in global map ', &
         local_mesh%get_ncells_global_mesh(),              &
         ' should be a square multiplied by 6'
-      call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space,log_level_error)
       stop
     end if
 
@@ -276,7 +276,7 @@ contains
     allocate(colour_map(0:max_cell), stat=astat)
     if(astat/=0) then
       call log_event( 'set_colours_cubed_sphere: Allocate failure: colour_map.', &
-                      LOG_LEVEL_ERROR )
+                      log_level_error )
       ! Although the logger will call "stop" for errors GFortran is unable to
       ! perform inter-file analysis so believes it is possible to use
       ! colour_map without initialising it.
@@ -401,7 +401,7 @@ contains
     allocate(colour_map(0:max_cell), stat=astat)
     if(astat/=0) then
       call log_event( 'set_colours_planar_quadrilateral: Allocate failure: colour_map.', &
-                      LOG_LEVEL_ERROR )
+                      log_level_error )
       ! Although the logger will call "stop" for errors GFortran is unable to
       ! perform inter-file analysis so believes it is possible to use
       ! colour_map without initialising it.
@@ -529,7 +529,7 @@ contains
 
     ! Local Variables
 
-    integer(i_def) :: cells_per_colour(MAXCOLS)
+    integer(i_def) :: cells_per_colour(maxcols)
 
     ! Stores error status from allocate statement
     integer                           :: astat
@@ -539,7 +539,7 @@ contains
     integer(i_def), allocatable        :: colour_map(:)
 
     ! Array for marking used (unavailable) colours for a cell
-    integer(i_def)                     :: used_colours(0:MAXCOLS)
+    integer(i_def)                     :: used_colours(0:maxcols)
     ! The next available colour
     integer(i_def)                     :: free_colour
     ! Loop and status variables
@@ -559,7 +559,7 @@ contains
     allocate(colour_map(0:max_cell), stat=astat)
     if(astat/=0) then
       call log_event( 'set_colours_generic: Allocate failure: colour_map.', &
-                      LOG_LEVEL_ERROR )
+                      log_level_error )
       ! Although the logger will call "stop" for errors GFortran is unable to
       ! perform inter-file analysis so believes it is possible to use
       ! colour_map without initialising it.
@@ -576,7 +576,7 @@ contains
     cells_per_colour = 0_i_def
 
     do cell = 1, num_cells
-      do i=0, MAXCOLS
+      do i=0, maxcols
         used_colours(i) = 0_i_def
       end do
 
@@ -623,9 +623,9 @@ contains
       cells_per_colour(free_colour) = cells_per_colour(free_colour) + 1
     end do
 
-    num_colours = MAXCOLS
+    num_colours = maxcols
     ! Allocate return data and populate
-    do i = 1, MAXCOLS
+    do i = 1, maxcols
       if(cells_per_colour(i) == 0) then
         num_colours = i-1
         exit
@@ -722,7 +722,7 @@ contains
     allocate(num_cell_per_colour(num_colours), stat=astat)
 
     if(astat/=0) call log_event(prefix//"num_cell_per_colour.", &
-                                  LOG_LEVEL_ERROR)
+                                  log_level_error)
     do i = 1, num_colours
       num_cell_per_colour(i) = 0
     end do
@@ -736,7 +736,7 @@ contains
     allocate(cells_in_colour(num_colours, maxval(num_cell_per_colour)), &
             stat=astat)
     if(astat/=0) call log_event(prefix//"cells_in_colour.", &
-                                  LOG_LEVEL_ERROR)
+                                  log_level_error)
     cells_in_colour = 0_i_def
 
     ! Output 2: Create a list of cells for each colour
@@ -849,12 +849,12 @@ contains
 
     implicit none
 
-    integer, intent(in)     :: used_colours(0:MAXCOLS)
+    integer, intent(in)     :: used_colours(0:maxcols)
     integer                 :: colour
     integer                 :: idx
 
     colour = 0
-    do idx=1, MAXCOLS
+    do idx=1, maxcols
       if(used_colours(idx) == 0) then
         colour = idx
         exit
@@ -878,11 +878,11 @@ contains
 
     implicit none
 
-    integer, intent(in) :: used_colours(0:MAXCOLS)
-    integer, intent(in) :: cells_per_colour(MAXCOLS)
+    integer, intent(in) :: used_colours(0:maxcols)
+    integer, intent(in) :: cells_per_colour(maxcols)
     integer             :: colour
 
-    colour = minloc(cells_per_colour, 1, mask=(used_colours(1:MAXCOLS)==0))
+    colour = minloc(cells_per_colour, 1, mask=(used_colours(1:maxcols)==0))
 
   end function choose_colour_balanced
 

@@ -43,7 +43,7 @@ contains
     use io_utility_mod,       only: claim_io_unit, release_io_unit
     use lfric_mpi_mod,        only: global_mpi
     use log_mod,              only: log_event, &
-                                    LOG_LEVEL_ERROR
+                                    log_level_error
 
 
     implicit none
@@ -111,7 +111,7 @@ contains
       write(fname,'(A,A)') trim(model_name),'-checksums.txt'
       open( unit, file=fname, status="replace", iostat=stat)
       if (stat /= 0) then
-        call log_event( "Unable to open checksum file", LOG_LEVEL_ERROR )
+        call log_event( "Unable to open checksum file", log_level_error )
       end if
       if ( present(field1) .and. present(name1) ) &
         write(unit, '(A,A,A,Z16)' ) kgo_str,trim(name1),' = ',chksum1

@@ -13,7 +13,7 @@ module io_mod
   use constants_mod,        only: i_def, str_max_filename
   use field_mod,            only: field_type, field_proxy_type
   use field_parent_mod,     only: field_parent_proxy_type
-  use file_mod,             only: FILE_MODE_READ, FILE_MODE_WRITE, &
+  use file_mod,             only: file_mode_read, file_mode_write, &
                                   FILE_OP_CREATE, FILE_OP_OPEN
   use lfric_mpi_mod,        only: global_mpi
   use lfric_ncdf_dims_mod,  only: lfric_ncdf_dims_type
@@ -106,7 +106,7 @@ subroutine checkpoint_write_netcdf(field_name, file_name, field_proxy)
   type(lfric_ncdf_field_type) :: ncdf_field
 
   ncdf_file = lfric_ncdf_file_type(file_name, open_mode=FILE_OP_CREATE, &
-                                   io_mode=FILE_MODE_WRITE)
+                                   io_mode=file_mode_write)
 
   select type(field_proxy)
 
@@ -142,7 +142,7 @@ subroutine checkpoint_read_netcdf(field_name, file_name, field_proxy)
   type(lfric_ncdf_field_type) :: ncdf_field
 
   ncdf_file = lfric_ncdf_file_type(file_name, open_mode=FILE_OP_OPEN, &
-                                   io_mode=FILE_MODE_READ)
+                                   io_mode=file_mode_read)
 
   select type(field_proxy)
 

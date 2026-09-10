@@ -10,7 +10,7 @@ module io_value_mod
   use key_value_mod,            only : abstract_value_type
   use key_value_collection_mod, only : key_value_collection_type
   use log_mod,                  only : log_event, &
-                                       LOG_LEVEL_ERROR
+                                       log_level_error
 
   implicit none
 
@@ -104,7 +104,7 @@ subroutine write_value(self, value_name)
     call self%write_method(value_name)
   else
     call log_event( 'Error trying to write value ' // trim(self%io_id) // &
-                    ', write method not set', LOG_LEVEL_ERROR )
+                    ', write method not set', log_level_error )
   end if
 
 end subroutine write_value
@@ -118,7 +118,7 @@ subroutine write_checkpoint(self, value_name)
     call self%checkpoint_write_method(value_name)
   else
     call log_event( 'Error trying to write value ' // trim(self%io_id) // &
-                    ', checkpoint write method not set', LOG_LEVEL_ERROR )
+                    ', checkpoint write method not set', log_level_error )
   end if
 
 end subroutine write_checkpoint
@@ -132,7 +132,7 @@ subroutine read_checkpoint(self, value_name)
     call self%checkpoint_read_method(value_name)
   else
     call log_event( 'Error trying to read value ' // trim(self%io_id) // &
-                    ', checkpoint read method not set', LOG_LEVEL_ERROR )
+                    ', checkpoint read method not set', log_level_error )
   end if
 
 end subroutine read_checkpoint

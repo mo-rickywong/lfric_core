@@ -13,7 +13,7 @@ module columnwise_operator_mod
   use constants_mod,            only : r_solver, i_def
   use function_space_mod,       only : function_space_type
   use mesh_mod,                 only : mesh_type
-  use log_mod,                  only : log_event, LOG_LEVEL_ERROR
+  use log_mod,                  only : log_event, log_level_error
   use operator_parent_mod,      only : operator_parent_type, &
                                        operator_parent_proxy_type
 
@@ -368,10 +368,10 @@ contains
     ! Check that the first entry in the dofmaps is smaller than all other
     ! entries
     if (any(dofmap_to(2:)<dofmap_to(1))) then
-       call log_event("First entry in dofmap is not smallest entry for to-space", LOG_LEVEL_ERROR)
+       call log_event("First entry in dofmap is not smallest entry for to-space", log_level_error)
     endif
     if (any(dofmap_from(2:)<dofmap_from(1))) then
-       call log_event("First entry in dofmap is not smallest entry for from-space",LOG_LEVEL_ERROR)
+       call log_event("First entry in dofmap is not smallest entry for from-space",log_level_error)
     endif
 
     nlayers = fs_to%get_nlayers()
@@ -447,12 +447,12 @@ contains
     if (self%ndof_cell_to /= fs_to%get_ndf()) then
        call log_event("Operator_mod:extract_mesh_fs_info():Function space " // &
           "mapped to in columnwise operator is not horizontally discontinuous",&
-          LOG_LEVEL_ERROR)
+          log_level_error)
     endif
     if (self%ndof_cell_from /= fs_from%get_ndf()) then
        call log_event("Operator_mod:extract_mesh_fs_info():Function space " //   &
           "mapped from in columnwise operator is not horizontally discontinuous",&
-          LOG_LEVEL_ERROR)
+          log_level_error)
     endif
 
     ! Number of vertical layers
@@ -519,7 +519,7 @@ contains
    ! check that types are compatible
     if (self%which_fs_from() /= op_B%which_fs_to()) then
        call log_event("to-function spaces of operator B do not match from-function space of operator A", &
-            LOG_LEVEL_ERROR)
+            log_level_error)
     end if
     fs_to => self%get_fs_to()
     fs_from => op_B%get_fs_from()
@@ -554,22 +554,22 @@ contains
     ! Check that types are compatible
     if (self%which_fs_to() /= op_B%which_fs_to()) then
        call log_event("to-function spaces of operators do not match", &
-            LOG_LEVEL_ERROR)
+            log_level_error)
     end if
     if ( self%which_fs_from() /= op_B%which_fs_from()) then
        call log_event("from-function spaces of operators do not match", &
-            LOG_LEVEL_ERROR)
+            log_level_error)
     end if
     fs_to => self%get_fs_to()
     fs_from => self%get_fs_from()
     ! Check that alpha and beta are identical
     if (self%alpha /= op_B%alpha) then
        call log_event("parameter alpha of operators do not match", &
-            LOG_LEVEL_ERROR)
+            log_level_error)
     end if
     if (self%beta /= op_B%beta) then
        call log_event("parameter beta of operators do not match", &
-            LOG_LEVEL_ERROR)
+            log_level_error)
     end if
     alpha = self%alpha
     beta = self%beta

@@ -16,8 +16,8 @@ module mesh_tiling_mod
   use constants_mod,  only : i_def, l_def
   use local_mesh_mod, only : local_mesh_type
   use reference_element_mod, only : W, S, E, N
-  use log_mod,        only : log_event, LOG_LEVEL_DEBUG, LOG_LEVEL_INFO, &
-                             LOG_LEVEL_WARNING, LOG_LEVEL_ERROR,         &
+  use log_mod,        only : log_event, log_level_debug, log_level_info, &
+                             log_level_warning, log_level_error,         &
                              log_scratch_space
 
   implicit none
@@ -149,7 +149,7 @@ contains
 
       write( log_scratch_space, '(A)' ) &
              'set_tiling: 1x1 tile size requested, falling back on colouring'
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
 
     ! Attempt to tile the mesh using the requested tile size
     else
@@ -161,7 +161,7 @@ contains
            local_mesh%get_halo_depth() < 1 ) then
         write( log_scratch_space, '(A)' ) &
              'set_tiling: Outer and inner halos must be present for tiling'
-        call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+        call log_event( log_scratch_space, log_level_warning )
         tiling_possible = .false.
 
       ! Partitioned cubed-sphere or non-periodic partitioned planar mesh
@@ -181,7 +181,7 @@ contains
         write( log_scratch_space, '(A)' ) &
              'set_tiling: tiling not implemented for this mesh type or ' // &
              'non-partitioned meshes'
-        call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+        call log_event( log_scratch_space, log_level_warning )
         tiling_possible = .false.
       end if
 
@@ -190,7 +190,7 @@ contains
         write( log_scratch_space, '(A)' ) &
                'set_tiling: tiling is not possible for this mesh, ' // &
                'choose 1x1 tile size to fall back on colouring '
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       end if
 
       ! Copy adjacency array for reordering
@@ -248,11 +248,11 @@ contains
       if ( correct ) then
         write( log_scratch_space, '(A)' ) 'set_tiling: Successfully set ' // &
                                           'up tiling'
-        call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+        call log_event( log_scratch_space, log_level_debug )
       else
         write( log_scratch_space, '(A)' ) &
                'set_tiling: Problem encountered when trying to tile mesh'
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+        call log_event( log_scratch_space, log_level_error )
       end if
 
     end if
@@ -421,7 +421,7 @@ contains
       write( log_scratch_space, '(A)' ) &
            'compute_partition_specs: Cell walk did not return to ' // &
            'north-west corner, assuming that partition is not rectangular'
-      call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+      call log_event( log_scratch_space, log_level_warning )
       cell_walk_returns = .false.
     end if
 
@@ -437,7 +437,7 @@ contains
     else
       write( log_scratch_space, '(A)' ) &
            'compute_partition_specs: Partition has no interior cells'
-      call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+      call log_event( log_scratch_space, log_level_warning )
       has_interior_cells = .false.
     end if
 
@@ -451,7 +451,7 @@ contains
                tile_size(1), 'x', tile_size(2), ') larger ' //    &
                'than partition interior (', num_interior_cells_x, &
                'x', num_interior_cells_y, ')'
-        call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+        call log_event( log_scratch_space, log_level_warning )
       end if
     else
       tile_size_ok = minval( (/ num_partition_cells_x, num_partition_cells_y /)&
@@ -462,7 +462,7 @@ contains
                tile_size(1), 'x', tile_size(2), ') larger ' //   &
                'than partition (', num_partition_cells_x,        &
                'x', num_partition_cells_y, ')'
-        call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+        call log_event( log_scratch_space, log_level_warning )
       end if
     end if
 
@@ -490,7 +490,7 @@ contains
       write( log_scratch_space, '(A)' )                       &
            'compute_partition_specs: Computed cell count ' // &
            'in partition does not match expected cell count'
-      call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+      call log_event( log_scratch_space, log_level_warning )
       cell_count_correct = .false.
     end if
 
@@ -501,7 +501,7 @@ contains
     write(log_scratch_space, '(A,L1)')                         &
          'compute_partition_specs: Partition spec is valid: ', &
          valid_partition_spec
-    call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+    call log_event( log_scratch_space, log_level_debug )
 
     if (valid_partition_spec) then
       write( log_scratch_space, '(4(A,I0),A)' )                 &
@@ -509,28 +509,28 @@ contains
            num_partition_cells_x, 'x', num_partition_cells_y,   &
            ') cells, interior size is (', num_interior_cells_x, &
            'x', num_interior_cells_y, ') cells'
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
       write( log_scratch_space, '(3(A,1X,I0))' )                             &
            'compute_partition_specs: Inner halo width is', inner_halo_width, &
            ', outer halo width is', outer_halo_width,                        &
            ', north-westernmost owned local cell ID is', nw_cell_partition
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
       write( log_scratch_space, '(2(A,1X,I0,1X))' )                       &
            'compute_partition_specs: Computed cell count is', cell_count, &
            'Actual partition cell count is', num_cells_2d
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
       write(log_scratch_space, '(4(A,L1,1X))') 'compute_partition_specs: ' // &
            'N edge halo: ', edge_halos(1), &
            'W edge halo: ', edge_halos(2), &
            'E edge halo: ', edge_halos(3), &
            'S edge halo: ', edge_halos(4)
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
       write(log_scratch_space, '(4(A,L1,1X))') 'compute_partition_specs: ' // &
            'NW corner halo: ', corner_halos(1), &
            'NE corner halo: ', corner_halos(2), &
            'SW corner halo: ', corner_halos(3), &
            'SE corner halo: ', corner_halos(4)
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     end if
 
   end subroutine compute_partition_specs
@@ -849,11 +849,11 @@ contains
     write( log_scratch_space, '(2(A,I0),A)' ) &
            'compute_coloured_tiling: Requested tile size is (', tile_size(1), &
             'x', tile_size(2), ')'
-    call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+    call log_event( log_scratch_space, log_level_debug )
     write( log_scratch_space, '(A,1X,I0,1X,A)' ) &
          'compute_coloured_tiling: Partition has', ntiles, &
          'outer halo and partition tiles'
-    call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+    call log_event( log_scratch_space, log_level_debug )
     if ( separate_inner_halo ) then
       write( log_scratch_space, '(A)' ) &
          'compute_coloured_tiling: Inner halo will be tiled separately ' // &
@@ -863,7 +863,7 @@ contains
          'compute_coloured_tiling: Inner halo will be tiled together ' // &
          'with partition interior'
     end if
-    call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+    call log_event( log_scratch_space, log_level_debug )
 
     ! Maximum number of cells in outer halo, inner halo, and interior tiles
     max_num_cells_in_tile = max( outer_halo_width*outer_halo_width,   &
@@ -938,7 +938,7 @@ contains
                'compute_coloured_tiling: Failed to reach first cell in tile (',&
                tile_x, ',', tile_y, ') with', cell_distance,                   &
                'steps left in x direction'
-          call log_event( log_scratch_space, LOG_LEVEL_INFO )
+          call log_event( log_scratch_space, log_level_info )
         end if
 
         ! Same for y dimension
@@ -989,7 +989,7 @@ contains
                'compute_coloured_tiling: Failed to reach first cell in tile (',&
                tile_x, ',', tile_y, ') with', cell_distance,                   &
                'steps left in y direction'
-          call log_event( log_scratch_space, LOG_LEVEL_INFO )
+          call log_event( log_scratch_space, log_level_info )
         end if
 
         if ( minval( actual_tile_size ) < 1 ) then
@@ -998,7 +998,7 @@ contains
                'compute_coloured_tiling: Tile (', tile_x, ',', tile_y, &
                'has erroneous size (', actual_tile_size(1), ',',       &
                actual_tile_size(2), ')'
-          call log_event( log_scratch_space, LOG_LEVEL_INFO )
+          call log_event( log_scratch_space, log_level_info )
         end if
 
         tile = tile + 1
@@ -1050,7 +1050,7 @@ contains
        write( log_scratch_space, '(A,1X,I1,A,1X,I6)' )                     &
             'compute_coloured_tiling: Number of tiles for colour', i, ':', &
             ntiles_per_colour(i)
-       call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+       call log_event( log_scratch_space, log_level_debug )
     end do
 
     ! Tiles need to be sorted by min cell ID in each tile, to allow loops to
@@ -1314,7 +1314,7 @@ contains
       write( log_scratch_space, '(2(A,1X,I0,1X))' )                         &
            'test_coloured_tiling: tiling array was expected to contain', &
            ntiles, 'tiles, but found', sum(ntiles_per_colour)
-      call log_event( log_scratch_space, LOG_LEVEL_INFO )
+      call log_event( log_scratch_space, log_level_info )
     end if
 
     ! Check total number of cells in ncells_per_coloured_tile array
@@ -1323,7 +1323,7 @@ contains
       write( log_scratch_space, '(2(A,1X,I0,1X))' )                            &
            'test_coloured_tiling: tiling arrays were expected to cover',       &
            ncells_expected, 'cells, but found', sum(ncells_per_coloured_tile)
-      call log_event( log_scratch_space, LOG_LEVEL_INFO )
+      call log_event( log_scratch_space, log_level_info )
     end if
 
     ! Check that the number of unique cell IDs in the cells_in_coloured_tile
@@ -1340,12 +1340,12 @@ contains
       write( log_scratch_space, '(A,I0,A,I0,A)' )              &
            'test_coloured_tiling: Expected ', ncells_expected, &
            ' unique cell IDs but found ', num_cells
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     else
       write( log_scratch_space, '(A)' )                       &
            'test_coloured_tiling: All cells in partition ' // &
            'are accounted for in tiling array'
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     end if
 
     ! Check that no tiles of the same colour are neighbours in the
@@ -1399,11 +1399,11 @@ contains
       is_correct = .false.
       write( log_scratch_space, '(A)' ) 'test_coloured_tiling: Tiles of ' // &
            'the same colour either overlap or are direct neighbours'
-      call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+      call log_event( log_scratch_space, log_level_warning )
     else
       write( log_scratch_space, '(A)' ) 'test_coloured_tiling: Tile ' // &
            'neighbourhood relations are correct'
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     end if
 
     ! Check that loop ranges in the "last_..." arrays are correct, so that
@@ -1454,11 +1454,11 @@ contains
       is_correct = .false.
       write( log_scratch_space, '(A)' ) &
            'test_coloured_tiling: Tiled loops have incorrect trip count'
-      call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+      call log_event( log_scratch_space, log_level_warning )
     else
       write( log_scratch_space, '(A)' ) &
            'test_coloured_tiling: Tiled loops have correct trip count'
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     end if
 
     ! Check that no tile crosses the boundaries between partition interior and
@@ -1503,11 +1503,11 @@ contains
       is_correct = .false.
       write( log_scratch_space, '(A)' ) &
              'test_coloured_tiling: Tiling is not cleanly segmented'
-      call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+      call log_event( log_scratch_space, log_level_warning )
     else
       write( log_scratch_space, '(A)' ) &
              'test_coloured_tiling: Tiling is cleanly segmented'
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     end if
 
     return

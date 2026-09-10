@@ -18,7 +18,7 @@ module stencil_dofmap_lam_mod_test
   use master_dofmap_mod,   only: master_dofmap_type
   use mesh_collection_mod, only: mesh_collection_type, &
                                  mesh_collection
-  use mesh_mod,            only: mesh_type, PLANE
+  use mesh_mod,            only: mesh_type, plane
 
   implicit none
 
@@ -145,7 +145,7 @@ contains
     unit_test_local_mesh_ptr => this%get_local_mesh_ptr()
 
     ! Dummy mesh mod has 9 cells, 3 layers and is uniform in vertical
-    unit_test_mesh = mesh_type( PLANE, unit_test_local_mesh_ptr )
+    unit_test_mesh = mesh_type( plane, unit_test_local_mesh_ptr )
     this%mesh_id = mesh_collection%add_new_mesh( unit_test_mesh )
 
     mesh => mesh_collection%get_mesh( this%mesh_id )

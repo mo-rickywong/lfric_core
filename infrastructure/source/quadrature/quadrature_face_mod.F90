@@ -16,7 +16,7 @@
 module quadrature_face_mod
 
 use constants_mod,           only: r_def, i_def, PI, EPS
-use log_mod,                 only: LOG_LEVEL_ERROR, log_event, log_scratch_space
+use log_mod,                 only: log_level_error, log_event, log_scratch_space
 use quadrature_rule_mod,     only: quadrature_rule_type
 use quadrature_mod,          only: quadrature_type
 use function_space_mod,      only: function_space_type
@@ -131,7 +131,7 @@ function init_quadrature_variable(np_1, np_2, horizontal_faces, vertical_faces, 
 
   if ( .not. (horizontal_faces .or. vertical_faces) ) then
       write( log_scratch_space, '(A)' )  'Invalid face choice for quadrature'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
   end if
 
   if ( horizontal_faces ) then
@@ -205,7 +205,7 @@ function init_quadrature_symmetrical(np, horizontal_faces, vertical_faces, &
 
   if ( .not. (horizontal_faces .or. vertical_faces) ) then
       write( log_scratch_space, '(A)' )  'Invalid face choice for quadrature'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
   end if
 
   ! Allocate space for the points and weights of the 1D with dimension defined

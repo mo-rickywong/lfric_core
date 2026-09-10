@@ -10,7 +10,7 @@
 module rotation_mod
 
   use constants_mod,       only: r_def, i_def, str_def, PI
-  use log_mod,             only: log_event, LOG_LEVEL_ERROR
+  use log_mod,             only: log_event, log_level_error
   use coord_transform_mod, only: rebase_longitude_range
 
   implicit none
@@ -18,11 +18,11 @@ module rotation_mod
   private
 
   ! Set Parameters for true north pole / null island
-  real(r_def), parameter, public :: TRUE_NORTH_POLE_XYZ(3) = &
+  real(r_def), parameter, public :: true_north_pole_xyz(3) = &
                                     (/ 0.0_r_def,  0.0_r_def, 1.0_r_def /)
-  real(r_def), parameter, public :: TRUE_NORTH_POLE_LL(2)  = &
+  real(r_def), parameter, public :: true_north_pole_ll(2)  = &
                                     (/ 0.0_r_def, 90.0_r_def /)
-  real(r_def), parameter, public :: TRUE_NULL_ISLAND_LL(2) = &
+  real(r_def), parameter, public :: true_null_island_ll(2) = &
                                     (/ 0.0_r_def,  0.0_r_def /)
 
   public :: rotate_mesh_coords
@@ -193,7 +193,7 @@ module rotation_mod
       null_island(2) = 90.0_r_def - north_pole(2)
     else
       call log_event( "Target pole must be in the Northern Hemisphere", &
-         LOG_LEVEL_ERROR )
+         log_level_error )
     end if
 
     null_island(1) = rebase_longitude_range( null_island(1), -180.0_r_def )

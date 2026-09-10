@@ -166,7 +166,7 @@ contains
     call tmp_io_context%initialise(context_name)
     call io_context_collection%add_context(tmp_io_context)
     write(log_scratch_space, "(A25)")"Adding empty IO context: " // context_name
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_info)
 
   end subroutine init_empty_io_context
 

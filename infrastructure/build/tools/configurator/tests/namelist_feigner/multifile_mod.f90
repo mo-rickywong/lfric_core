@@ -9,7 +9,7 @@ module multifile_mod
 
   use constants_mod, only : i_def, l_def, r_def, str_max_filename
   use lfric_mpi_mod, only : global_mpi
-  use log_mod,       only : log_scratch_space, log_event, LOG_LEVEL_ERROR
+  use log_mod,       only : log_scratch_space, log_event, log_level_error
 
   implicit none
 

@@ -20,7 +20,7 @@ use argument_mod,                  only: arg_type,                  &
                                          ANY_DISCONTINUOUS_SPACE_3, &
                                          ANY_DISCONTINUOUS_SPACE_4, &
                                          GH_COARSE, GH_FINE, CELL_COLUMN
-use constants_mod,                 only: i_def, r_def, l_def, IMDI
+use constants_mod,                 only: i_def, r_def, l_def, imdi
 use kernel_mod,                    only: kernel_type
 use reference_element_mod,         only: E, N
 
@@ -148,9 +148,9 @@ contains
       do x_idx = 1, ncell_fine_per_coarse_x
         do df_f = 1, ndf_fine
           if (df_f == E .and. x_idx /= ncell_fine_per_coarse_x) then
-            map_idx(df_f, x_idx, y_idx) = IMDI
+            map_idx(df_f, x_idx, y_idx) = imdi
           else if (df_f == N .and. y_idx /= 1) then
-            map_idx(df_f, x_idx, y_idx) = IMDI
+            map_idx(df_f, x_idx, y_idx) = imdi
           else
             map_idx(df_f, x_idx, y_idx) = j
             j = j + 1

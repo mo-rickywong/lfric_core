@@ -19,18 +19,18 @@ module sci_fem_constants_mod
                                                 str_def, l_def
   use field_mod,                          only: field_type
   use fs_continuity_mod,                  only: W0, W1, W2, W2broken, &
-                                                W2H, W2V, W3, Wtheta
+                                                W2h, W2v, W3, Wtheta
   use function_space_collection_mod,      only: function_space_collection
   use function_space_mod,                 only: function_space_type
   use inventory_by_mesh_mod,              only: inventory_by_mesh_type
-  use log_mod,                            only: log_event, LOG_LEVEL_ERROR
+  use log_mod,                            only: log_event, log_level_error
   use mesh_collection_mod,                only: mesh_collection
   use mesh_mod,                           only: mesh_type
   use operator_mod,                       only: operator_type
   use quadrature_xyoz_mod,                only: quadrature_xyoz_type
   use quadrature_rule_gaussian_mod,       only: quadrature_rule_gaussian_type
   use timing_mod,                         only: start_timing, stop_timing, &
-                                                tik, LPROF
+                                                tik, lprof
 
   ! Configuration
   use finite_element_config_mod,          only: element_order_h, &
@@ -244,10 +244,10 @@ contains
       case (W2, W2broken)
         inventory => mm_w2_inventory_fe
         inventory_name = 'mass_matrix_w2_fe'
-      case (W2V)
+      case (W2v)
         inventory => mm_w2v_inventory_fe
         inventory_name = 'mass_matrix_w2v_fe'
-      case (W2H)
+      case (W2h)
         inventory => mm_w2h_inventory_fe
         inventory_name = 'mass_matrix_w2h_fe'
       case (W3)
@@ -258,7 +258,7 @@ contains
         inventory_name = 'mass_matrix_wtheta_fe'
       case default
         mm_op => null()
-        call log_event("Mass matrix operator does not exist", LOG_LEVEL_ERROR)
+        call log_event("Mass matrix operator does not exist", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -275,7 +275,7 @@ contains
       panel_id => get_panel_id(mesh)
       qr_ptr => get_qr_fe()
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
       fs => function_space_collection%get_fs(mesh, element_order_h, &
                                              element_order_v, space)
       call inventory%add_operator(mm_op, fs, fs, mesh)
@@ -286,7 +286,7 @@ contains
           call invoke( name="compute_w1_mass_matrix_fe",                       &
                        compute_mass_matrix_kernel_w1_type(mm_op, chi,          &
                                                           panel_id, qr_ptr) )
-        case (W2, W2broken, W2H, W2V)
+        case (W2, W2broken, W2h, W2v)
           call invoke( name="compute_w2_mass_matrix_fe",                       &
                        compute_mass_matrix_kernel_w2_type(mm_op, chi,          &
                                                           panel_id, qr_ptr) )
@@ -306,7 +306,7 @@ contains
                                                           stencil_depth) )
       end if
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     ! Return existing constant
@@ -356,10 +356,10 @@ contains
       case (W2, W2broken)
         inventory => mm_w2_inventory_fv
         inventory_name = 'mass_matrix_w2_fv'
-      case (W2V)
+      case (W2v)
         inventory => mm_w2v_inventory_fv
         inventory_name = 'mass_matrix_w2v_fv'
-      case (W2H)
+      case (W2h)
         inventory => mm_w2h_inventory_fv
         inventory_name = 'mass_matrix_w2h_fv'
       case (W3)
@@ -370,7 +370,7 @@ contains
         inventory_name = 'mass_matrix_wtheta_fv'
       case default
         mm_op => null()
-        call log_event("Mass matrix operator does not exist", LOG_LEVEL_ERROR)
+        call log_event("Mass matrix operator does not exist", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -387,7 +387,7 @@ contains
       panel_id => get_panel_id(mesh)
       qr_ptr => get_qr_fv()
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
       fs => function_space_collection%get_fs(mesh, 0, 0, space)
       call inventory%add_operator(mm_op, fs, fs, mesh)
 
@@ -397,7 +397,7 @@ contains
           call invoke( name="compute_w1_mass_matrix_fv",                       &
                        compute_mass_matrix_kernel_w1_type(mm_op, chi,          &
                                                           panel_id, qr_ptr) )
-        case (W2, W2broken, W2H, W2V)
+        case (W2, W2broken, W2h, W2v)
           call invoke( name="compute_w2_mass_matrix_fv",                       &
                        compute_mass_matrix_kernel_w2_type(mm_op, chi,          &
                                                           panel_id, qr_ptr) )
@@ -417,7 +417,7 @@ contains
                                                           stencil_depth) )
       end if
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     ! Return existing constant
@@ -460,10 +460,10 @@ contains
       case (W2)
         inventory => mm2_diag_inventory_fe
         inventory_name = 'mm_w2_diag_fe'
-      case (W2V)
+      case (W2v)
         inventory => mm2v_diag_inventory_fe
         inventory_name = 'mm_w2v_diag_fe'
-      case (W2H)
+      case (W2h)
         inventory => mm2h_diag_inventory_fe
         inventory_name = 'mm_w2h_diag_fe'
       case (W3)
@@ -474,7 +474,7 @@ contains
         inventory_name = 'mm_wtheta_diag_fe'
       case default
         diagonal_mm => null()
-        call log_event("Diagonal mass matrix operator does not exist", LOG_LEVEL_ERROR)
+        call log_event("Diagonal mass matrix operator does not exist", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -489,7 +489,7 @@ contains
       ! Create constant if it doesn't already exist
       mass_matrix => get_mass_matrix_fe(space, mesh_id)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
 
       fs => function_space_collection%get_fs(mesh, element_order_h, &
                                              element_order_v, space)
@@ -497,7 +497,7 @@ contains
       call invoke ( setval_c(diagonal_mm, 0.0_r_def),                          &
                     mm_diagonal_kernel_type(diagonal_mm, mass_matrix)  )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     ! Return existing constant
@@ -534,10 +534,10 @@ contains
       case (W2)
         inventory => mm2_diag_inventory_fv
         inventory_name = 'mm_w2_diag_fv'
-      case (W2V)
+      case (W2v)
         inventory => mm2v_diag_inventory_fv
         inventory_name = 'mm_w2v_diag_fv'
-      case (W2H)
+      case (W2h)
         inventory => mm2h_diag_inventory_fv
         inventory_name = 'mm_w2h_diag_fv'
       case (W3)
@@ -548,7 +548,7 @@ contains
         inventory_name = 'mm_wtheta_diag_fv'
       case default
         diagonal_mm => null()
-        call log_event("Diagonal mass matrix operator does not exist", LOG_LEVEL_ERROR)
+        call log_event("Diagonal mass matrix operator does not exist", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -563,14 +563,14 @@ contains
       ! Create constant if it doesn't already exist
       mass_matrix => get_mass_matrix_fv(space, mesh_id)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
 
       fs => function_space_collection%get_fs(mesh, 0, 0, space)
       call inventory%add_field(diagonal_mm, fs, mesh)
       call invoke ( setval_c(diagonal_mm, 0.0_r_def),                          &
                     mm_diagonal_kernel_type(diagonal_mm, mass_matrix)  )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     ! Return existing constant
@@ -618,7 +618,7 @@ contains
         inventory_name = 'mm_wtheta_lumped_inv_fe'
       case default
         mm_linv => null()
-        call log_event("Lumped inverse mass matrix does not exist", LOG_LEVEL_ERROR)
+        call log_event("Lumped inverse mass matrix does not exist", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -633,7 +633,7 @@ contains
       ! Create constant if it doesn't already exist
       mass_matrix => get_mass_matrix_fe(space, mesh_id)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
 
       fs => function_space_collection%get_fs(mesh, element_order_h, &
                                              element_order_v, space)
@@ -654,7 +654,7 @@ contains
                                                         ones, mass_matrix),    &
                        inc_X_powint_n(mm_linv, i_minus_one) )
       end select
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     ! Return existing constant
@@ -696,7 +696,7 @@ contains
         inventory_name = 'mm_wtheta_lumped_inv_fv'
       case default
         mm_linv => null()
-        call log_event("Lumped inverse mass matrix does not exist", LOG_LEVEL_ERROR)
+        call log_event("Lumped inverse mass matrix does not exist", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -711,7 +711,7 @@ contains
       ! Create constant if it doesn't already exist
       mass_matrix => get_mass_matrix_fv(space, mesh_id)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
 
       fs => function_space_collection%get_fs(mesh, 0, 0, space)
       call ones%initialise( fs )
@@ -731,7 +731,7 @@ contains
                                                         ones, mass_matrix),    &
                        inc_X_powint_n(mm_linv, i_minus_one) )
       end select
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     ! Return existing constant
@@ -776,7 +776,7 @@ contains
         inventory_name = 'mm_w3_inv_fe'
       case default
         mm_inv => null()
-        call log_event("Inverse mass matrix operator does not exist", LOG_LEVEL_ERROR)
+        call log_event("Inverse mass matrix operator does not exist", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -791,7 +791,7 @@ contains
       ! Create constant if it doesn't already exist
       mass_matrix => get_mass_matrix_fe(space, mesh_id)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
 
       fs => function_space_collection%get_fs(mesh, element_order_h,            &
                                              element_order_v, space)
@@ -800,7 +800,7 @@ contains
       call invoke( name = "create_inv_mass_matrix_fe",                         &
                    invert_local_operator_kernel_type(mm_inv, mass_matrix) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     ! Return existing constant
@@ -839,7 +839,7 @@ contains
         inventory_name = 'mm_w3_inv_fv'
       case default
         mm_inv => null()
-        call log_event("Inverse mass matrix operator does not exist", LOG_LEVEL_ERROR)
+        call log_event("Inverse mass matrix operator does not exist", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -854,7 +854,7 @@ contains
       ! Create constant if it doesn't already exist
       mass_matrix => get_mass_matrix_fv(space, mesh_id)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
 
       fs => function_space_collection%get_fs(mesh, 0, 0, space)
       call inventory%add_operator(mm_inv, fs, fs, mesh)
@@ -862,7 +862,7 @@ contains
       call invoke( name = "create_inv_mass_matrix_fv",                         &
                    invert_local_operator_kernel_type(mm_inv, mass_matrix) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     ! Return existing constant
@@ -915,12 +915,12 @@ contains
       w1_fs => function_space_collection%get_fs( mesh, element_order_h, &
                                                  element_order_v, W1 )
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
         call curl_inventory_fe%add_operator(curl, w2_fs, w1_fs, mesh)
         call invoke( name='calculate_curl_fe',                                 &
                      compute_curl_operator_kernel_type(curl, chi,              &
                                                        panel_id, qr_ptr) )
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     call curl_inventory_fe%get_operator(mesh, curl)
@@ -964,12 +964,12 @@ contains
       w2_fs => function_space_collection%get_fs( mesh, 0, 0, W2 )
       w1_fs => function_space_collection%get_fs( mesh, 0, 0, W1 )
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
         call curl_inventory_fv%add_operator(curl, w2_fs, w1_fs, mesh)
         call invoke( name='calculate_curl_fv',                                 &
                      compute_curl_operator_kernel_type(curl, chi,              &
                                                        panel_id, qr_ptr) )
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     call curl_inventory_fv%get_operator(mesh, curl)
@@ -1013,12 +1013,12 @@ contains
       w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
                                                  element_order_v, W3 )
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
         call div_inventory%add_operator(div, w3_fs, w2_fs, mesh)
         call invoke( name='calculate_div',                                     &
                      compute_div_operator_kernel_type(div, chi,                &
                                                       panel_id, qr_ptr) )
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     call div_inventory%get_operator(mesh, div)
@@ -1027,7 +1027,7 @@ contains
 
   !> @brief Returns a pointer to the div operator
   !> @param[in] mesh_id              The ID of the mesh to get the object for
-  !> @return The div operator for W2H
+  !> @return The div operator for W2h
   function get_div_h(mesh_id) result(div_h)
 
     implicit none
@@ -1058,16 +1058,16 @@ contains
       qr_ptr => get_qr_fe()
 
       w2h_fs => function_space_collection%get_fs( mesh, element_order_h, &
-                                                  element_order_v, W2H )
+                                                  element_order_v, W2h )
       w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
                                                  element_order_v, W3 )
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
         call div_h_inventory%add_operator(div_h, w3_fs, w2h_fs, mesh)
         call invoke( name='calculate_div_h',                                   &
                      compute_div_operator_kernel_type(div_h, chi,              &
                                                       panel_id, qr_ptr) )
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     call div_h_inventory%get_operator(mesh, div_h)
@@ -1122,13 +1122,13 @@ contains
       w3_fs => function_space_collection%get_fs( mesh, element_order_h, &
                                                  element_order_v, W3 )
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
         call div%initialise( w3_fs, w2_fs )
         call im3_div_inventory_fe%add_operator(im3_div, w3_fs, w2_fs, mesh)
         call invoke( compute_div_operator_kernel_type(div, chi,                &
                                                       panel_id, qr_ptr),       &
                      operator_x_times_y_kernel_type(im3_div, mm_w3_inv, div) )
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     call im3_div_inventory_fe%get_operator(mesh, im3_div)
@@ -1175,13 +1175,13 @@ contains
       w2_fs => function_space_collection%get_fs( mesh, 0, 0, W2 )
       w3_fs => function_space_collection%get_fs( mesh, 0, 0, W3 )
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
         call div%initialise( w3_fs, w2_fs )
         call im3_div_inventory_fv%add_operator(im3_div, w3_fs, w2_fs, mesh)
         call invoke( compute_div_operator_kernel_type(div, chi,                &
                                                       panel_id, qr_ptr),       &
                      operator_x_times_y_kernel_type(im3_div, mm_w3_inv, div) )
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     call im3_div_inventory_fv%get_operator(mesh, im3_div)
@@ -1226,12 +1226,12 @@ contains
       case (W2)
         inventory => nodal_rmultiplicity_w2_inventory_fe
         inventory_name = 'nodal_rmultiplicity_w2_fe'
-      case (W2H)
+      case (W2h)
         inventory => nodal_rmultiplicity_w2h_inventory_fe
         inventory_name = 'nodal_rmultiplicity_w2h_fe'
       case default
         rmultiplicity => null()
-        call log_event( "Reciprocal multiplicity field does not exist", LOG_LEVEL_ERROR)
+        call log_event( "Reciprocal multiplicity field does not exist", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -1244,7 +1244,7 @@ contains
 
     if (.not. constant_exists) then
       ! Create constant if it doesn't already exist
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
 
       fs => function_space_collection%get_fs(mesh, element_order_h, &
                                              element_order_v, space)
@@ -1259,7 +1259,7 @@ contains
                    multiplicity_kernel_type(nodal_multiplicity),               &
                    X_divideby_Y(rmultiplicity, ones, nodal_multiplicity) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     ! Return existing constant
@@ -1299,12 +1299,12 @@ contains
       case (W2)
         inventory => nodal_rmultiplicity_w2_inventory_fv
         inventory_name = 'nodal_rmultiplicity_w2_fv'
-      case (W2H)
+      case (W2h)
         inventory => nodal_rmultiplicity_w2h_inventory_fv
         inventory_name = 'nodal_rmultiplicity_w2h_fv'
       case default
         rmultiplicity => null()
-        call log_event( "Reciprocal multiplicity field does not exist", LOG_LEVEL_ERROR)
+        call log_event( "Reciprocal multiplicity field does not exist", log_level_error)
     end select
 
     ! Initialise inventory if this is the first time getting this constant
@@ -1317,7 +1317,7 @@ contains
 
     if (.not. constant_exists) then
       ! Create constant if it doesn't already exist
-      if ( LPROF ) call start_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.fem' )
 
       fs => function_space_collection%get_fs(mesh, 0, 0, space)
 
@@ -1331,7 +1331,7 @@ contains
                    multiplicity_kernel_type(nodal_multiplicity),               &
                    X_divideby_Y(rmultiplicity, ones, nodal_multiplicity) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.fem' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.fem' )
     end if
 
     ! Return existing constant

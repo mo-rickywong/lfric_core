@@ -17,7 +17,7 @@ module halo_comms_mod
   use linked_list_data_mod,  only: linked_list_data_type
   use lfric_mpi_mod,         only: global_mpi, get_lfric_datatype, &
                                    lfric_comm_type, lfric_datatype_type
-  use log_mod,               only: log_event, LOG_LEVEL_ERROR
+  use log_mod,               only: log_event, log_level_error
 #ifdef NO_MPI
   ! If this is a non-mpi build - YAXT won't work - so don't "use" it
 #else
@@ -863,7 +863,7 @@ function generate_redistribution_map(src_indices, tgt_indices, datatype, xmap) &
   else
     call log_event( &
     'Call to generate_redistribution_map failed. Must initialise mpi first', &
-    LOG_LEVEL_ERROR )
+    log_level_error )
   end if
 #endif
 
@@ -905,7 +905,7 @@ function generate_exchange_map(src_indices, tgt_indices) result(xmap)
   else
     call log_event( &
     'Call to generate_exchange_map failed. Must initialise mpi first',&
-    LOG_LEVEL_ERROR )
+    log_level_error )
   end if
 #endif
 

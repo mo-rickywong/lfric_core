@@ -26,7 +26,7 @@ module field_collection_mod
                                      integer_field_pointer_type
   use pure_abstract_field_mod, only: pure_abstract_field_type
   use log_mod,                 only: log_event, log_scratch_space, &
-                                     LOG_LEVEL_ERROR
+                                     log_level_error
   use linked_list_data_mod,    only: linked_list_data_type
   use linked_list_mod,         only: linked_list_type, &
                                      linked_list_item_type
@@ -100,7 +100,7 @@ subroutine initialise(self, name, table_len)
     write(log_scratch_space, '(3A)') &
     'Field collection [', trim(self%name),'] has already been '// &
     'initiaised and should not be initialised for a second time'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   if(present(table_len))then
@@ -140,7 +140,7 @@ subroutine add_field(self, field)
     write(log_scratch_space, '(3A)') &
     'Field name [', trim(name), &
     '] is an invalid field name, please choose a unique field name.'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   ! Check if field exists in collection already, if it does, exit with error
@@ -148,7 +148,7 @@ subroutine add_field(self, field)
     write(log_scratch_space, '(4A)') &
       'Field [', trim(name), &
       '] already exists in field collection: ', trim(self%name)
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event( log_scratch_space, log_level_error)
   end if
 
   ! Finished checking - so the field must be good to add - so add it
@@ -240,7 +240,7 @@ subroutine add_reference_to_field(self, field_ptr)
     class default
       call log_event( &
         'Failed to add an object of unsupported type to a field collection.', &
-        LOG_LEVEL_ERROR)
+        log_level_error)
   end select
 
 end subroutine add_reference_to_field
@@ -272,7 +272,7 @@ subroutine remove_field(self, field_name)
     if ( .not. associated(loop) ) then
       write(log_scratch_space, '(4A)') 'remove_field: No field [', &
          trim(field_name), '] in field collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the name of field we want
 
@@ -364,7 +364,7 @@ subroutine get_real32_field(self, field_name, field)
     if ( .not. associated(loop) ) then
       write(log_scratch_space, '(4A)') 'get_field: No 32-bit field [', &
          trim(field_name), '] in field collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the name of field we want
 
@@ -419,7 +419,7 @@ subroutine get_real64_field(self, field_name, field)
     if ( .not. associated(loop) ) then
       write(log_scratch_space, '(4A)') 'get_field: No 64-bit field [', &
          trim(field_name), '] in field collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the name of field we want
 
@@ -474,7 +474,7 @@ subroutine get_integer_field(self, field_name, field)
     if ( .not. associated(loop) ) then
       write(log_scratch_space, '(4A)') 'No integer field [', trim(field_name), &
          '] in field collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the name of field we want
 
@@ -528,7 +528,7 @@ subroutine get_field_array(self, field_array_name, field_array)
     if ( .not. associated(loop) ) then
       write(log_scratch_space, '(4A)') 'get_field: No field array [', &
          trim(field_array_name), '] in field collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the name of field we want
 
@@ -559,7 +559,7 @@ function get_length(self) result(length)
   length = 0
   if ( .not. allocated(self%field_list) ) then
     call log_event("field_collection: get_length called for uninitialised collection", &
-                    LOG_LEVEL_ERROR)
+                    log_level_error)
   end if
 
   do i = 0, self%get_table_len()-1
@@ -590,7 +590,7 @@ function get_table_len(self) result(table_len)
 
   if ( self%table_len == 0 ) then
     call log_event("field_collection: Attempt to use uninitialised collection", &
-                    LOG_LEVEL_ERROR)
+                    log_level_error)
   end if
 
   table_len = self%table_len
@@ -613,7 +613,7 @@ subroutine collection_copy_constructor(self, source)
      '"field_collection2=field_collection1" syntax no longer supported. '// &
      'Use "call field_collection1%copy_collection(field_collection2)". '// &
      'Field collection: ', source%get_name()
-  call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+  call log_event( log_scratch_space, log_level_error )
 
 end subroutine collection_copy_constructor
 

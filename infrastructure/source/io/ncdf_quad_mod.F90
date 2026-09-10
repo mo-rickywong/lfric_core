@@ -62,8 +62,8 @@ integer(i_def), parameter :: MESH_HALO_RANK       = 1  !< Rank of halo arrays
 ! Note: For spherical coordinates x is equivalent to longitude
 !                                 y is equivalent to latitude
 
-integer(i_def), parameter :: GLOBAL_MESH_FLAG = 15
-integer(i_def), parameter :: LOCAL_MESH_FLAG  = 11
+integer(i_def), parameter :: global_mesh_flag = 15
+integer(i_def), parameter :: local_mesh_flag  = 11
 
 integer(i_def), parameter :: GLOBAL_MODEL_FLAG = 136
 integer(i_def), parameter :: REGION_MODEL_FLAG = 172
@@ -403,7 +403,7 @@ subroutine define_dimensions(self)
   source_id = 1
   select case( self%mesh_extents )
 
-  case( GLOBAL_MESH_FLAG )
+  case( global_mesh_flag )
 
     ! Global mesh intergrid maps
     !---------------------------
@@ -469,7 +469,7 @@ subroutine define_dimensions(self)
 
     end do ! nmesh_targets
 
-  case ( LOCAL_MESH_FLAG )
+  case ( local_mesh_flag )
 
     ! Local mesh intergrid maps
     !--------------------------
@@ -701,7 +701,7 @@ subroutine define_variables(self)
   call check_err(ierr, routine, cmess)
 
   ! Define partition variables if this a local mesh
-  if ( self%mesh_extents == LOCAL_MESH_FLAG ) then
+  if ( self%mesh_extents == local_mesh_flag ) then
 
     ! Partition_of <global_mesh>
     cmess = 'Defining '//trim(self%partition_of)
@@ -807,7 +807,7 @@ subroutine define_variables(self)
                          self%global_face_edge_id )
     call check_err(ierr, routine, cmess)
 
-  end if ! LOCAL_MESH_FLAG
+  end if ! local_mesh_flag
 
   ! Define variables which this mesh maps to
   do i=1, self%nmesh_targets
@@ -1059,7 +1059,7 @@ subroutine assign_attributes(self)
 
   ! For a local mesh, add information
   ! about the partition and the global mesh it is a part of
-  if (self%mesh_extents == LOCAL_MESH_FLAG) then
+  if (self%mesh_extents == local_mesh_flag) then
     attname = 'partition_info'
     cmess   = 'Adding attribute "'//trim(attname)// &
               '" to variable "'//trim(var_name)//'"'
@@ -1377,7 +1377,7 @@ subroutine assign_attributes(self)
   !===================================================================
   ! 9.0 Add attributes for local meshes info.
   !===================================================================
-  if ( self%mesh_extents == LOCAL_MESH_FLAG ) then
+  if ( self%mesh_extents == local_mesh_flag ) then
 
     !============================================================
     ! 9.1 Add data about local mesh's partition.
@@ -1573,7 +1573,7 @@ subroutine assign_attributes(self)
     ierr = nf90_put_att( self%ncid, id, trim(attname), self%npanels )
     call check_err(ierr, routine, cmess)
 
-  end if ! LOCAL_MESH_FLAG
+  end if ! local_mesh_flag
 
   return
 end subroutine assign_attributes
@@ -1612,7 +1612,7 @@ subroutine inquire_ids(self, mesh_name)
   if (.not. mesh_present) then
     write(log_scratch_space,'(A)') &
          'Mesh '//trim(mesh_name)//' not present in file'
-    call log_event(trim(log_scratch_space), LOG_LEVEL_ERROR)
+    call log_event(trim(log_scratch_space), log_level_error)
   end if
 
   cmess = 'Getting mesh netcdf id for"'//trim(mesh_name)//'"'
@@ -1632,9 +1632,9 @@ subroutine inquire_ids(self, mesh_name)
 
   ! Check to see if mesh is a local mesh
   if ( is_mesh_local( self, mesh_name ) ) then
-    self%mesh_extents = LOCAL_MESH_FLAG
+    self%mesh_extents = local_mesh_flag
   else
-    self%mesh_extents = GLOBAL_MESH_FLAG
+    self%mesh_extents = global_mesh_flag
     self%partition_of = cmdi
     self%global_var   = cmdi
   end if
@@ -1737,7 +1737,7 @@ subroutine inquire_ids(self, mesh_name)
 
   ! For local mesh objects
   !-----------------------------------------------
-  if ( self%mesh_extents == LOCAL_MESH_FLAG ) then
+  if ( self%mesh_extents == local_mesh_flag ) then
 
     ierr = nf90_get_att( self%ncid, self%mesh_id, &
                          'partition_info', self%partition_of )
@@ -2338,7 +2338,7 @@ subroutine read_mesh( self,                                              &
 
   select case ( self%mesh_extents )
 
-  case ( LOCAL_MESH_FLAG )
+  case ( local_mesh_flag )
 
     id = self%partition_id
 
@@ -2509,7 +2509,7 @@ subroutine read_mesh( self,                                              &
       allocate( edge_on_cell_gid, source=self%edge_on_cell_gid )
     end if
 
-  case ( GLOBAL_MESH_FLAG )
+  case ( global_mesh_flag )
 
     ! Read in global mesh related variables to main mesh
     attname = 'npanels'
@@ -2894,9 +2894,9 @@ subroutine write_mesh( self,                                              &
   ! Determine if the contents of object is a global/local mesh.
   self%partition_of = partition_of
   if ( trim(self%partition_of) /= trim(cmdi) ) then
-    self%mesh_extents = LOCAL_MESH_FLAG
+    self%mesh_extents = local_mesh_flag
   else
-    self%mesh_extents = GLOBAL_MESH_FLAG
+    self%mesh_extents = global_mesh_flag
   end if
 
   self%mesh_name           = trim(mesh_name)
@@ -2949,9 +2949,9 @@ subroutine write_mesh( self,                                              &
     end do
 
     select case (self%mesh_extents)
-    case (GLOBAL_MESH_FLAG)
+    case (global_mesh_flag)
       self%target_global_mesh_maps => target_global_mesh_maps
-    case (LOCAL_MESH_FLAG)
+    case (local_mesh_flag)
       self%target_local_mesh_maps  => target_local_mesh_maps
     end select
 
@@ -3014,7 +3014,7 @@ subroutine write_mesh( self,                                              &
 
 
   ! Write partition/global info for local meshes.
-  if (self%mesh_extents == LOCAL_MESH_FLAG) then
+  if (self%mesh_extents == local_mesh_flag) then
 
     ! Cell owners of nodes.
     cmess = 'Writing partition '// trim(self%mesh_name) // ' cell ownership of nodes.'
@@ -3074,7 +3074,7 @@ subroutine write_mesh( self,                                              &
   ! Mesh_Mesh connectivity (Inter-grid maps)
   select case (self%mesh_extents)
 
-  case (GLOBAL_MESH_FLAG)
+  case (global_mesh_flag)
 
     do i=1, num_targets
       nullify(global_mesh_map)
@@ -3096,7 +3096,7 @@ subroutine write_mesh( self,                                              &
       call check_err(ierr, routine, cmess)
     end do
 
-  case (LOCAL_MESH_FLAG)
+  case (local_mesh_flag)
 
     ! Local mesh will only have mesh maps up to the halo cells, i.e.
     ! ghost cells will not have maps
@@ -3385,7 +3385,7 @@ subroutine append_mesh( self,                                              &
   if (mesh_present) then
     write(log_scratch_space,'(A)') &
         'Mesh '//trim(mesh_name)//' already used or is not unique.'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
     return
   end if
 
@@ -3537,7 +3537,7 @@ subroutine scan_for_topologies(self, mesh_names, n_meshes)
     write(log_scratch_space,'(I0,A,I0)') n_mesh_topologies,   &
         ' mesh topologies found but output array provided'//  &
         ' is only length ', size(mesh_names)
-    call log_event(trim(log_scratch_space), LOG_LEVEL_ERROR)
+    call log_event(trim(log_scratch_space), log_level_error)
   end if
 
   counter=0

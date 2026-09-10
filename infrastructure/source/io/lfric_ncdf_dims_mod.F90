@@ -12,7 +12,7 @@ module lfric_ncdf_dims_mod
 
   use constants_mod,       only: i_def, str_max_filename
   use lfric_ncdf_file_mod, only: lfric_ncdf_file_type
-  use log_mod,             only: log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod,             only: log_event, log_scratch_space, log_level_error
   use netcdf,              only: nf90_def_dim, nf90_inq_dimid,          &
                                  nf90_inquire_dimension, nf90_strerror, &
                                  nf90_noerr, nf90_nowrite
@@ -133,7 +133,7 @@ contains
     if ( ierr /= nf90_noerr ) then
       write(log_scratch_space,*) "Error in lfric_ncdf_dims ['"//routine//"']: "//&
         trim(nf90_strerror(ierr))
-      call log_event( trim(log_scratch_space), LOG_LEVEL_ERROR )
+      call log_event( trim(log_scratch_space), log_level_error )
     end if
 
     return

@@ -93,7 +93,7 @@ contains
     use ugrid_mesh_data_mod, only : ugrid_mesh_data_type
     use global_mesh_mod, only : global_mesh_type
     use local_mesh_mod, only : local_mesh_type
-    use extrusion_mod, only : uniform_extrusion_type, PRIME_EXTRUSION
+    use extrusion_mod, only : uniform_extrusion_type, prime_extrusion
     use partition_mod, only : partition_type, &
                               partitioner_interface, &
                               partitioner_planar
@@ -150,7 +150,7 @@ contains
     extrusion = uniform_extrusion_type( 100.0_r_def,     &
                                         10000.0_r_def,   &
                                         num_layers,      &
-                                        PRIME_EXTRUSION )
+                                        prime_extrusion )
 
     mesh = mesh_type( local_mesh_ptr, extrusion, &
                       tile_size=tile_size,       &

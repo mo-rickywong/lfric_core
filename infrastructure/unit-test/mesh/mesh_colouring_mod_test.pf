@@ -11,7 +11,7 @@ module mesh_colouring_mod_test
   use pfunit
   use constants_mod,              only : i_def, imdi, r_def, l_def, &
                                          str_def, str_max_filename
-  use extrusion_mod,              only : uniform_extrusion_type, PRIME_EXTRUSION
+  use extrusion_mod,              only : uniform_extrusion_type, prime_extrusion
   use global_mesh_mod,            only : global_mesh_type
   use halo_comms_mod,             only : initialise_halo_comms, &
                                          finalise_halo_comms
@@ -157,7 +157,7 @@ subroutine test_compute_colours_cubedsphere(this)
   extrusion = uniform_extrusion_type( 100.0_r_def,     &
                                       10000.0_r_def,   &
                                       this%num_layers, &
-                                      PRIME_EXTRUSION )
+                                      prime_extrusion )
 
   ! Construct a mesh which is  uniform in vertical for purpose of the test
   mesh = mesh_type( local_mesh_ptr, extrusion )
@@ -284,7 +284,7 @@ subroutine test_compute_colours_biperiodic(this)
   extrusion = uniform_extrusion_type( 100.00_r_def,    &
                                       10000.0_r_def,   &
                                       this%num_layers, &
-                                      PRIME_EXTRUSION )
+                                      prime_extrusion )
 
   ! Construct a mesh which is  uniform in vertical for purpose of the test
   mesh = mesh_type( local_mesh_ptr, extrusion )
@@ -389,7 +389,7 @@ subroutine test_compute_colours_generic(this)
   extrusion = uniform_extrusion_type( 100.0_r_def,     &
                                       10000.0_r_def,   &
                                       this%num_layers, &
-                                      PRIME_EXTRUSION )
+                                      prime_extrusion )
 
   ! Construct a mesh which is  uniform in vertical for purpose of the test
   mesh = mesh_type( local_mesh_ptr, extrusion )

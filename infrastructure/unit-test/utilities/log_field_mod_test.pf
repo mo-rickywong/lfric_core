@@ -24,7 +24,7 @@ module log_field_mod_test
                                              log_set_level, log_level_info
   use mesh_collection_mod,            only : mesh_collection_type, &
                                              mesh_collection
-  use mesh_mod,                       only : mesh_type, PLANE_BI_PERIODIC
+  use mesh_mod,                       only : mesh_type, plane_bi_periodic
   use fs_continuity_mod,              only : W3
   use pfunit
 
@@ -90,7 +90,7 @@ contains
     unit_test_local_mesh_ptr => unit_test_local_mesh
 
     ! Dummy mesh mod has 9 cells, 3 layers and is uniform in vertical
-    unit_test_mesh = mesh_type( PLANE_BI_PERIODIC, unit_test_local_mesh_ptr )
+    unit_test_mesh = mesh_type( plane_bi_periodic, unit_test_local_mesh_ptr )
     mesh_id = mesh_collection%add_new_mesh( unit_test_mesh )
     mesh => mesh_collection%get_mesh( mesh_id )
 

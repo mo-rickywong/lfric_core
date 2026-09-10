@@ -26,8 +26,7 @@ module local_mesh_mod
   use local_mesh_map_collection_mod,  only: local_mesh_map_collection_type
   use local_mesh_map_mod,             only: local_mesh_map_type
   use log_mod,                        only: log_event, log_scratch_space, &
-                                            LOG_LEVEL_ERROR, LOG_LEVEL_TRACE, &
-                                            LOG_LEVEL_INFO, LOG_LEVEL_DEBUG
+                                            log_level_error
   use partition_mod,                  only: partition_type
 
   implicit none
@@ -1156,7 +1155,7 @@ contains
 
     if (.not. ugrid_mesh_data%is_local()) then
       call log_event( 'Insufficient data to initialise local mesh', &
-                      LOG_LEVEL_ERROR )
+                      log_level_error )
     end if
 
     local_mesh_id_counter = local_mesh_id_counter + 1
@@ -2235,7 +2234,7 @@ contains
     if ( allocated( self%cell_owner ) )then
       cell_owner=self%cell_owner(cell_number)
     else
-      call log_event( "Cell ownership not initialised", LOG_LEVEL_ERROR )
+      call log_event( "Cell ownership not initialised", log_level_error )
     end if
 
   end function get_cell_owner

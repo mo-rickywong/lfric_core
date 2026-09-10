@@ -15,14 +15,14 @@ module ugrid_mesh_data_mod
   use constants_mod, only: r_def, i_def, l_def, str_def, &
                            str_longlong, cmdi, imdi, rmdi
   use log_mod,       only: log_event, log_scratch_space, &
-                           LOG_LEVEL_ERROR, LOG_LEVEL_TRACE
+                           log_level_error, log_level_trace
 
   implicit none
 
   private
 
-  integer(i_def), parameter :: LOCAL_MESH_FLAG  = 100
-  integer(i_def), parameter :: GLOBAL_MESH_FLAG = 101
+  integer(i_def), parameter :: local_mesh_flag  = 100
+  integer(i_def), parameter :: global_mesh_flag = 101
 
   type, public :: ugrid_mesh_data_type
     !> Name of ugrid mesh topology.
@@ -197,9 +197,9 @@ contains
       call self%set_by_ugrid_2d( ugrid_2d )
 
       if (ugrid_2d%is_local()) then
-        self%mesh_extents = LOCAL_MESH_FLAG
+        self%mesh_extents = local_mesh_flag
       else
-        self%mesh_extents = GLOBAL_MESH_FLAG
+        self%mesh_extents = global_mesh_flag
       end if
 
       self%populated_with_mesh = .true.
@@ -453,7 +453,7 @@ contains
       write(log_scratch_space,'(A)') &
         'Mesh '//trim(self%global_mesh_name)//' is a global mesh '//&
         'and does not contain partition data.'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
     end if
 
     max_stencil_depth = self%max_stencil_depth
@@ -527,9 +527,9 @@ contains
 
     answer = .false.
     select case (self%mesh_extents)
-    case( LOCAL_MESH_FLAG )
+    case( local_mesh_flag )
       answer = .true.
-    case( GLOBAL_MESH_FLAG )
+    case( global_mesh_flag )
       answer = .false.
     end select
 
@@ -627,7 +627,7 @@ contains
 
     if (ugrid_2d%is_local()) then
 
-      self%mesh_extents = LOCAL_MESH_FLAG
+      self%mesh_extents = local_mesh_flag
       call ugrid_2d%get_partition_data(            &
                         self%max_stencil_depth,    &
                         self%inner_depth,          &
@@ -648,7 +648,7 @@ contains
                         self%edge_on_cell_gid )
 
     else
-      self%mesh_extents = GLOBAL_MESH_FLAG
+      self%mesh_extents = global_mesh_flag
     end if
 
     return

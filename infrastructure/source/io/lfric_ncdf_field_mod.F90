@@ -10,7 +10,7 @@ module lfric_ncdf_field_mod
   use constants_mod,       only: r_def, dp_native, i_def, str_def, str_long
   use lfric_ncdf_file_mod, only: lfric_ncdf_file_type
   use lfric_ncdf_dims_mod, only: lfric_ncdf_dims_type
-  use log_mod,             only: log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod,             only: log_event, log_scratch_space, log_level_error
   use netcdf,              only: nf90_strerror, nf90_noerr, nf90_double,     &
                                  nf90_def_var, nf90_put_var, nf90_get_var,   &
                                  nf90_inq_varid, nf90_put_att, nf90_get_att, &
@@ -283,7 +283,7 @@ function lfric_ncdf_field_constructor(name, file, dims) result(self)
     if ( ierr /= nf90_noerr ) then
       write(log_scratch_space,*) "Error in lfric_ncdf_field ['"//routine//"']: "//&
         trim(cmess) // " " // trim(nf90_strerror(ierr))
-      call log_event( trim(log_scratch_space), LOG_LEVEL_ERROR )
+      call log_event( trim(log_scratch_space), log_level_error )
     end if
 
     return

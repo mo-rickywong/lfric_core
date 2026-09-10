@@ -11,7 +11,7 @@ module mesh_map_mod
 use constants_mod,         only: i_def, str_def
 use linked_list_data_mod,  only: linked_list_data_type
 use log_mod,               only: log_event, log_scratch_space, &
-                                 LOG_LEVEL_ERROR, LOG_LEVEL_TRACE
+                                 log_level_error, log_level_trace
 implicit none
 
 private

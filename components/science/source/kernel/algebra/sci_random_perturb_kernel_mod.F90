@@ -21,7 +21,7 @@ use argument_mod,               only : arg_type, func_type,            &
                                        CELL_COLUMN, GH_EVALUATOR
 use constants_mod,              only : i_def, rmdi
 use kernel_mod,                 only : kernel_type
-use fs_continuity_mod,          only : WTHETA, W3
+use fs_continuity_mod,          only : Wtheta, W3
 
 implicit none
 
@@ -34,8 +34,8 @@ private
 type, public, extends(kernel_type) :: random_perturb_kernel_type
   private
   type(arg_type) :: meta_args(5) = (/                      &
-       arg_type(GH_FIELD, GH_REAL, GH_READWRITE,  WTHETA), &
-       arg_type(GH_FIELD, GH_REAL, GH_READ,       WTHETA), &
+       arg_type(GH_FIELD, GH_REAL, GH_READWRITE,  Wtheta), &
+       arg_type(GH_FIELD, GH_REAL, GH_READ,       Wtheta), &
        arg_type(GH_SCALAR, GH_REAL, GH_READ ),             &
        arg_type(GH_SCALAR, GH_REAL, GH_READ ),             &
        arg_type(GH_SCALAR, GH_REAL, GH_READ )              &

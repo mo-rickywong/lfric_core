@@ -27,7 +27,7 @@ module sci_compute_map_u_operators_kernel_mod
   use constants_mod,           only : r_def, i_def
   use fs_continuity_mod,       only : W2, W3, Wtheta
   use kernel_mod,              only : kernel_type
-  use log_mod,                 only : log_event, LOG_LEVEL_ERROR, LOG_LEVEL_INFO
+  use log_mod,                 only : log_event, log_level_error, log_level_info
 
   use base_mesh_config_mod, only: geometry_spherical, geometry_planar
 
@@ -46,7 +46,7 @@ module sci_compute_map_u_operators_kernel_mod
     type(arg_type) :: meta_args(9) = (/                                     &
          arg_type(GH_OPERATOR, GH_REAL, GH_WRITE, W2, W3),                  & ! u_lon_op
          arg_type(GH_OPERATOR, GH_REAL, GH_WRITE, W2, W3),                  & ! u_lat_op
-         arg_type(GH_OPERATOR, GH_REAL, GH_WRITE, W2, WTHETA),              & ! u_up_op
+         arg_type(GH_OPERATOR, GH_REAL, GH_WRITE, W2, Wtheta),              & ! u_up_op
          arg_type(GH_FIELD*3, GH_REAL, GH_READ, ANY_SPACE_9),               & ! chi_sph_1, chi_sph_2, chi_sph_3
          arg_type(GH_FIELD,   GH_REAL, GH_READ, ANY_DISCONTINUOUS_SPACE_3), & ! panel_id
          arg_type(GH_SCALAR,  GH_INTEGER, GH_READ),                         & ! geometry
@@ -57,7 +57,7 @@ module sci_compute_map_u_operators_kernel_mod
     type(func_type) :: meta_funcs(4) = (/                                  &
          func_type(W2,          GH_BASIS),                                 &
          func_type(W3,          GH_BASIS),                                 &
-         func_type(WTHETA,      GH_BASIS),                                 &
+         func_type(Wtheta,      GH_BASIS),                                 &
          func_type(ANY_SPACE_9, GH_BASIS, GH_DIFF_BASIS)                   &
          /)
     integer :: operates_on = CELL_COLUMN
@@ -82,7 +82,7 @@ contains
 !! @param[in] ncell_3d_2 ncell*ndf
 !! @param[in,out] u_lat_op Operator to map u_lat from W3 to W2
 !! @param[in] ncell_3d_3 ncell*ndf
-!! @param[in,out] u_up_op Operator to map u_up from WTHETA to W2
+!! @param[in,out] u_up_op Operator to map u_up from Wtheta to W2
 !! @param[in] chi_sph_1 1st coordinate in spherical Wchi
 !! @param[in] chi_sph_2 2nd coordinate in spherical Wchi
 !! @param[in] chi_sph_3 3rd coordinate in spherical Wchi
@@ -95,8 +95,8 @@ contains
 !! @param[in] basis_w2 W2 basis functions evaluated at quadrature points
 !! @param[in] ndf_w3 Number of degrees of freedom per cell for w3
 !! @param[in] basis_w3 W3 basis functions evaluated at gaussian quadrature points
-!! @param[in] ndf_wt Number of degrees of freedom per cell for WTHETA
-!! @param[in] basis_wt WTHETA basis functions evaluated at gaussian quadrature points
+!! @param[in] ndf_wt Number of degrees of freedom per cell for Wtheta
+!! @param[in] basis_wt Wtheta basis functions evaluated at gaussian quadrature points
 !! @param[in] ndf_chi_sph Number of degrees of freedom per cell for spherical chi
 !! @param[in] undf_chi_sph Number of unique degrees of freedom for spherical chi
 !! @param[in] map_chi_sph Dofmap for the cell at the base of the column for spherical chi
@@ -247,7 +247,7 @@ subroutine compute_map_u_operators_code( cell, nlayers, ncell_3d_1, &
 
                 call log_event('compute_map_u_operators_kernel is not implemented ' //    &
                                 'with your geometry',       &
-                                LOG_LEVEL_ERROR)
+                                log_level_error)
 
               end if
 
@@ -278,7 +278,7 @@ subroutine compute_map_u_operators_code( cell, nlayers, ncell_3d_1, &
 
                 call log_event('compute_map_u_operators_kernel is not implemented ' //    &
                                'with your geometry',       &
-                               LOG_LEVEL_ERROR)
+                               log_level_error)
 
               end if
 

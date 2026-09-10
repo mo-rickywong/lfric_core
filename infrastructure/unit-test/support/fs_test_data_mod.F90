@@ -1,8 +1,8 @@
 module fs_test_data_mod
 
   use constants_mod,     only : i_def, r_def
-  use fs_continuity_mod, only : W0, W1, W2, W3, Wtheta, W2V, W2H, Wchi, &
-                                W2trace, W2Vtrace, W2Htrace
+  use fs_continuity_mod, only : W0, W1, W2, W3, Wtheta, W2v, W2h, Wchi, &
+                                W2trace, W2vtrace, W2htrace
 
   implicit none
 
@@ -1957,7 +1957,7 @@ real(r_def), public, target :: fstk0_basis_diff_function(3,2,9,3) = reshape( [ &
  0.00000000000000000E+00_r_def,   0.00000000000000000E+00_r_def,   0.10000000000000000E+01_r_def    &
 ], [3,2,9,3] )
 
-! W2V arrays !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! W2v arrays !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 real(r_def), public, target :: fs2vk0_nodal_coords(3,2) = reshape( [ &
 0.50_r_def, 0.50_r_def, 0.00_r_def,  &
@@ -2047,7 +2047,7 @@ real(r_def), public, target :: fs2vk0_basis_diff_function(1,2,9,3) = reshape( [ 
  0.10000000000000000E+01_r_def,  -0.10000000000000000E+01_r_def,   0.10000000000000000E+01_r_def    &
 ], [1,2,9,3] )
 
-! W2H arrays !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! W2h arrays !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 real(r_def), public, target :: fs2hk0_nodal_coords(3,4) = reshape( [ &
 0.00_r_def, 0.50_r_def, 0.50_r_def,  &
@@ -2508,7 +2508,7 @@ real(r_def), public, target :: fs2tk0_basis_diff_function(3,6,9,3) = reshape( [ 
   0.000000000000000E+00_r_def,  0.000000000000000E+00_r_def,  0.100000000000000E+01_r_def  &
   ], [3,6,9,3] )
 
- ! W2Vtrace arrays !!!!!!!!!!
+ ! W2vtrace arrays !!!!!!!!!!
 real(r_def), public, target :: fs2vtk0_nodal_coords(3,2) = reshape( [ &
      0.50_r_def, 0.50_r_def, 0.00_r_def,  &
      0.50_r_def, 0.50_r_def, 1.00_r_def   &
@@ -2596,7 +2596,7 @@ real(r_def), public, target :: fs2vtk0_basis_function(1,2,9,3) = reshape( [ &
  0.0000000000000000E+00_r_def, 0.0000000000000000E+00_r_def,  0.1000000000000000E+01_r_def  &
  ], [3,2,9,3] )
 
-! W2H trace arrays !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! W2h trace arrays !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 real(r_def), public, target :: fs2htk0_nodal_coords(3,4) = reshape( [ &
 0.00_r_def, 0.50_r_def, 0.50_r_def,  &

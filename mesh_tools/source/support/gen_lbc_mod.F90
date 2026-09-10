@@ -21,7 +21,7 @@ module gen_lbc_mod
   use global_mesh_map_mod,            only: global_mesh_map_type
   use global_mesh_map_collection_mod, only: global_mesh_map_collection_type
   use log_mod,                        only: log_event, log_scratch_space, &
-                                            LOG_LEVEL_ERROR, LOG_LEVEL_WARNING
+                                            log_level_error, log_level_warning
   use reference_element_mod,          only: W, S, E, N, &
                                             SWB, SEB, NWB, NEB
   use ugrid_generator_mod,            only: ugrid_generator_type
@@ -60,13 +60,13 @@ module gen_lbc_mod
   integer(i_def), parameter :: SW = SWB
 
   ! Set to -9999 to mark null (void) cell connectivity.
-  integer(i_def), parameter :: VOID_ID = -9999
+  integer(i_def), parameter :: void_id = -9999
 
   integer(i_def), parameter :: horz_npanels = 2
   integer(i_def), parameter :: vert_npanels = 2
 
   ! For a lbc meshes there is only one panel
-  integer(i_def), parameter :: NPANELS = 1
+  integer(i_def), parameter :: npanels = 1
 
 
 !===================================================================
@@ -215,7 +215,7 @@ module gen_lbc_mod
     character(str_def) :: coord_units_x
     character(str_def) :: coord_units_y
 
-    integer(i_def) :: npanels = NPANELS
+    integer(i_def) :: npanels = npanels
     integer(i_def) :: nmaps = 1      !> LBC meshes will only map
                                      !> to parent mesh
     integer(i_def) :: outer_cells_x  !> Max number of cells in x-direction
@@ -387,13 +387,13 @@ function gen_lbc_constructor( lam_strategy, rim_depth ) result( self )
   if (self%rim_depth <= 0) then
     write(log_scratch_space,'(A)') &
         'LBC mesh requires rim depth > 0 cells.'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   else if ( (self%outer_cells_x - 2*self%rim_depth < 1) .or. &
             (self%outer_cells_y - 2*self%rim_depth < 1) ) then
     write(log_scratch_space,'(A,I0,A)')      &
         'LBC rim depth of ', self%rim_depth, &
         ' will erode entire LAM inner domain.'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   self%base_h_panel =                                           &
@@ -832,7 +832,7 @@ subroutine get_metadata( self,               &
   if (present(edge_cells_y)) edge_cells_y   = self%outer_cells_y
   if (present(nmaps))        nmaps          = self%nmaps
   if (present(rim_depth))    rim_depth      = self%rim_depth
-  if (present(void_cell))    void_cell      = VOID_ID
+  if (present(void_cell))    void_cell      = void_id
 
   if (present(constructor_inputs)) constructor_inputs = self%constructor_inputs
 
@@ -1530,18 +1530,18 @@ function calc_panel_adjacency( panel, base_id ) &
   !----------
   do i=1, panel%length
     cell = panel%north_cells(i)
-    cell_next(N, cell) = VOID_ID
+    cell_next(N, cell) = void_id
 
     cell = panel%south_cells(i)
-    cell_next(S, cell) = VOID_ID
+    cell_next(S, cell) = void_id
   end do
 
   do i=1, panel%depth
     cell = panel%east_cells(i)
-    cell_next(E, cell) = VOID_ID
+    cell_next(E, cell) = void_id
 
     cell = panel%west_cells(i)
-    cell_next(W, cell) = VOID_ID
+    cell_next(W, cell) = void_id
   end do
 
   return

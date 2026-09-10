@@ -55,18 +55,18 @@ program cubedsphere_mesh_generator
   use panel_decomposition_mod, only: panel_decomposition_type
 
   ! Configuration modules.
-  use mesh_config_mod,     only: COORD_SYS_LL,          &
-                                 COORD_SYS_XYZ,         &
+  use mesh_config_mod,     only: coord_sys_ll,          &
+                                 coord_sys_xyz,         &
                                  key_from_coord_sys,    &
-                                 TOPOLOGY_PERIODIC,     &
-                                 TOPOLOGY_NON_PERIODIC, &
-                                 TOPOLOGY_CHANNEL,      &
+                                 topology_periodic,     &
+                                 topology_non_periodic, &
+                                 topology_channel,      &
                                  key_from_topology,     &
-                                 GEOMETRY_PLANAR,       &
-                                 GEOMETRY_SPHERICAL,    &
+                                 geometry_planar,       &
+                                 geometry_spherical,    &
                                  key_from_geometry
-  use rotation_config_mod, only: ROTATION_TARGET_NULL_ISLAND, &
-                                 ROTATION_TARGET_NORTH_POLE
+  use rotation_config_mod, only: rotation_target_null_island, &
+                                 rotation_target_north_pole
 
   implicit none
 
@@ -573,7 +573,7 @@ program cubedsphere_mesh_generator
     call log_event( log_scratch_space, log_level_info )
 
     select case( rotation_target )
-    case ( ROTATION_TARGET_NULL_ISLAND )
+    case ( rotation_target_null_island )
       ! Use the domain_centre (Null Island) rather than pole as input.
       set_north_pole(:)  = get_target_north_pole(target_null_island)
       set_null_island(:) = target_null_island(:)
@@ -581,7 +581,7 @@ program cubedsphere_mesh_generator
          '    Target pole derived from requested Null Island.'
       call log_event( log_scratch_space, log_level_info )
 
-    case ( ROTATION_TARGET_NORTH_POLE )
+    case ( rotation_target_north_pole )
       set_north_pole(:)  = target_north_pole(:)
       set_null_island(:) = get_target_null_island(target_north_pole)
     end select

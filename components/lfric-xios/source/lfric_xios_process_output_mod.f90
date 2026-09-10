@@ -15,7 +15,7 @@
 module lfric_xios_process_output_mod
 
   use constants_mod,              only: i_def, str_max_filename
-  use file_mod,                   only: FILE_MODE_WRITE,     &
+  use file_mod,                   only: file_mode_write,     &
                                         FILE_OP_OPEN
   use io_config_mod,              only: file_convention,       &
                                         file_convention_ugrid
@@ -63,7 +63,7 @@ subroutine process_output_file(file)
   ! Open output file
   file_ncdf = lfric_ncdf_file_type( trim(file_path),           &
                                     open_mode=FILE_OP_OPEN, &
-                                    io_mode=FILE_MODE_WRITE )
+                                    io_mode=file_mode_write )
 
   call format_mesh(file_ncdf)
 

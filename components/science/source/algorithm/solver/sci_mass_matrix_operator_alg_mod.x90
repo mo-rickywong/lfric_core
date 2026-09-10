@@ -12,8 +12,8 @@ module sci_mass_matrix_operator_alg_mod
   use constants_mod,           only: i_def, r_def, l_def
   use field_mod,               only: field_type
   use log_mod,                 only: log_event,       &
-                                     LOG_LEVEL_ERROR, &
-                                     LOG_LEVEL_DEBUG, &
+                                     log_level_error, &
+                                     log_level_debug, &
                                      log_scratch_space
   use operator_mod,            only: operator_type
   use sci_field_vector_mod,    only: field_vector_type
@@ -60,7 +60,7 @@ contains
 
     self%apply_bc = apply_bc
     self%mass_matrix => mass_matrix
-    call log_event( 'Created mass matrix operator', LOG_LEVEL_DEBUG )
+    call log_event( 'Created mass matrix operator', log_level_debug )
 
   end function mass_matrix_operator_constructor
 
@@ -102,7 +102,7 @@ contains
       class default
         write(log_scratch_space, '(A)') &
               "mass_matrix_operator_alg_mod: incorrect vector_type argument y"
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
 
       end select
 
@@ -110,7 +110,7 @@ contains
 
       write(log_scratch_space, '(A)') &
             "mass_matrix_operator_alg_mod: incorrect vector_type argument x"
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
 
     end select
 

@@ -13,7 +13,7 @@ module sci_field_vector_mod
   use field_mod,                     only : field_type
   use function_space_mod,            only : function_space_type
   use function_space_collection_mod, only : function_space_collection
-  use log_mod,                       only : log_event, LOG_LEVEL_ERROR, &
+  use log_mod,                       only : log_event, log_level_error, &
                                             log_scratch_space
   use mesh_mod,                      only : mesh_type
   use vector_mod,                    only : abstract_vector_type
@@ -177,7 +177,7 @@ contains
     class default
        write(log_scratch_space,'(A)') &
             "field_vector_mod:dot_field_vector: type of x is not field_vector_type"
-       call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+       call log_event(log_scratch_space,log_level_error)
     end select
   end function dot_field_vector
 
@@ -198,7 +198,7 @@ contains
     class default
        write(log_scratch_space,'(A)') &
             "field_vector_mod:axpy_field_vector: type of x is not field_vector_type"
-       call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+       call log_event(log_scratch_space,log_level_error)
     end select
   end subroutine axpy_field_vector
 
@@ -221,12 +221,12 @@ contains
       class default
          write(log_scratch_space,'(A)') &
               "field_vector_mod:axpby_field_vector: type of y is not field_vector_type"
-         call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+         call log_event(log_scratch_space,log_level_error)
       end select
     class default
        write(log_scratch_space,'(A)') &
             "field_vector_mod:axpby_field_vector: type of x is not field_vector_type"
-       call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+       call log_event(log_scratch_space,log_level_error)
     end select
   end subroutine axpby_field_vector
 
@@ -267,7 +267,7 @@ contains
     class default
        write(log_scratch_space,'(A)') &
             "field_vector_mod:aypx_field_vector: type of x is not field_vector_type"
-       call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+       call log_event(log_scratch_space,log_level_error)
     end select
   end subroutine aypx_field_vector
 
@@ -301,7 +301,7 @@ contains
        write(log_scratch_space,'(A,2(":",I2))') &
             "field_vector_mod:field position bigger than nfields", &
             size(self%vector),position
-       call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+       call log_event(log_scratch_space,log_level_error)
     end if
     self%vector_set=.true.
 
@@ -326,7 +326,7 @@ contains
        write(log_scratch_space,'(A,2(":",I2))') &
             "field_vector_mod:export_field:field position bigger than nfields", &
             size(self%vector),position
-       call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+       call log_event(log_scratch_space,log_level_error)
     end if
 
     call self%vector(position)%copy_field_properties(field)
@@ -349,7 +349,7 @@ contains
        write(log_scratch_space,'(A,2(":",I2))') &
             "field_vector_mod:field position bigger than nfields", &
             size(self%vector),position
-       call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+       call log_event(log_scratch_space,log_level_error)
     end if
     self%vector_set=.true.
     call self%vector(position)%initialise( vector_space = fs)
@@ -410,7 +410,7 @@ contains
        class default
           write(log_scratch_space,'(A)') &
             "field_vector_mod:duplicate: type mismatch"
-       call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+       call log_event(log_scratch_space,log_level_error)
     end select
 
   end subroutine duplicate_field_vector
@@ -452,7 +452,7 @@ contains
     class default
        write(log_scratch_space,'(A)') &
             "field_vector_mod:copy: type mismatch"
-       call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+       call log_event(log_scratch_space,log_level_error)
     end select
   end subroutine field_vector_type_assign
 

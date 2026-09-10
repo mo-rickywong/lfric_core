@@ -25,7 +25,7 @@ module sci_dense_operator_alg_mod
   use field_mod,                     only : field_type
   use function_space_mod,            only : function_space_type
   use function_space_collection_mod, only : function_space_collection
-  use log_mod,                       only : log_event, LOG_LEVEL_ERROR, &
+  use log_mod,                       only : log_event, log_level_error, &
                                             log_scratch_space
   use mesh_mod,                      only : mesh_type
   use matrix_vector_kernel_mod,      only : matrix_vector_kernel_type
@@ -101,7 +101,7 @@ contains
       if (size(fv%vector) /= 2 ) then
         write(log_scratch_space, '(A, I1)')  &
               "dense_operator_alg_mod: nfields expected 2, but got ", size(fv%vector)
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
       end if
 
       mesh => fv%vector(1)%get_mesh()
@@ -131,7 +131,7 @@ contains
     class default
 
       write(log_scratch_space, '(A)') "dense_operator_alg_mod: incorrect vector_type as argument fv"
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
 
     end select
 
@@ -171,11 +171,11 @@ contains
           nullify(x_field1, y_field1, x_field2, y_field2)
        class default
           write(log_scratch_space, '(A)') "dense_operator_alg_mod: incorrect vector_type as argument y"
-          call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+          call log_event(log_scratch_space, log_level_error)
        end select
     class default
       write(log_scratch_space, '(A)') "dense_operator_alg_mod: incorrect vector_type as argument x"
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event(log_scratch_space, log_level_error)
 
     end select
 

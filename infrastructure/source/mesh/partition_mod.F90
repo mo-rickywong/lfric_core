@@ -25,9 +25,9 @@ module partition_mod
   use sort_mod,        only : bubble_sort
   use log_mod,         only : log_event,         &
                               log_scratch_space, &
-                              LOG_LEVEL_INFO,    &
-                              LOG_LEVEL_ERROR,   &
-                              LOG_LEVEL_DEBUG
+                              log_level_info,    &
+                              log_level_error,   &
+                              log_level_debug
   use constants_mod,   only: i_def, r_def, l_def
   use panel_decomposition_mod, only: panel_decomposition_type
 
@@ -639,7 +639,7 @@ contains
 
     if( total_ranks /= 1 .or. local_rank /= 0 )then
     call log_event( 'Can only use the serial partitioner with a single process',&
-      LOG_LEVEL_ERROR )
+      log_level_error )
     endif
 
     num_inner(:) = 0
@@ -873,7 +873,7 @@ contains
         write(log_scratch_space,*) 'Unable to find a partition strategy. Total ranks (',&
           total_ranks,') needs to either have a factor of ', num_panels, &
           ' or if num_panels = 6 and custom decomposition is used then total ranks needs to have a factor of 2 or 3'
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
       end if
 
       ! Calculate the South West corner cells of all the panels in the global mesh
@@ -899,7 +899,7 @@ contains
               if(panel > num_panels) &
                 call log_event( 'Failed to partition the mesh: '// &
                   'the global mesh has more panels than the partitioner '// &
-                  'is expecting.', LOG_LEVEL_ERROR )
+                  'is expecting.', log_level_error )
               sw_corner_cells(panel)=cells(j)
               panel=panel+1
             end if
@@ -974,9 +974,9 @@ contains
                                                     " start_y ", start_y, &
                                                     " num_x ",   num_x,   &
                                                     " num_y ",   num_y
-    call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+    call log_event( log_scratch_space, log_level_debug )
     write(log_scratch_space,"(a,i0,a,i0)") "Number of cells in partition ", num_x, " X ", num_y
-    call log_event( log_scratch_space, lOG_LEVEL_INFO )
+    call log_event( log_scratch_space, log_level_info )
 
     ! Create a linked list of all cells in the partition and at the same time
     ! create a linked-list of all edge cells known to the partition, excluding halos.
@@ -1053,7 +1053,7 @@ contains
     ! Add all cells from the inner halos (up to max_stencil_depth) that are in a
     ! stencil around each of the owned cells, but are not part of the outer halos
     if ( generate_inner_halos ) then
-      call log_event( 'Generating Inner Halos', LOG_LEVEL_DEBUG )
+      call log_event( 'Generating Inner Halos', log_level_debug )
       ! Point to start of known_cells list
       start_subsect => known_cells%get_head()
       ! insert point is head of known cells list as we want to insert before it

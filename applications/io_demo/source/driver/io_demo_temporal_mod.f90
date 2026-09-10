@@ -13,7 +13,7 @@ module io_demo_temporal_mod
   use field_mod,              only: field_type
   use field_collection_mod,   only: field_collection_type
   use field_parent_mod,       only: read_interface, write_interface
-  use file_mod,               only: FILE_MODE_WRITE, FILE_MODE_READ
+  use file_mod,               only: file_mode_write, file_mode_read
   use function_space_collection_mod, only: function_space_collection
   use function_space_mod,            only: function_space_type
   use fs_continuity_mod,      only: Wtheta
@@ -21,10 +21,10 @@ module io_demo_temporal_mod
   use linked_list_mod,        only: linked_list_type
   use lfric_xios_action_mod,  only: advance
   use lfric_xios_context_mod, only: lfric_xios_context_type
-  use lfric_xios_file_mod,    only: lfric_xios_file_type, OPERATION_TIMESERIES
+  use lfric_xios_file_mod,    only: lfric_xios_file_type, operation_timeseries
   use lfric_xios_read_mod,    only: read_field_generic
   use lfric_xios_write_mod,   only: write_field_generic
-  use log_mod,                only: log_event, LOG_LEVEL_DEBUG
+  use log_mod,                only: log_event, log_level_debug
   use mesh_mod,               only: mesh_type
 
   implicit none
@@ -93,7 +93,7 @@ contains
     integer(i_def) :: coord_system
     real(r_def)    :: scaled_radius
 
-    call log_event( 'io_demo: Setting up temporal I/O', LOG_LEVEL_DEBUG )
+    call log_event( 'io_demo: Setting up temporal I/O', log_level_debug )
 
     geometry      = modeldb%config%base_mesh%geometry()
     topology      = modeldb%config%base_mesh%topology()
@@ -117,8 +117,8 @@ contains
     call file_list%insert_item( &
               lfric_xios_file_type( modeldb%config%files%temporal_file_path(), &
                                     xios_id = "monthly_ancil",                 &
-                                    io_mode = FILE_MODE_READ,                  &
-                                    operation = OPERATION_TIMESERIES,          &
+                                    io_mode = file_mode_read,                  &
+                                    operation = operation_timeseries,          &
                                     cyclic = .true.,                           &
                                     fields_in_file = temporal_fields ) )
 
@@ -128,8 +128,8 @@ contains
        call file_list%insert_item( &
                       lfric_xios_file_type( "io_demo_temporal_diag",          &
                                             xios_id = "temporal_diag",        &
-                                            io_mode = FILE_MODE_WRITE,        &
-                                            operation = OPERATION_TIMESERIES, &
+                                            io_mode = file_mode_write,        &
+                                            operation = operation_timeseries, &
                                             freq = 1,                         &
                                             fields_in_file = temporal_fields ) )
     end if

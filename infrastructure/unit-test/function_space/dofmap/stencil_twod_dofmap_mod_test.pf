@@ -13,7 +13,7 @@ module stencil_twod_dofmap_mod_test
   use local_mesh_mod,           only: local_mesh_type
   use master_dofmap_mod,        only: master_dofmap_type
   use mesh_collection_mod,      only: mesh_collection_type, mesh_collection
-  use mesh_mod,                 only: mesh_type, PLANE, PLANE_BI_PERIODIC
+  use mesh_mod,                 only: mesh_type, plane, plane_bi_periodic
 
   implicit none
 
@@ -53,9 +53,9 @@ contains
     unit_test_local_mesh_ptr => this%get_local_mesh_ptr()
 
     ! Add canned meshes to the mesh collection
-    planar_mesh = mesh_type( PLANE, unit_test_local_mesh_ptr )
+    planar_mesh = mesh_type( plane, unit_test_local_mesh_ptr )
     this%planar_mesh_id = mesh_collection%add_new_mesh( planar_mesh )
-    biperiodic_mesh = mesh_type( PLANE_BI_PERIODIC, unit_test_local_mesh_ptr )
+    biperiodic_mesh = mesh_type( plane_bi_periodic, unit_test_local_mesh_ptr )
     this%biperiodic_mesh_id = mesh_collection%add_new_mesh( biperiodic_mesh )
 
   end subroutine setUp

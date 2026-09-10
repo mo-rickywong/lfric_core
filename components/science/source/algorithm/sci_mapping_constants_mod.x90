@@ -16,21 +16,21 @@ module sci_mapping_constants_mod
 
   ! Infrastructure
   use constants_mod,                     only: i_def, r_def, l_def, str_def
-  use extrusion_mod,                     only: PRIME_EXTRUSION, &
+  use extrusion_mod,                     only: prime_extrusion, &
                                                DOUBLE_LEVEL,    &
-                                               TWOD
+                                               twod
   use sci_fem_constants_mod,             only: get_qr_fv
   use field_mod,                         only: field_type
   use function_space_mod,                only: function_space_type
   use function_space_collection_mod,     only: function_space_collection
-  use fs_continuity_mod,                 only: W1, W2, W2H, W3, Wtheta,        &
+  use fs_continuity_mod,                 only: W1, W2, W2h, W3, Wtheta,        &
                                                W2broken
   use inventory_by_local_mesh_mod,       only: inventory_by_local_mesh_type
   use inventory_by_mesh_mod,             only: inventory_by_mesh_type
   use local_mesh_mod,                    only: local_mesh_type
   use log_mod,                           only: log_event,                      &
-                                               LOG_LEVEL_INFO,                 &
-                                               LOG_LEVEL_ERROR,                &
+                                               log_level_info,                 &
+                                               log_level_error,                &
                                                log_scratch_space
   use mesh_collection_mod,               only: mesh_collection
   use mesh_mod,                          only: mesh_type
@@ -38,7 +38,7 @@ module sci_mapping_constants_mod
   use quadrature_xyoz_mod,               only: quadrature_xyoz_type
   use r_tran_field_mod,                  only: r_tran_field_type
   use timing_mod,                        only: start_timing, stop_timing, &
-                                               tik, LPROF
+                                               tik, lprof
 
   ! Object types
   use config_mod, only: config_type
@@ -338,7 +338,7 @@ contains
     panel_id => get_panel_id(mesh)
 
 
-    if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
+    if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
 
     ! Kernels only work for lowest order spaces so use finite volume
     w2_fs => function_space_collection%get_fs(mesh, 0, 0, W2)
@@ -358,7 +358,7 @@ contains
                                                   coord_system,       &
                                                   scaled_radius) )
 
-    if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+    if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
 
   end subroutine create_spherical_components_to_w2_sample
 
@@ -395,13 +395,13 @@ contains
       )
     end if
 
-    if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
+    if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
 
     k_h = config%finite_element%element_order_h()
     k_v = config%finite_element%element_order_v()
 
     ! Get 2D mesh
-    coarse_mesh_2d => mesh_collection%get_mesh(coarse_mesh, TWOD)
+    coarse_mesh_2d => mesh_collection%get_mesh(coarse_mesh, twod)
 
     ! Use the segment centre quadrature rule to evaluate the higher order
     ! basis functions at the lowest order dof locations (embedded in the coarse
@@ -442,7 +442,7 @@ contains
            dummy_fine, dummy_coarse, weights_high_low, weights_low_high, qr    &
     )
 
-    if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+    if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
 
   end subroutine create_scalar_inter_element_order_weights
 
@@ -479,13 +479,13 @@ contains
       )
     end if
 
-    if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
+    if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
 
     k_h = config%finite_element%element_order_h()
     k_v = config%finite_element%element_order_v()
 
     ! Get 2D mesh
-    coarse_mesh_2d => mesh_collection%get_mesh(coarse_mesh, TWOD)
+    coarse_mesh_2d => mesh_collection%get_mesh(coarse_mesh, twod)
 
     ! Use the Newton-Cotes quadrature rule (evenly spaced points inclusive of
     ! 0 and 1) to evaluate the higher order basis functions at the lowest order
@@ -547,7 +547,7 @@ contains
            dummy_fine, dummy_coarse, weights_high_low, weights_low_high, qr    &
     )
 
-    if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+    if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
 
   end subroutine create_w2_inter_element_order_weights
 
@@ -603,7 +603,7 @@ contains
       double_level_chi => get_coordinates(double_level_mesh)
       qr => get_qr_fv()
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
 
       w3_fs => function_space_collection%get_fs(prime_extrusion_mesh, 0, 0, W3)
       wtheta_fs => function_space_collection%get_fs(prime_extrusion_mesh, 0, 0, Wtheta)
@@ -623,7 +623,7 @@ contains
                                                         dummy_theta,           &
                                                         qr) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
     end if
 
     ! Get existing constant
@@ -669,10 +669,10 @@ contains
         write(log_scratch_space, '(A,I6,A,I6)')                                &
             'No mesh map exists for mapping between meshes ',                  &
             coarse_mesh%get_id(), ' and ', fine_mesh%get_id()
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
       end if
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
 
       coarse_w2_fs => function_space_collection%get_fs(coarse_mesh, 0, 0, W2)
       fine_w2_fs => function_space_collection%get_fs(fine_mesh, 0, 0, W2)
@@ -687,7 +687,7 @@ contains
       call invoke( setval_c(weights, 0.0_r_def),                               &
                    weights_prolong_w2_kernel_type(weights, dummy_w2_field) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
     end if
 
     ! Get existing constant
@@ -737,14 +737,14 @@ contains
         write(log_scratch_space, '(A,I6,A,I6)')                                &
             'No mesh map exists for mapping between meshes ',                  &
             coarse_mesh%get_id(), ' and ', fine_mesh%get_id()
-        call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space, log_level_error)
       end if
 
       ! @TODO #4487: this would be better as just the cell volumes
       mm_w3_fine => get_mass_matrix_diagonal_fv(W3, fine_mesh%get_id())
       mm_w3_coarse => get_mass_matrix_diagonal_fv(W3, coarse_mesh%get_id())
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
 
       coarse_w3_fs => function_space_collection%get_fs(coarse_mesh, 0, 0, W3)
       fine_w3_fs => function_space_collection%get_fs(fine_mesh, 0, 0, W3)
@@ -757,7 +757,7 @@ contains
                                                     mm_w3_fine,                &
                                                     mm_w3_coarse) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
     end if
 
     ! Get existing constant
@@ -802,7 +802,7 @@ contains
       ! Create the object as it doesn't exist yet
       weights_rdef => get_intermesh_weights_w3_rdef(fine_mesh, coarse_mesh)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
 
       fine_w3_fs => function_space_collection%get_fs(fine_mesh, 0, 0, W3)
 
@@ -812,7 +812,7 @@ contains
 
       call invoke( real_to_real_x(weights_rtran, weights_rdef) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
     end if
 
     ! Get existing constant
@@ -1139,7 +1139,7 @@ contains
       qr => get_qr_fv()
       panel_id => get_panel_id(mesh)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
 
       w1_fs => function_space_collection%get_fs(mesh, 0, 0, W1)
       w3_fs => function_space_collection%get_fs(mesh, 0, 0, W3)
@@ -1157,7 +1157,7 @@ contains
                                                          scaled_radius,      &
                                                          qr) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
     end if
 
     ! Return constant
@@ -1221,7 +1221,7 @@ contains
       chi => get_coordinates(mesh)
       qr => get_qr_fv()
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
 
       w1_fs => function_space_collection%get_fs(mesh, 0, 0, W1)
       w3_fs => function_space_collection%get_fs(mesh, 0, 0, W3)
@@ -1239,7 +1239,7 @@ contains
                                                          scaled_radius,      &
                                                          qr) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
     end if
 
     ! Return constant
@@ -1303,7 +1303,7 @@ contains
       panel_id => get_panel_id(mesh)
 
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
 
       w1_fs => function_space_collection%get_fs(mesh, 0, 0, W1)
       w3_fs => function_space_collection%get_fs(mesh, 0, 0, W3)
@@ -1321,7 +1321,7 @@ contains
                                                          scaled_radius,      &
                                                          qr) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
     end if
 
     ! Return constant
@@ -1394,8 +1394,8 @@ contains
       chi => get_coordinates(mesh)
       panel_id => get_panel_id(mesh)
 
-      if ( LPROF ) call start_timing( id, 'runtime_constants.mapping' )
-      w2h_k0_fs => function_space_collection%get_fs(mesh, 0, 0, W2H)
+      if ( lprof ) call start_timing( id, 'runtime_constants.mapping' )
+      w2h_k0_fs => function_space_collection%get_fs(mesh, 0, 0, W2h)
       w3_k0_fs => function_space_collection%get_fs(mesh, 0, 0, W3)
 
       call w3_to_w2_displacement_inventory%add_field(w3_to_w2_displacement,    &
@@ -1409,7 +1409,7 @@ contains
                                                      coord_system,            &
                                                      scaled_radius) )
 
-      if ( LPROF ) call stop_timing( id, 'runtime_constants.mapping' )
+      if ( lprof ) call stop_timing( id, 'runtime_constants.mapping' )
     end if
 
   end function get_w3_to_w2_displacement

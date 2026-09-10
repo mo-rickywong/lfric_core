@@ -60,7 +60,7 @@ contains
 !> @param[in]     field_w3         The original scalar field in W3
 !> @param[in]     stencil_size_w3  The size of the stencil for the W3 field
 !> @param[in]     stencil_map_w3   The stencil DoFmap for W3
-!> @param[in]     displacement     2D W2H field containing the displacements
+!> @param[in]     displacement     2D W2h field containing the displacements
 !!                                 corresponding to the averaging error. This is
 !!                                 dimensionless, divided by the cell width
 !> @param[in]     panel_id         ID for panels of the underlying mesh
@@ -72,9 +72,9 @@ contains
 !> @param[in]     ndf_w3           Number of DoFs for W3 per cell
 !> @param[in]     undf_w3          Number of unique DoFs for W3 per partition
 !> @param[in]     map_w3           The DoF map for bottom layer cells for W3
-!> @param[in]     ndf_w2h_2d       Number of DoFs for W2H per cell
-!> @param[in]     undf_w2h_2d      Num of unique DoFs for 2D W2H per partition
-!> @param[in]     map_w2h_2d       The DoF map for bottom layer cells for 2D W2H
+!> @param[in]     ndf_w2h_2d       Number of DoFs for W2h per cell
+!> @param[in]     undf_w2h_2d      Num of unique DoFs for 2D W2h per partition
+!> @param[in]     map_w2h_2d       The DoF map for bottom layer cells for 2D W2h
 !> @param[in]     ndf_pid          Number of DoFs for panel id per cell
 !> @param[in]     undf_pid         Num of unique DoFs for panel id per partition
 !> @param[in]     map_pid          DoF map for bottom layer cells for panel ID

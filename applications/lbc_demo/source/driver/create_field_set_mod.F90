@@ -12,7 +12,7 @@ module create_field_set_mod
   use integer_field_mod,       only: integer_field_type
   use mesh_collection_mod,     only: mesh_collection
   use mesh_mod,                only: mesh_type
-  use fs_continuity_mod,       only: W0, W2H, W2V, W3, Wtheta
+  use fs_continuity_mod,       only: W0, W2h, W2v, W3, Wtheta
   use extrusion_mod,           only: twod
   use create_field_mod,        only: create_field
   use log_mod,                 only: log_event, log_level_info
@@ -75,9 +75,9 @@ subroutine create_field_set(modeldb, fld_collection, mesh)
 
     ! W2 (edge) fields
     call create_field( fld_collection, fld, "w2h_field", &
-                       mesh, W2H, order_h, order_v, ndata )
+                       mesh, W2h, order_h, order_v, ndata )
     call create_field( fld_collection, fld, "w2v_field", &
-                       mesh, W2V, order_h, order_v, ndata )
+                       mesh, W2v, order_h, order_v, ndata )
 
     ! W3 (face) fields
     call create_field( fld_collection, fld, "w3_field", &
@@ -107,9 +107,9 @@ subroutine create_field_set(modeldb, fld_collection, mesh)
 
     ! W2 (edge) fields
     call create_field( fld_collection, int_fld, "w2h_field", &
-                         mesh, W2H, order_h, order_v, ndata )
+                         mesh, W2h, order_h, order_v, ndata )
     call create_field( fld_collection, int_fld, "w2v_field", &
-                       mesh, W2V, order_h, order_v, ndata )
+                       mesh, W2v, order_h, order_v, ndata )
 
     ! W3 (face) fields
     call create_field( fld_collection, int_fld, "w3_field", &

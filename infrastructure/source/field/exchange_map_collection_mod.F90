@@ -15,7 +15,7 @@ module exchange_map_collection_mod
                                     function_space_collection
   use halo_comms_mod,         only: exchange_map_type
   use mesh_mod,               only: mesh_type
-  use log_mod,                only: log_event, LOG_LEVEL_ERROR
+  use log_mod,                only: log_event, log_level_error
   use lfric_mpi_mod,          only: global_mpi, get_lfric_datatype
   use linked_list_mod,        only: linked_list_type, &
                                     linked_list_item_type

@@ -7,7 +7,7 @@
 !>
 module timing_mod
   use log_mod,            only:   log_event, log_scratch_space,     &
-                                  LOG_LEVEL_DEBUG, LOG_LEVEL_WARNING
+                                  log_level_debug, log_level_warning
   use constants_mod,      only:   i_def, imdi, cmdi, str_def
 
 #ifdef VERNIER
@@ -36,15 +36,15 @@ module timing_mod
 #endif
 
 #ifdef TIMING_ON
- ! LPROF enables profiler timings.
- logical, public, protected :: LPROF = .false.
+ ! lprof enables profiler timings.
+ logical, public, protected :: lprof = .false.
 
 #else
- ! LPROF enables profiler timings.
+ ! lprof enables profiler timings.
  ! The logical is declared as a parameter for this build
  ! so compilers can easily optimise out the profiler
  ! calliper calls from the code.
- logical, public, parameter :: LPROF = .false.
+ logical, public, parameter :: lprof = .false.
 
 #endif
 
@@ -70,13 +70,13 @@ contains
 #ifdef TIMING_ON
     character(str_def) :: name
 
-    ! If timing is on, LPROF will be defined by subroutine_timers
-    LPROF = lsubroutine_timers
+    ! If timing is on, lprof will be defined by subroutine_timers
+    lprof = lsubroutine_timers
     name = cmdi
 
 #ifdef LEGACY_TIMER
     name = 'Timer'
-    if ( LPROF ) then
+    if ( lprof ) then
       if ( present ( timer_output_path ) ) then
         call init_timer( timer_output_path )
       else
@@ -89,17 +89,17 @@ contains
 
 #elif defined( VERNIER )
     name = 'Vernier'
-    if ( LPROF ) then
+    if ( lprof ) then
       call vernier_init( communicator%get_comm_mpi_val(),                     &
                          tag=trim(application_name) )
-      if ( LPROF ) call vernier_start( global_timing_handle, '__' // &
+      if ( lprof ) call vernier_start( global_timing_handle, '__' // &
                                        application_name // '__' )
 
     end if
 
 #endif
 
-  if ( LPROF ) then
+  if ( lprof ) then
     if (trim( name ) == trim( cmdi )) then
       call log_event('Subroutine timings unavailable, no profiler compiled', &
                       log_level_warning)
@@ -121,24 +121,24 @@ contains
 #ifdef TIMING_ON
 #ifdef VERNIER
     ! If Vernier is on then it will write to a file and then finalise
-    if ( LPROF ) then
+    if ( lprof ) then
       call vernier_stop( global_timing_handle )
       call vernier_write()
       write(log_scratch_space, '(A)') 'Timing Mod: Vernier has written to file'
-      call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space, log_level_debug)
 
       call vernier_finalize()
       write(log_scratch_space, '(A)') 'Timing Mod: Vernier finalised'
-      call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space, log_level_debug)
     end if
 
 #elif defined(LEGACY_TIMER)
-    if ( LPROF ) then
+    if ( lprof ) then
       call timer ( application_name )
       call output_timer()
 
       write(log_scratch_space, '(A)') 'Timing Mod: Legacy timing finalised'
-      call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+      call log_event(log_scratch_space, log_level_debug)
     end if
 
 #endif

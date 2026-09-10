@@ -9,7 +9,7 @@
 module io_utility_mod
 
   use constants_mod, only : i_def, str_def
-  use log_mod,       only : log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod,       only : log_event, log_scratch_space, log_level_error
 
   implicit none
 
@@ -99,7 +99,7 @@ contains
     open( unit, file=filename, action='read', iostat=rc, iomsg=error_message )
     if (rc /= 0) then
       write( log_scratch_space, '(A)' ) trim(error_message)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
 
     open_file = unit
@@ -126,7 +126,7 @@ contains
     close( unit, iostat=rc, iomsg=error_message )
     if (rc /= 0) then
       write( log_scratch_space, '("Unable to close file: ", A)'  ) trim(error_message)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
 
     call release_io_unit( unit )
@@ -159,7 +159,7 @@ contains
       return
     else if (rc /= 0) then
       write( log_scratch_space, '("Unable to read file: ", A)' ) trim(error_message)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
     read_line = .True.
 

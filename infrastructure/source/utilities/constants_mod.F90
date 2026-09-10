@@ -24,7 +24,7 @@ module constants_mod
             l_def, l_native,                                             &
             r_def, r_double, r_ncdf, r_native, r_second, r_single, r_um, &
             r_solver, r_tran, r_bl,                                      &
-            CMDI, UNSET_KEY, EMDI, IMDI, RMDI,                           &
+            cmdi, UNSET_KEY, emdi, imdi, rmdi,                           &
             real_type, r_solver_real_type, r_tran_real_type,             &
             integer_type, logical_type,                                  &
             EPS, SMALL_R_TRAN,                                           &
@@ -185,11 +185,11 @@ module constants_mod
 
   !> @name Missing data indicators
   !> @{
-  real     (r_def),     parameter :: RMDI  = -32768.0_r_def*32768.0_r_def !< Value for real numbers
-  integer  (i_def),     parameter :: IMDI  = -32768                  !< Value for integer numbers
-  character(str_short), parameter :: CMDI  = 'unset'                 !< Value for characters
-  character(str_short), parameter :: UNSET_KEY  = CMDI               !< Chararater value for namelist enumerations
-  integer  (i_def),     parameter :: EMDI  = -1_i_def                !< Integer value for namelist enumerations
+  real     (r_def),     parameter :: rmdi  = -32768.0_r_def*32768.0_r_def !< Value for real numbers
+  integer  (i_def),     parameter :: imdi  = -32768                  !< Value for integer numbers
+  character(str_short), parameter :: cmdi  = 'unset'                 !< Value for characters
+  character(str_short), parameter :: UNSET_KEY  = cmdi               !< Chararater value for namelist enumerations
+  integer  (i_def),     parameter :: emdi  = -1_i_def                !< Integer value for namelist enumerations
   !> @}
 
   !> @name Halo defaults

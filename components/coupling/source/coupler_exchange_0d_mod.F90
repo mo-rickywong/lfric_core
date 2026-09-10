@@ -17,9 +17,9 @@ module coupler_exchange_0d_mod
   use field_collection_mod,     only: field_collection_type
   use lfric_mpi_mod,            only: global_mpi
   use log_mod,                  only: log_event,       &
-                                      LOG_LEVEL_DEBUG, &
-                                      LOG_LEVEL_INFO,  &
-                                      LOG_LEVEL_ERROR, &
+                                      log_level_debug, &
+                                      log_level_info,  &
+                                      log_level_error, &
                                       log_scratch_space
   use model_clock_mod,          only: model_clock_type
 
@@ -76,23 +76,23 @@ module coupler_exchange_0d_mod
                            "coupler_send_0d: field ", &
                            trim(name), &
                            " sent with value = ", scalar
-        call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+        call log_event( log_scratch_space, log_level_debug )
       endif
     else
       write(log_scratch_space, '(3A)' ) "coupler_send_0d: field ", &
                      trim(name), " NOT exchanged on this timestep"
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     endif
   else
     write(log_scratch_space, '(3A)' ) "PROBLEM coupler_send_0d: field ", &
                                       trim(name), " cpl_id NOT set"
-    call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+    call log_event( log_scratch_space, log_level_error )
   endif
 
 #else
   write(log_scratch_space, '(A)' ) &
                  "coupler_send_0d: to use OASIS cpp directive MCT must be set"
-  call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+  call log_event( log_scratch_space, log_level_error )
 
 #endif
 

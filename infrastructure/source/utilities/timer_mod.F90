@@ -56,7 +56,7 @@ contains
 
     use log_mod,    only: log_event,         &
                           log_scratch_space, &
-                          LOG_LEVEL_DEBUG
+                          log_level_debug
 
     implicit none
 
@@ -81,7 +81,7 @@ contains
 
     ! Only need to output this for debugging purposes
     write(log_scratch_space,'(A,I0)') "system_clock rate for timers: ", count_rate
-    call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+    call log_event(log_scratch_space, log_level_debug)
 
   end subroutine init_timer
 
@@ -91,7 +91,7 @@ contains
    subroutine timer(cname)
 
      use log_mod,    only: log_event,         &
-                           LOG_LEVEL_ERROR
+                           log_level_error
 
      implicit none
 
@@ -115,7 +115,7 @@ contains
        num_tim_in_use = k
        if( num_tim_in_use > num_subs ) then
          call log_event( "Run out of timers, increase num_subs", &
-                         LOG_LEVEL_ERROR )
+                         log_level_error )
        end if
        routine_name(k) = lowname
        call system_clock(iprev_time(k))
@@ -144,7 +144,7 @@ contains
    subroutine calculate_timer_stats()
      use lfric_mpi_mod, only: global_mpi
      use log_mod,       only: log_event,         &
-                              LOG_LEVEL_ERROR,   &
+                              log_level_error,   &
                               log_scratch_space
 
      implicit none
@@ -164,7 +164,7 @@ contains
          write( log_scratch_space, '(A,A,A)') &
                     'Timer for routine ',trim(routine_name(k)), &
                     ' not closed.'
-         call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+         call log_event( log_scratch_space, log_level_error )
        end if
      end do
 
@@ -183,8 +183,8 @@ contains
    subroutine output_timer()
      use lfric_mpi_mod,  only: global_mpi
      use log_mod,        only: log_event,       &
-                               LOG_LEVEL_ERROR, &
-                               LOG_LEVEL_INFO,  &
+                               log_level_error, &
+                               log_level_info,  &
                                log_scratch_space
      use io_utility_mod, only: claim_io_unit, close_file
 
@@ -203,7 +203,7 @@ contains
      '||','=     No. calls     =',                                           &
      '||','= time per call(s)  =',                                           &
      '||'
-     call log_event(log_scratch_space, LOG_LEVEL_INFO)
+     call log_event(log_scratch_space, log_level_info)
      do k = 1, num_tim_in_use
        time_real_tmp = real(isystem_clock_time(k)/clock_rate, r_double)
        write(log_scratch_space,                                              &
@@ -213,7 +213,7 @@ contains
             '||', num_calls(k),                                              &
             '||', time_real_tmp/REAL(num_calls(k),r_double),                 &
             '||'
-       call log_event(log_scratch_space, LOG_LEVEL_INFO)
+       call log_event(log_scratch_space, log_level_info)
      end do
 
      call calculate_timer_stats()
@@ -222,7 +222,7 @@ contains
        timer_file_unit = claim_io_unit()
        open( timer_file_unit, file=trim(timer_path), status="replace", iostat=stat)
        if (stat /= 0) then
-         call log_event( "Unable to open timer file", LOG_LEVEL_ERROR )
+         call log_event( "Unable to open timer file", log_level_error )
        end if
 
        ! Write out timer information in wiki formatted table

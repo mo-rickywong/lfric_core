@@ -10,7 +10,7 @@ module check_global_mesh_mod
   use global_mesh_mod, only: global_mesh_type
   use log_mod,         only: log_event,         &
                              log_scratch_space, &
-                             LOG_LEVEL_ERROR
+                             log_level_error
 
   use global_mesh_collection_mod, only: global_mesh_collection
 
@@ -19,10 +19,10 @@ module check_global_mesh_mod
   !------------------------------
   use base_mesh_config_mod, only: key_from_geometry,       &
                                   key_from_topology,       &
-                                  GEOMETRY_SPHERICAL,      &
-                                  GEOMETRY_PLANAR,         &
+                                  geometry_spherical,      &
+                                  geometry_planar,         &
                                   TOPOLOGY_FULLY_PERIODIC, &
-                                  TOPOLOGY_NON_PERIODIC
+                                  topology_non_periodic
   implicit none
 
   private
@@ -64,10 +64,10 @@ subroutine check_global_mesh( config, mesh_names )
     valid_geometry = .false.
     select case ( geometry )
 
-    case ( GEOMETRY_SPHERICAL )
+    case ( geometry_spherical )
       if ( global_mesh%is_geometry_spherical() ) valid_geometry = .true.
 
-    case ( GEOMETRY_PLANAR )
+    case ( geometry_planar )
       if ( global_mesh%is_geometry_planar() ) valid_geometry = .true.
 
     end select
@@ -77,7 +77,7 @@ subroutine check_global_mesh( config, mesh_names )
           'Mesh (' // trim(mesh_names(i)) // &
           ') in file is not valid as a ' //  &
           trim(key_from_geometry(geometry)) // ' domain geometry'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event(log_scratch_space, log_level_error )
     end if
 
 
@@ -89,7 +89,7 @@ subroutine check_global_mesh( config, mesh_names )
     case ( TOPOLOGY_FULLY_PERIODIC )
       if ( global_mesh%is_topology_periodic() ) valid_topology = .true.
 
-    case ( TOPOLOGY_NON_PERIODIC )
+    case ( topology_non_periodic )
       if ( global_mesh%is_topology_non_periodic() ) valid_topology = .true.
 
     end select
@@ -99,7 +99,7 @@ subroutine check_global_mesh( config, mesh_names )
           'Mesh (' // trim(mesh_names(i)) //    &
           ') in file does not have a valid ' // &
           trim(key_from_topology(topology)) // ' topology'
-      call log_event(log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event(log_scratch_space, log_level_error )
     end if
 
   end do

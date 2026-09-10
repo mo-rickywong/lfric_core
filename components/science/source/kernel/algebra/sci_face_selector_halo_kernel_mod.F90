@@ -13,7 +13,7 @@ module sci_face_selector_halo_kernel_mod
                                            GH_REAL, GH_INTEGER,                &
                                            HALO_CELL_COLUMN
   use constants_mod,                 only: i_def
-  use fs_continuity_mod,             only: W3, W2H
+  use fs_continuity_mod,             only: W3, W2h
   use kernel_mod,                    only: kernel_type
   use sci_face_selector_support_mod, only: compute_face_selector
 
@@ -32,7 +32,7 @@ module sci_face_selector_halo_kernel_mod
     type(arg_type) :: meta_args(3) = (/                                        &
         arg_type(GH_FIELD, GH_INTEGER, GH_WRITE, W3),                          &
         arg_type(GH_FIELD, GH_INTEGER, GH_WRITE, W3),                          &
-        arg_type(GH_FIELD, GH_INTEGER, GH_WRITE, W2H)                          &
+        arg_type(GH_FIELD, GH_INTEGER, GH_WRITE, W2h)                          &
     /)
     integer :: operates_on = HALO_CELL_COLUMN
   contains
@@ -57,7 +57,7 @@ contains
 !!                                  integer field, which contains 2 when
 !!                                  iterating over the North and South faces of
 !!                                  a cell, or 1 when just the South face.
-!> @param[in,out] face_counter      An integer W2H field, counting the number of
+!> @param[in,out] face_counter      An integer W2h field, counting the number of
 !!                                  times that each face has been iterated over
 !> @param[in]     ndf_w3            Num of DoFs for W3 per cell
 !> @param[in]     undf_w3           Num of DoFs for this partition for W3

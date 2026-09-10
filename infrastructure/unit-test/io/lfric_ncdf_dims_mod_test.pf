@@ -9,7 +9,7 @@
 module lfric_ncdf_dims_mod_test
 
   use constants_mod,       only: i_def
-  use file_mod,            only: FILE_MODE_READ, FILE_MODE_WRITE, &
+  use file_mod,            only: file_mode_read, file_mode_write, &
                                  FILE_OP_OPEN, FILE_OP_CREATE
   use lfric_ncdf_dims_mod, only: lfric_ncdf_dims_type
   use lfric_ncdf_file_mod, only: lfric_ncdf_file_type
@@ -32,14 +32,14 @@ contains
     integer(kind=i_def), parameter :: dim_size = 10
     integer(kind=i_def)            :: return_size
 
-    file1 = lfric_ncdf_file_type("test_dims.nc", open_mode=FILE_OP_CREATE, io_mode=FILE_MODE_WRITE)
+    file1 = lfric_ncdf_file_type("test_dims.nc", open_mode=FILE_OP_CREATE, io_mode=file_mode_write)
 
     dims1 = lfric_ncdf_dims_type("dims1", file1, size=dim_size)
 
     call file1%close_definition()
     call file1%close_file()
 
-    file2 = lfric_ncdf_file_type("test_dims.nc", open_mode=FILE_OP_OPEN, io_mode=FILE_MODE_READ)
+    file2 = lfric_ncdf_file_type("test_dims.nc", open_mode=FILE_OP_OPEN, io_mode=file_mode_read)
 
     dims2 = lfric_ncdf_dims_type("dims1", file2)
     return_size = dims2%get_size()

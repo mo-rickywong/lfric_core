@@ -73,7 +73,7 @@ contains
   subroutine counter(self, cname)
 
     use log_mod,    only: log_event,         &
-                          LOG_LEVEL_ERROR
+                          log_level_error
 
     implicit none
 
@@ -90,7 +90,7 @@ contains
     ! named section not in list so initialise
       self%num_counters_in_use = k
       if( self%num_counters_in_use > num_counters ) then
-        call log_event( "Run out of counters", LOG_LEVEL_ERROR )
+        call log_event( "Run out of counters", log_level_error )
       end if
       self%section_name(k) = cname
       self%start_count(k) = self%overall_counter
@@ -118,8 +118,8 @@ contains
   subroutine output_counters(self, opt_suffix, opt_unit)
     use lfric_mpi_mod,  only: global_mpi
     use log_mod,        only: log_event,         &
-                              LOG_LEVEL_ERROR,   &
-                              LOG_LEVEL_WARNING, &
+                              log_level_error,   &
+                              log_level_warning, &
                               log_scratch_space
     use io_utility_mod, only: claim_io_unit, release_io_unit
     implicit none
@@ -136,7 +136,7 @@ contains
         write( log_scratch_space, '(A,A,A)') &
                    'Counter for section ',trim(self%section_name(k)), &
                    ' not closed. Counting information will be incorrect'
-        call log_event( log_scratch_space, LOG_LEVEL_WARNING )
+        call log_event( log_scratch_space, log_level_warning )
       end if
     end do
 
@@ -156,7 +156,7 @@ contains
         end if
         open( unit_no, file=trim(self%name)//'_'//trim(suffix), status="replace", iostat=stat)
         if (stat /= 0) then
-          call log_event( "Unable to open counter file", LOG_LEVEL_ERROR )
+          call log_event( "Unable to open counter file", log_level_error )
         end if
       end if
       ! Write out timer information in wiki formatted table

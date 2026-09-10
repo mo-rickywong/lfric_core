@@ -9,19 +9,19 @@ use log_mod,              only: log_event,          &
                                 log_scratch_space,  &
                                 initialise_logging, &
                                 finalise_logging,   &
-                                LOG_LEVEL_ALWAYS,   &
-                                LOG_LEVEL_ERROR,    &
-                                LOG_LEVEL_WARNING,  &
-                                LOG_LEVEL_INFO,     &
-                                LOG_LEVEL_DEBUG,    &
-                                LOG_LEVEL_TRACE
+                                log_level_always,   &
+                                log_level_error,    &
+                                log_level_warning,  &
+                                log_level_info,     &
+                                log_level_debug,    &
+                                log_level_trace
 
 use logging_config_mod, only: key_from_run_log_level, &
-                              RUN_LOG_LEVEL_ERROR,    &
-                              RUN_LOG_LEVEL_INFO,     &
-                              RUN_LOG_LEVEL_DEBUG,    &
-                              RUN_LOG_LEVEL_TRACE,    &
-                              RUN_LOG_LEVEL_WARNING
+                              RUN_log_level_error,    &
+                              RUN_log_level_info,     &
+                              RUN_log_level_debug,    &
+                              RUN_log_level_trace,    &
+                              RUN_log_level_warning
 
 
 implicit none
@@ -56,18 +56,18 @@ subroutine init_logger(config, communicator, program_name)
                            log_to_rank_zero_only=log_to_rank_zero_only)
 
   select case (run_log_level)
-  case( RUN_LOG_LEVEL_ERROR )
-    log_level = LOG_LEVEL_ERROR
-  case( RUN_LOG_LEVEL_WARNING )
-    log_level = LOG_LEVEL_WARNING
-  case( RUN_LOG_LEVEL_INFO )
-    log_level = LOG_LEVEL_INFO
-  case( RUN_LOG_LEVEL_DEBUG )
-    log_level = LOG_LEVEL_DEBUG
-  case( RUN_LOG_LEVEL_TRACE )
-    log_level = LOG_LEVEL_TRACE
+  case( RUN_log_level_error )
+    log_level = log_level_error
+  case( RUN_log_level_warning )
+    log_level = log_level_warning
+  case( RUN_log_level_info )
+    log_level = log_level_info
+  case( RUN_log_level_debug )
+    log_level = log_level_debug
+  case( RUN_log_level_trace )
+    log_level = log_level_trace
   case default
-    call log_event( "Invalid option for run_log_level", LOG_LEVEL_ERROR )
+    call log_event( "Invalid option for run_log_level", log_level_error )
   end select
 
   call log_set_level( log_level )
@@ -75,7 +75,7 @@ subroutine init_logger(config, communicator, program_name)
   write(log_scratch_space,'(A)')                              &
       'Runtime message logging severity set to log level: '// &
       convert_to_upper(key_from_run_log_level(run_log_level))
-  call log_event( log_scratch_space, LOG_LEVEL_ALWAYS )
+  call log_event( log_scratch_space, log_level_always )
 
 end subroutine init_logger
 
@@ -86,7 +86,7 @@ subroutine final_logger(program_name)
   character(len=*), intent(in) :: program_name
 
   ! Final logging before infrastructure is destroyed
-  call log_event( program_name//' application completed.', LOG_LEVEL_ALWAYS )
+  call log_event( program_name//' application completed.', log_level_always )
 
   ! Finalise the logging system
   call finalise_logging()

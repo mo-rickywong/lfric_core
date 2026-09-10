@@ -4,11 +4,11 @@
 ! under which the code may be used.
 !-----------------------------------------------------------------------------
 !
-!> @brief The restriction operation from a fine W2V field to a coarse W2V field
-!> @details Restrict the W2V field from a fine mesh into a W2V field on a coarse
+!> @brief The restriction operation from a fine W2v field to a coarse W2v field
+!> @details Restrict the W2v field from a fine mesh into a W2v field on a coarse
 !!          mesh. The fields are extensive -- i.e. this works on flux values and
 !!          not pointwise values.
-!!          This method is only designed for the lowest order W2V space.
+!!          This method is only designed for the lowest order W2v space.
 module sci_restrict_w2v_kernel_mod
 
 use, intrinsic :: iso_fortran_env, only: real32, real64
@@ -20,7 +20,7 @@ use argument_mod,            only: arg_type,                  &
                                    ANY_DISCONTINUOUS_SPACE_2, &
                                    CELL_COLUMN
 use constants_mod,           only: i_def, r_def
-use fs_continuity_mod,       only: W2V
+use fs_continuity_mod,       only: W2v
 use kernel_mod,              only: kernel_type
 
 implicit none
@@ -37,7 +37,7 @@ private
 type, public, extends(kernel_type) :: restrict_w2v_kernel_type
   private
   type(arg_type) :: meta_args(2) = (/                                          &
-       arg_type(GH_FIELD, GH_REAL, GH_WRITE, W2V, mesh_arg=GH_COARSE),         &
+       arg_type(GH_FIELD, GH_REAL, GH_WRITE, W2v, mesh_arg=GH_COARSE),         &
        arg_type(GH_FIELD, GH_REAL, GH_READ,  ANY_DISCONTINUOUS_SPACE_2,        &
                                                           mesh_arg=GH_FINE)    &
        /)
@@ -59,7 +59,7 @@ public :: restrict_w2v_code
 
 contains
 
-  !> @brief Restrict a fine W2V field to a coarse mesh
+  !> @brief Restrict a fine W2v field to a coarse mesh
   !> @param[in]     nlayers                  Number of layers in a model column
   !> @param[in]     cell_map                 A 2D index map of which fine grid
   !!                                         cells lie in the coarse grid cell
@@ -69,8 +69,8 @@ contains
   !!                                         cell in the horizontal y-direction
   !> @param[in]     ncell_fine               Number of cells in the partition
   !!                                         for the fine grid
-  !> @param[in,out] coarse_field             Coarse grid W2V field to compute
-  !> @param[in]     fine_field               Fine grid  W2V field to restrict
+  !> @param[in,out] coarse_field             Coarse grid W2v field to compute
+  !> @param[in]     fine_field               Fine grid  W2v field to restrict
   !> @param[in]     undf_coarse              Total num of DoFs on the coarse
   !!                                         grid for this mesh partition
   !> @param[in]     map_coarse               DoFmap of cells on the coarse grid

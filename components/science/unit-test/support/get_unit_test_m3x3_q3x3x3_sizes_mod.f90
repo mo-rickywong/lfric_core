@@ -154,7 +154,7 @@ module get_unit_test_m3x3_q3x3x3_sizes_mod
                                        dim_space, dim_space_diff, &
                                        nqp_h, nqp_v, &
                                        nlayers )
-    ! For a field on a lowest-order W2V function space, return:
+    ! For a field on a lowest-order W2v function space, return:
     !  * ndf: no. of dofs in a cell
     !  * undf: no. of unique dofs in a 3x3 domain
     !  * ncells: no. of cells in a 3x3 domain
@@ -194,7 +194,7 @@ module get_unit_test_m3x3_q3x3x3_sizes_mod
                                        dim_space, dim_space_diff, &
                                        nqp_h, nqp_v, &
                                        nlayers )
-    ! For a field on a lowest-order W2V function space, return:
+    ! For a field on a lowest-order W2v function space, return:
     !  * ndf: no. of dofs in a cell
     !  * undf: no. of unique dofs in a 3x3 domain
     !  * ncells: no. of cells in a 3x3 domain

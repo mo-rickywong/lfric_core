@@ -7,13 +7,13 @@
 !>
 module function_space_constructor_helper_functions_mod
 
-  use constants_mod,         only: i_def, i_halo_index, r_def, IMDI, l_def, EPS
+  use constants_mod,         only: i_def, i_halo_index, r_def, imdi, l_def, EPS
   use local_mesh_mod,        only: local_mesh_type
   use mesh_mod,              only: mesh_type
-  use fs_continuity_mod,     only: W0, W1, W2, W2V, W2H,   &
+  use fs_continuity_mod,     only: W0, W1, W2, W2v, W2h,   &
                                    W2broken, W2trace,      &
-                                   W2Hbroken,              &
-                                   W2Vtrace, W2Htrace,     &
+                                   W2hbroken,              &
+                                   W2vtrace, W2htrace,     &
                                    W3, Wtheta, Wchi
   use reference_element_mod, only: reference_element_type, &
                                    V,                      &
@@ -23,7 +23,7 @@ module function_space_constructor_helper_functions_mod
                                    WB, SB, EB, NB,         &
                                    SW, SE, NE, NW,         &
                                    WT, ST, ET, NT
-  use log_mod,               only: log_event, LOG_LEVEL_ERROR
+  use log_mod,               only: log_event, log_level_error
   implicit none
 
   private
@@ -83,25 +83,25 @@ contains
     allocate( entity_theta%edges(number_of_edges) )
     allocate( entity_theta%verts(number_of_vertices) )
 
-    entity_theta%faces = (/ IMDI, IMDI, IMDI, IMDI, B, T /)
-    entity_theta%edges = IMDI
-    entity_theta%verts = IMDI
+    entity_theta%faces = (/ imdi, imdi, imdi, imdi, B, T /)
+    entity_theta%edges = imdi
+    entity_theta%verts = imdi
 
     allocate( entity_w2v%faces(number_of_faces) )
     allocate( entity_w2v%edges(number_of_edges) )
     allocate( entity_w2v%verts(number_of_vertices) )
 
-    entity_w2v%faces = (/ IMDI, IMDI, IMDI, IMDI, B, T /)
-    entity_w2v%edges = IMDI
-    entity_w2v%verts = IMDI
+    entity_w2v%faces = (/ imdi, imdi, imdi, imdi, B, T /)
+    entity_w2v%edges = imdi
+    entity_w2v%verts = imdi
 
     allocate( entity_w2h%faces(number_of_faces) )
     allocate( entity_w2h%edges(number_of_edges) )
     allocate( entity_w2h%verts(number_of_vertices) )
 
-    entity_w2h%faces = (/ W, S, E, N, IMDI, IMDI /)
-    entity_w2h%edges = IMDI
-    entity_w2h%verts = IMDI
+    entity_w2h%faces = (/ W, S, E, N, imdi, imdi /)
+    entity_w2h%edges = imdi
+    entity_w2h%verts = imdi
 
     nullify(reference_element)
 
@@ -141,8 +141,8 @@ contains
   !  |.'  Q | .'       the horizontal plane (such as face P) and vertical if it
   !  +------+'         is parallel to it (such as face Q).
   !
-  !                    These are chosen to agree with the naming of W2H and
-  !                    W2V.
+  !                    These are chosen to agree with the naming of W2h and
+  !                    W2v.
 
   subroutine ndof_setup( mesh, element_order_h, element_order_v, gungho_fs,    &
                          ndof_vert, ndof_edge_h, ndof_edge_v, ndof_face_h,     &
@@ -298,7 +298,7 @@ contains
       ndof_cell   = 2*(k_h + 2)*(k_h + 1)*(k_v + 1)                            &
                   + (k_h + 1)*(k_h + 1)*(k_v + 2)
 
-    case (W2H)
+    case (W2h)
       ! Dofs are located at the horizontal components of W2, giving variables
       ! the values of the first term in the sums in the W2 case.
       nfaces_exterior = 0
@@ -306,7 +306,7 @@ contains
       ndof_vol    = 2*k_h*(k_h + 1)*(k_v + 1)
       ndof_cell   = 2*(k_h + 1)*(k_h + 2)*(k_v + 1)
 
-    case (W2V)
+    case (W2v)
       ! Dofs are located at the vertical components of W2, giving variables
       ! the values of the second term in the sums in the W2 case.
       nfaces_interior = 0
@@ -331,7 +331,7 @@ contains
                 + (k_h + 1)*(k_h + 1)*(k_v + 2)
       ndof_cell = ndof_vol
 
-    case (W2Hbroken)
+    case (W2hbroken)
       ! Dofs are geometrically located on faces for
       ! vector fields and direction is normal to the face.
       ! However, they are topologically associated with
@@ -359,9 +359,9 @@ contains
       ndof_face_v = (k_h + 1)*(k_h + 1)
       ndof_cell   = 4*ndof_face_h + 2*ndof_face_v
 
-    case (W2Vtrace)
+    case (W2vtrace)
       ! This function space is the result of taking the trace
-      ! of a W2V Hdiv space (or equivalently taking only the
+      ! of a W2v Hdiv space (or equivalently taking only the
       ! vertical components of the trace of the W2 space).
       ! The result is a scalar-valued space
       ! with functions defined only on cell vertical faces.
@@ -373,9 +373,9 @@ contains
       ndof_face_v     = (k_h + 1)*(k_h + 1)
       ndof_cell       = 2*ndof_face_v
 
-    case (W2Htrace)
+    case (W2htrace)
       ! This function space is the result of taking the trace
-      ! of a W2H Hdiv space (or equivalently taking only the
+      ! of a W2h Hdiv space (or equivalently taking only the
       ! horizontal components of the trace of the W2 space).
       ! The result is a scalar-valued space
       ! with functions defined only on cell horizontal faces.
@@ -399,7 +399,7 @@ contains
       ndof_vol  = (k_h + 1)*(k_h + 1)*(k_v + 1)
       ndof_cell = ndof_vol
 
-    case (WTHETA)
+    case (Wtheta)
       nfaces_interior = 0
       ndof_face_v     = (k_h + 1)*(k_h + 1)
       ndof_vol        = (k_h + 1)*(k_h + 1)*k_v
@@ -683,7 +683,7 @@ contains
 
     ! Allocate arrays to allow on the fly evaluation of basis functions
     select case (gungho_fs)
-    case (W1, W2, W2H, W2V, W2broken, W2Hbroken, W2trace, W2Vtrace, W2Htrace)
+    case (W1, W2, W2h, W2v, W2broken, W2hbroken, W2trace, W2vtrace, W2htrace)
       allocate( unit_vec(3, ndof_cell) )
     end select
 
@@ -1210,7 +1210,7 @@ contains
       basis_order(2,:) = k_h
       basis_order(3,:) = k_v
 
-    case (WTHETA)
+    case (Wtheta)
       !-------------------------------------------------------------------------
       ! Section for test/trial functions of theta spaces
       !-------------------------------------------------------------------------
@@ -1271,9 +1271,9 @@ contains
       basis_index(3,:) = lz(1:ndof_cell)
       basis_vector(:,:) = 1.0_r_def
 
-    case (W2V)
+    case (W2v)
       !-------------------------------------------------------------------------
-      ! Section for test/trial functions of W2V space
+      ! Section for test/trial functions of W2v space
       !-------------------------------------------------------------------------
 
       do idx = 1, ndof_cell
@@ -1360,9 +1360,9 @@ contains
       basis_index(2,:) = ly(1:ndof_cell)
       basis_index(3,:) = lz(1:ndof_cell)
 
-    case (W2Vtrace)
+    case (W2vtrace)
       !-------------------------------------------------------------------------
-      ! Section for test/trial functions of W2Vtrace space
+      ! Section for test/trial functions of W2vtrace space
       !-------------------------------------------------------------------------
 
       do idx = 1, ndof_cell
@@ -1432,9 +1432,9 @@ contains
       basis_index(2,:) = ly(1:ndof_cell)
       basis_index(3,:) = lz(1:ndof_cell)
 
-    case (W2H, W2Hbroken)
+    case (W2h, W2hbroken)
       !-------------------------------------------------------------------------
-      ! Section for test/trial functions of W2H space
+      ! Section for test/trial functions of W2h space
       !-------------------------------------------------------------------------
 
       do idx = 1, ndof_cell
@@ -1536,9 +1536,9 @@ contains
       basis_index(2,:) = ly(1:ndof_cell)
       basis_index(3,:) = lz(1:ndof_cell)
 
-    case (W2Htrace)
+    case (W2htrace)
       !-------------------------------------------------------------------------
-      ! Section for test/trial functions of W2Htrace space
+      ! Section for test/trial functions of W2htrace space
       !-------------------------------------------------------------------------
 
       do idx = 1, ndof_cell
@@ -1655,7 +1655,7 @@ contains
 
     ! Allocate arrays to allow on the fly evaluation of basis functions
     select case (gungho_fs)
-    case (W1, W2, W2H, W2V, W2broken, W2Hbroken, W2trace, W2Vtrace, W2Htrace)
+    case (W1, W2, W2h, W2v, W2broken, W2hbroken, W2trace, W2vtrace, W2htrace)
       deallocate(unit_vec)
     end select
 
@@ -1711,8 +1711,8 @@ contains
   !  |.'  Q | .'       the horizontal plane (such as face P) and vertical if it
   !  +------+'         is parallel to it (such as face Q).
   !
-  !                    These are chosen to agree with the naming of W2H and
-  !                    W2V.
+  !                    These are chosen to agree with the naming of W2h and
+  !                    W2v.
 
   subroutine dofmap_setup( mesh, gungho_fs, element_order_h, element_order_v,  &
                            ndata, ndata_first, ncells_2d_with_ghost, ndof_vert,&
@@ -1931,11 +1931,11 @@ contains
     select case (gungho_fs)
     case(W0, W1, W2, W2broken, W2trace, W3, WCHI)
       select_entity => select_entity_all
-    case(WTHETA)
+    case(Wtheta)
       select_entity => select_entity_theta
-    case(W2H, W2Htrace, W2Hbroken)
+    case(W2h, W2htrace, W2hbroken)
       select_entity => select_entity_w2h
-    case(W2V, W2Vtrace)
+    case(W2v, W2vtrace)
       select_entity => select_entity_w2v
     end select
 
@@ -2383,7 +2383,7 @@ contains
     if ( element_order_h == 0 .and. element_order_v == 0 ) then
       if (gungho_fs == W3) then
         num_layers = int(nlayers, i_halo_index)
-      else if( gungho_fs == WTHETA ) then
+      else if( gungho_fs == Wtheta ) then
         num_dofs = 1_i_halo_index
       end if
     end if
@@ -2488,11 +2488,11 @@ contains
     ! Calculate a globally unique id for the dofs on the edges of each cell
     ! in the 2D horizontal part of the local domain - only possible for
     ! function spaces that (appear to) have 2d edge dofs
-    ! (for the moment, using W2H as an example of such a function space
+    ! (for the moment, using W2h as an example of such a function space
     ! - the 2d layer at the half levels appears to have edge dofs).
     if (element_order_h == 0 .and.                                             &
         element_order_v == 0 .and.                                             &
-        gungho_fs == W2H) then
+        gungho_fs == W2h) then
       ! loop over local cells
       do icell = 1, mesh%get_last_edge_cell()
         ! loop over 2d edges within a cell

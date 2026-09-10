@@ -18,7 +18,7 @@ module lfric_xios_temporal_mod
   use field_collection_iterator_mod, &
                             only: field_collection_iterator_type
   use field_collection_mod, only: field_collection_type
-  use file_mod,             only: FILE_OP_OPEN, FILE_MODE_READ
+  use file_mod,             only: FILE_OP_OPEN, file_mode_read
   use lfric_ncdf_dims_mod,  only: lfric_ncdf_dims_type
   use lfric_ncdf_field_mod, only: lfric_ncdf_field_type
   use lfric_ncdf_file_mod,  only: lfric_ncdf_file_type
@@ -27,8 +27,8 @@ module lfric_xios_temporal_mod
                                   read_time_data, duration_from_enum
   use linked_list_data_mod, only: linked_list_data_type
   use log_mod,              only: log_event, log_scratch_space, &
-                                  LOG_LEVEL_ERROR, LOG_LEVEL_INFO, &
-                                  LOG_LEVEL_TRACE
+                                  log_level_error, log_level_info, &
+                                  log_level_trace
   use xios,                 only: xios_file, xios_filegroup, xios_fieldgroup, &
                                   xios_recv_field, xios_date, xios_duration,  &
                                   xios_set_attr, xios_get_current_date,       &

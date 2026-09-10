@@ -26,7 +26,7 @@ module key_value_collection_mod
                                   abstract_key_value_type, abstract_value_type,&
                                   create_key_value
   use log_mod,              only: log_event, log_scratch_space, &
-                                  LOG_LEVEL_ERROR
+                                  log_level_error
   use linked_list_data_mod, only: linked_list_data_type
   use linked_list_mod,      only: linked_list_type, &
                                   linked_list_item_type
@@ -120,7 +120,7 @@ subroutine initialise(self, name, table_len)
     write(log_scratch_space, '(3A)') &
     'Key-value collection [', trim(self%name),'] has already been '// &
     'initiaised and should not be initialised for a second time'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   if(present(table_len))then
@@ -158,7 +158,7 @@ subroutine add_key_value_object(self, key_value)
     write(log_scratch_space, '(4A)') &
           'ERROR: add_key_value: pair with key: ', trim(key_value%get_key()), &
           ' already exists in collection: ', trim(self%name)
-        call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+        call log_event( log_scratch_space, log_level_error)
   end if
 
   ! Finished checking - so the key-value must be good to add - so add it
@@ -251,7 +251,7 @@ subroutine remove_key_value(self, key)
       write(log_scratch_space, '(4A)') &
          'ERROR: remove_key_value: No pair with key ', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
 
     ! otherwise search list for the name of key we want
@@ -293,7 +293,7 @@ subroutine get_int32_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No 32-bit integer value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -335,7 +335,7 @@ subroutine get_int64_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No 64-bit integer value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -377,7 +377,7 @@ subroutine get_real32_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No 32-bit real value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -419,7 +419,7 @@ subroutine get_real64_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No 64-bit real value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -461,7 +461,7 @@ subroutine get_logical_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No logical value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -503,7 +503,7 @@ subroutine get_str_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No string value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -545,7 +545,7 @@ subroutine get_int32_arr_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No 32-bit integer array value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -587,7 +587,7 @@ subroutine get_int64_arr_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No 64-bit integer array value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -629,7 +629,7 @@ subroutine get_real32_arr_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No 32-bit real array value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -671,7 +671,7 @@ subroutine get_real64_arr_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No 64-bit real array value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -713,7 +713,7 @@ subroutine get_logical_arr_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No logical array value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -755,7 +755,7 @@ subroutine get_str_arr_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No string array value for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -798,7 +798,7 @@ subroutine get_abstract_value(self, key, value)
       write(log_scratch_space, '(4A)') &
          'ERROR: get_value: No abstract object for key:', &
          trim(key), ' in collection: ', trim(self%name)
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR)
+      call log_event( log_scratch_space, log_level_error)
     end if
     ! otherwise search list for the key we want
 
@@ -857,7 +857,7 @@ function get_table_len(self) result(table_len)
 
   if ( self%table_len == 0 ) then
     call log_event("key_value_collection: Attempt to use uninitialised collection", &
-                    LOG_LEVEL_ERROR)
+                    log_level_error)
   end if
 
   table_len = self%table_len
@@ -975,7 +975,7 @@ function get_key_value_name(key_value) result(name)
     class is (key_value_type)
       name = kv%get_key()
     class default
-      call log_event("Unsupported type", LOG_LEVEL_ERROR)
+      call log_event("Unsupported type", log_level_error)
   end select
 
   end function get_key_value_name

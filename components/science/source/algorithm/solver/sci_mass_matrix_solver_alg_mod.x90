@@ -17,9 +17,9 @@ module sci_mass_matrix_solver_alg_mod
   use constants_mod,                      only: i_def, r_def, l_def
   use log_mod,                            only: log_event,         &
                                                 log_scratch_space, &
-                                                LOG_LEVEL_DEBUG,   &
-                                                LOG_LEVEL_ERROR,   &
-                                                LOG_LEVEL_TRACE
+                                                log_level_debug,   &
+                                                log_level_error,   &
+                                                log_level_trace
 
   ! Derived Types
   use field_mod,                          only: field_type
@@ -44,7 +44,7 @@ module sci_mass_matrix_solver_alg_mod
                                                 jacobi_type,                    &
                                                 chebyshev_type
   use timing_mod,                         only: start_timing, stop_timing, &
-                                                tik, LPROF
+                                                tik, lprof
 
   implicit none
 
@@ -119,7 +119,7 @@ contains
     real(kind=r_def)                :: lmin, lmax
     integer(tik)                    :: id
 
-    if ( LPROF ) call start_timing( id, 'mass_matrix_solver_alg' )
+    if ( lprof ) call start_timing( id, 'mass_matrix_solver_alg' )
 
     mesh_id = y%get_mesh_id()
 
@@ -166,7 +166,7 @@ contains
       case(METHOD_CHEBYSHEV)
          allocate ( chebyshev_type :: mass_matrix_solver )
       case default
-         call log_event("Unknown mass matrix solver specified",LOG_LEVEL_ERROR)
+         call log_event("Unknown mass matrix solver specified",log_level_error)
       end select
 
       ! Allocate pressure preconditioner preconditioner of correct type
@@ -177,7 +177,7 @@ contains
          allocate ( diagonal_preconditioner_type :: mass_matrix_preconditioner)
       case default
          call log_event( "Unknown mass matrix preconditioner specified", &
-                         LOG_LEVEL_ERROR)
+                         log_level_error)
       end select
 
       ! *** Construct solver-, preconditioner- and operator-objects
@@ -204,9 +204,9 @@ contains
         case ( W0, W1, W2, W2h, W2v, Wtheta )
           write(log_scratch_space,'(A)') &
                'Mass matrix solve for '//name_from_functionspace(fs)//' space.'
-          call log_event(log_scratch_space, LOG_LEVEL_DEBUG)
+          call log_event(log_scratch_space, log_level_debug)
         case default
-          call log_event('Unsupported function space in solver algorithm', LOG_LEVEL_ERROR )
+          call log_event('Unsupported function space in solver algorithm', log_level_error )
       end select
 
       mass_matrix_operator = mass_matrix_operator_type(mass_matrix, apply_bc)
@@ -223,7 +223,7 @@ contains
          mass_matrix_preconditioner = diagonal_preconditioner_type(vec_mm_diagonal)
       class default
          call log_event( "Can not initialise pressure preconditioner", &
-                         LOG_LEVEL_ERROR )
+                         log_level_error )
       end select
 
       ! Construct mass matrix solver
@@ -296,12 +296,12 @@ contains
                                               fail_on_non_converged,      &
                                               lmin, lmax )
       class default
-         call log_event("Can not initialise mass matrix solver",LOG_LEVEL_ERROR)
+         call log_event("Can not initialise mass matrix solver",log_level_error)
       end select
       nullify(mass_matrix, mass_matrix_diagonal)
 
       !=== Step routine ===!
-      call log_event( "Gungho: mass matrix solve:", LOG_LEVEL_DEBUG )
+      call log_event( "Gungho: mass matrix solve:", log_level_debug )
       call invoke( setval_c(y, 0.0_r_def) )
       vec_x = field_vector_type(1)
       vec_y = field_vector_type(1)
@@ -323,7 +323,7 @@ contains
        deallocate(mass_matrix_solver)
     end if
 
-    if ( LPROF ) call stop_timing( id, 'mass_matrix_solver_alg' )
+    if ( lprof ) call stop_timing( id, 'mass_matrix_solver_alg' )
 
   end subroutine mass_matrix_solver_alg
 

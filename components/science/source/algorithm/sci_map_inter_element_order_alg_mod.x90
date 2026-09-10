@@ -16,7 +16,7 @@ module sci_map_inter_element_order_alg_mod
   use integer_field_mod,           only: integer_field_type
   use fs_continuity_mod,           only: W3, Wtheta, W2
   use log_mod,                     only: log_event, log_scratch_space, &
-                                         LOG_LEVEL_ERROR
+                                         log_level_error
   use mesh_mod,                    only: mesh_type
   use sci_psykal_light_mod,        only: invoke_map_scalar_fe_to_fv_kernel_type, &
                                          invoke_map_scalar_fv_to_fe_kernel_type, &
@@ -90,12 +90,12 @@ contains
     source_fs = source_field%which_function_space()
     if (target_fs /= source_fs) then
       call log_event('Mapping requires matching function spaces', &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
 
     else if (target_field%get_element_order_v() /= 0 .or. &
              source_field%get_element_order_v() /= 0) then
       call log_event('Mapping requires lowest order in the vertical direction', &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
     end if
 
     ! Check meshes
@@ -104,10 +104,10 @@ contains
 
     if (target_mesh%get_nlayers() /= source_mesh%get_nlayers()) then
       call log_event('Mapping requires matching number of layers', &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
     else if (target_mesh%get_extrusion_id() /= source_mesh%get_extrusion_id()) then
       call log_event('Mapping requires matching extrusion id', &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
     end if
 
     !---------------------------------------------------------------------------
@@ -122,7 +122,7 @@ contains
         call map_w2_inter_element_order_alg(target_field, source_field)
       case default
         call log_event('Mapping not supported for function space', &
-                      LOG_LEVEL_ERROR)
+                      log_level_error)
     end select
 
   end subroutine map_field_inter_element_order_alg
@@ -169,7 +169,7 @@ contains
         ') and target element_order_h (', &
         target_field%get_element_order_h(), &
         ') not supported'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
 
   end subroutine map_scalar_inter_element_order_alg
@@ -225,7 +225,7 @@ contains
         ') and target element_order_h (', &
         target_field%get_element_order_h(), &
         ') not supported'
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     end if
 
   end subroutine map_w2_inter_element_order_alg

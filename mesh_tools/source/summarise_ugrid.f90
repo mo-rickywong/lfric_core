@@ -23,7 +23,7 @@ program summarise_ugrid
                               lfric_comm_type
   use log_mod,         only : initialise_logging, finalise_logging, &
                               log_event, log_scratch_space,         &
-                              LOG_LEVEL_ERROR, LOG_LEVEL_INFO
+                              log_level_error, log_level_info
   use ncdf_quad_mod,   only : ncdf_quad_type
   use ugrid_2d_mod,    only : ugrid_2d_type
   use ugrid_file_mod,  only : ugrid_file_type
@@ -84,13 +84,13 @@ program summarise_ugrid
 
   call log_event(                                                         &
       '================================================================', &
-      LOG_LEVEL_INFO )
+      log_level_info )
   write (log_scratch_space,'(A)') &
       'File ('// trim(adjustl(filename))// ') contains ugrid mesh(es):'
-  call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+  call log_event( trim(log_scratch_space), log_level_info )
   call log_event(                                                         &
       '================================================================', &
-      LOG_LEVEL_INFO )
+      log_level_info )
 
   do i=1, n_meshes
 
@@ -129,60 +129,60 @@ program summarise_ugrid
     ! Write extracted data and log output
     write (log_scratch_space, '(A)') &
       '"'//trim(mesh_names(i))//'":'
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     fmt_str='(A,T24,A)'
     write ( log_scratch_space, fmt_str ) &
         '  Geometry: ', trim(geometry)
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     write ( log_scratch_space, fmt_str ) &
         '  Topology: ', trim(topology)
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     write ( log_scratch_space, fmt_str ) &
         '  Co-ordinate system: ', trim(coord_sys)
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     fmt_str='(A,T24,L1)'
     write ( log_scratch_space, fmt_str ) &
         '  Periodic X: ', periodic_xy(1)
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     write ( log_scratch_space, fmt_str ) &
         '  Periodic Y: ', periodic_xy(2)
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     fmt_str='(A,T24,A)'
     write ( log_scratch_space, fmt_str ) &
         '  Constructor inputs: ', trim(constructor_inputs)
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     fmt_str='(A,T24,I0)'
     write ( log_scratch_space, fmt_str ) '  Nodes:', nodes
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     write ( log_scratch_space, fmt_str ) '  Edges:', edges
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     write ( log_scratch_space, fmt_str ) '  Faces:', faces
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     write ( log_scratch_space, fmt_str ) &
         '  Nodes per face:', nodes_per_face
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     write ( log_scratch_space, fmt_str ) &
         '  Edges per face:', edges_per_face
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     write ( log_scratch_space, fmt_str ) &
         '  Nodes per edge:', nodes_per_edge
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
     write ( log_scratch_space, fmt_str ) &
         '  Max. faces per node:', max_faces_per_node
-    call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+    call log_event( trim(log_scratch_space), log_level_info )
 
 
     if (allocated(target_mesh_names)) then
@@ -200,7 +200,7 @@ program summarise_ugrid
       fmt_str='(A,T24,A)'
       write ( log_scratch_space, fmt_str ) &
            '  Maps to:', trim(adjustl(target_mesh_names_str))
-      call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+      call log_event( trim(log_scratch_space), log_level_info )
       deallocate(target_mesh_names)
 
     end if
@@ -213,12 +213,12 @@ program summarise_ugrid
       write(tmp_str, fmt_str) north_pole
       write( log_scratch_space, '(A)' ) &
          '  North pole [lon,lat]: '//trim(tmp_str)
-      call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+      call log_event( trim(log_scratch_space), log_level_info )
 
       write(tmp_str, fmt_str) null_island
       write( log_scratch_space, '(A)' ) &
          '  Null Island [lon,lat]: '//trim(tmp_str)
-      call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+      call log_event( trim(log_scratch_space), log_level_info )
 
     end if
 
@@ -227,14 +227,14 @@ program summarise_ugrid
 
       write( log_scratch_space, '(A,F10.2)' ) &
          '  Latitude of Equator: ', equatorial_latitude
-      call log_event( trim(log_scratch_space), LOG_LEVEL_INFO )
+      call log_event( trim(log_scratch_space), log_level_info )
     end if
 
   end do
 
   call log_event(                                                         &
       '================================================================', &
-      LOG_LEVEL_INFO )
+      log_level_info )
 
   deallocate( mesh_names )
 

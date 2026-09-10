@@ -10,7 +10,7 @@
 module fs_eigenvalues_mod
   use constants_mod, only: i_def, r_def
   use log_mod,       only: log_event,      &
-                           LOG_LEVEL_ERROR
+                           log_level_error
 
   implicit none
 
@@ -67,7 +67,7 @@ contains
             lmin = wt_lmin
             lmax = wt_lmax
       case default
-        call log_event('Eigenvalues not stored for this function space', LOG_LEVEL_ERROR )
+        call log_event('Eigenvalues not stored for this function space', log_level_error )
     end select
 
   end subroutine get_minmax_eigenvalues

@@ -10,7 +10,7 @@ module load_local_mesh_maps_mod
   use local_mesh_mod,            only: local_mesh_type
   use log_mod,                   only: log_event,         &
                                        log_scratch_space, &
-                                       LOG_LEVEL_ERROR
+                                       log_level_error
   use ncdf_quad_mod,             only: ncdf_quad_type
 
 
@@ -93,7 +93,7 @@ subroutine load_local_mesh_maps_single_source( input_mesh_file, &
   if (.not. associated(source_mesh)) then
     write(log_scratch_space,'(A)') ' Mesh "'//trim(source_mesh_name)// &
                                    '" not found in collection'
-    call log_event(log_scratch_space, LOG_LEVEL_ERROR)
+    call log_event(log_scratch_space, log_level_error)
   end if
 
   call source_mesh%get_target_mesh_names(target_mesh_names)

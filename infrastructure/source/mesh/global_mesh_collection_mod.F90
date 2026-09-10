@@ -11,13 +11,13 @@
 !
 module global_mesh_collection_mod
 
-  use constants_mod,         only : r_def, i_def, IMDI,               &
+  use constants_mod,         only : r_def, i_def, imdi,               &
                                     str_max_filename, str_def
   use global_mesh_mod,       only : global_mesh_type
   use linked_list_mod,       only : linked_list_type, linked_list_item_type
   use log_mod,               only : log_event, log_scratch_space,     &
-                                    LOG_LEVEL_ERROR, LOG_LEVEL_TRACE, &
-                                    LOG_LEVEL_WARNING
+                                    log_level_error, log_level_trace, &
+                                    log_level_warning
 
   implicit none
 
@@ -44,7 +44,7 @@ module global_mesh_collection_mod
     ! added to the global mesh_collection. This calculation requires that all
     ! meshes have the same number of panels in the mesh. npanels is set to
     ! be the same as the 1st global mesh loaded into the collection.
-    integer(i_def)         :: npanels = IMDI
+    integer(i_def)         :: npanels = imdi
 
     ! Pointer to global_mesh_type object in linked list. This global mesh
     ! object will be use as the source mesh when for global mesh map creation
@@ -153,7 +153,7 @@ contains
       write(log_scratch_space,'(A)')        &
           'Mesh '//trim(global_mesh_name)// &
           ' already present in collection.'
-      call log_event(log_scratch_space, LOG_LEVEL_WARNING)
+      call log_event(log_scratch_space, log_level_warning)
       return
     end if
 
@@ -215,7 +215,7 @@ contains
             'for global meshes of comprising of ', &
             self%npanels, ' panels.'
 
-        call log_event(log_scratch_space,LOG_LEVEL_ERROR)
+        call log_event(log_scratch_space,log_level_error)
       end if
     end if
 

@@ -38,7 +38,7 @@ module sci_consist_w2h_to_sh_w2h_kernel_mod
   type, public, extends(kernel_type) :: consist_w2h_to_sh_w2h_kernel_type
     private
     type(arg_type) :: meta_args(4) = (/                                       &
-         ! NB: This is to be used to write to a continuous W2H field, but using
+         ! NB: This is to be used to write to a continuous W2h field, but using
          ! a discontinuous data pattern, so use discontinuous metadata
          arg_type(GH_FIELD, GH_REAL,    GH_WRITE, ANY_DISCONTINUOUS_SPACE_2), &
          arg_type(GH_FIELD, GH_REAL,    GH_READ,  W2h),                       &

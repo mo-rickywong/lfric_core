@@ -121,7 +121,7 @@ contains
 
     call initialise_logging( context%getMpiCommunicator(), name )
     call log_forget_timestep()
-    call log_output_test_serial( log_level_debug, ':DEBUG:' )
+    call log_output_test_serial( log_level_debug, ':debug:' )
     call finalise_logging()
 
   end subroutine log_output_test_single_debug
@@ -180,7 +180,7 @@ contains
 
     call initialise_logging( context%getMpiCommunicator(), name )
     call log_forget_timestep()
-    call log_output_test( context%getProcessRank(), log_level_debug, ':DEBUG:' )
+    call log_output_test( context%getProcessRank(), log_level_debug, ':debug:' )
 
   end subroutine log_output_test_debug
 
@@ -269,7 +269,7 @@ contains
     read( log_unit, '(I14,A1,I3,I5,A3,A8,A)', iostat = status ) &
         found_stamp, found_point, found_subseconds, found_zone, &
         found_proc, found_tag, found_message
-    if ( level >= LOG_LEVEL_INFO ) then
+    if ( level >= log_level_info ) then
       @assertEqual( 0,             status )
       @assertEqual( '.',           found_point )
       @assertEqual( expected_proc, found_proc )
@@ -338,8 +338,8 @@ contains
     read( INFO_UNIT, '(I14,A1,I3,I5,A8,A)', iostat = status ) &
         found_stamp, found_point, found_subseconds, found_zone, &
         found_tag, found_message
-    if ( ( level >= LOG_LEVEL_INFO ) &
-         .and. ( level < LOG_LEVEL_WARNING ) ) then
+    if ( ( level >= log_level_info ) &
+         .and. ( level < log_level_warning ) ) then
       @assertEqual( 0,            status )
       @assertEqual( '.',          found_point )
       @assertEqual( expected_tag, found_tag )
@@ -354,7 +354,7 @@ contains
     read( ALERT_UNIT, '(I14,A1,I3,I5,A8,A)', iostat = status ) &
         found_stamp, found_point, found_subseconds, found_zone, &
         found_tag, found_message
-    if ( level >= LOG_LEVEL_WARNING ) then
+    if ( level >= log_level_warning ) then
       @assertEqual( 0,            status )
       @assertEqual( '.',          found_point )
       @assertEqual( expected_tag, found_tag )
@@ -383,8 +383,8 @@ contains
 
     integer(i_def), intent(in) :: level
 
-    integer, parameter :: levels(*) = [ LOG_LEVEL_TRACE, LOG_LEVEL_DEBUG, &
-                                        LOG_LEVEL_INFO, LOG_LEVEL_WARNING ]
+    integer, parameter :: levels(*) = [ log_level_trace, log_level_debug, &
+                                        log_level_info, log_level_warning ]
 
     character(*), parameter :: messages(*) = [ &
         'kraft cheeselike slice', 'generic cheddar       ', &
@@ -427,16 +427,16 @@ contains
                                                                 alert_message
 
         select case (levels(level_index))
-          case (LOG_LEVEL_TRACE)
+          case (log_level_trace)
             @assertEqual( ':TRACE:', info_tag )
             @assertEqual( messages(level_index), info_message )
-          case (LOG_LEVEL_DEBUG)
-            @assertEqual( ':DEBUG:', info_tag )
+          case (log_level_debug)
+            @assertEqual( ':debug:', info_tag )
             @assertEqual( messages(level_index), info_message )
-          case (LOG_LEVEL_INFO)
+          case (log_level_info)
             @assertEqual( ':INFO :', info_tag )
             @assertEqual( messages(level_index), info_message )
-          case (LOG_LEVEL_WARNING)
+          case (log_level_warning)
             @assertEqual( ':WARN :', alert_tag )
             @assertEqual( messages(level_index), alert_message )
           case default
@@ -580,8 +580,8 @@ contains
     integer(i_def), intent(in) :: thread
     integer(i_def), intent(in) :: level
 
-    integer, parameter :: levels(*)  = [ LOG_LEVEL_TRACE, LOG_LEVEL_DEBUG, &
-                                         LOG_LEVEL_INFO, LOG_LEVEL_WARNING ]
+    integer, parameter :: levels(*)  = [ log_level_trace, log_level_debug, &
+                                         log_level_info, log_level_warning ]
 
     character(*), parameter :: messages(*)  = [ 'kraft cheeselike slice', &
                                                 'generic cheddar       ', &
@@ -622,13 +622,13 @@ contains
 
         @assertEqual( expected_process, process )
         select case (levels(level_index))
-          case (LOG_LEVEL_TRACE)
+          case (log_level_trace)
             @assertEqual( ':TRACE:', tag )
-          case (LOG_LEVEL_DEBUG)
-            @assertEqual( ':DEBUG:', tag )
-          case (LOG_LEVEL_INFO)
+          case (log_level_debug)
+            @assertEqual( ':debug:', tag )
+          case (log_level_info)
             @assertEqual( ':INFO :', tag )
-          case (LOG_LEVEL_WARNING)
+          case (log_level_warning)
             @assertEqual( ':WARN :', tag )
           case default
             @assertTrue( .false., "Unexpected logging level" )

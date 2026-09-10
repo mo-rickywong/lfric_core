@@ -12,9 +12,9 @@ module multifile_file_setup_mod
   use constants_mod,         only: i_def, str_def, l_def
   use driver_modeldb_mod,    only: modeldb_type
   use field_collection_mod,  only: field_collection_type
-  use file_mod,              only: file_type, FILE_MODE_READ
-  use lfric_xios_file_mod,   only: lfric_xios_file_type, OPERATION_ONCE, &
-                                   OPERATION_TIMESERIES
+  use file_mod,              only: file_type, file_mode_read
+  use lfric_xios_file_mod,   only: lfric_xios_file_type, operation_once, &
+                                   operation_timeseries
   use linked_list_mod,       only: linked_list_type
 
   implicit none
@@ -57,9 +57,9 @@ contains
       call files_list%insert_item( &
         lfric_xios_file_type( filename, &
         xios_id = "multifile_io_fields", &
-        io_mode=FILE_MODE_READ, &
+        io_mode=file_mode_read, &
         freq=1, &
-        operation=OPERATION_TIMESERIES, &
+        operation=operation_timeseries, &
         fields_in_file=multifile_fields))
 
     end if ! use_xios_io

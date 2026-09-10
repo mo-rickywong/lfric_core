@@ -10,8 +10,8 @@ module sci_time_interp_mod
 
     use constants_mod,        only: i_def, r_def, PI
     use log_mod,              only: log_event,      &
-                                    LOG_LEVEL_INFO, &
-                                    LOG_LEVEL_ERROR
+                                    log_level_info, &
+                                    log_level_error
 
     implicit none
 
@@ -50,7 +50,7 @@ subroutine time_interpolate_list( profile_now, times, &
   n_times = size( times )
 
   if ( size(prof_vary) /= n_times ) then
-    call log_event( 'prof_vary not same size as times', LOG_LEVEL_ERROR )
+    call log_event( 'prof_vary not same size as times', log_level_error )
   end if
 
   ! Perform linear interpolation

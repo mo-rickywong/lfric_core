@@ -21,8 +21,8 @@ module global_mesh_mod
   use global_mesh_map_collection_mod, only: global_mesh_map_collection_type
   use linked_list_data_mod,           only: linked_list_data_type
   use log_mod,                        only: log_event, log_scratch_space, &
-                                            log_level_error,              &
-                                            log_level_trace
+                                            LOG_LEVEL_ERROR,              &
+                                            LOG_LEVEL_TRACE
 
   implicit none
 
@@ -1089,7 +1089,7 @@ contains
       ! The current cell is not on the domain
       write(log_scratch_space,'(A)') &
           'No adjacent cell, the current cell is not on mesh domain'
-      call log_event(log_scratch_space, log_level_error)
+      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
     end if
     ! Check if we've changed direction
     if ( check .and. self%cell_next_2d(opposite(x_index),cell_id) /= old_cell_id ) then
@@ -1114,7 +1114,7 @@ contains
       ! The current cell is not on the domain
       write(log_scratch_space,'(A)') &
           'No adjacent cell, the current cell is not on mesh domain'
-      call log_event(log_scratch_space, log_level_error)
+      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
     end if
     ! Check if we've changed direction
     if ( check .and.  self%cell_next_2d(opposite(y_index),cell_id) /= old_cell_id ) then
@@ -1601,7 +1601,7 @@ contains
     if (source_global_mesh_id == target_global_mesh_id) then
       write(log_scratch_space, '(A)') &
           'Nothing to do, no need to map global mesh to itself.'
-      call log_event(log_scratch_space, log_level_trace)
+      call log_event(log_scratch_space, LOG_LEVEL_TRACE)
       return
     end if
 
@@ -1610,7 +1610,7 @@ contains
           'Invalid global mesh mapping: Number of source cells '   //&
           'in global mesh map (', size(map,3), ') does not match ' //&
           'number of source global mesh cells (', self%ncells, ')'
-      call log_event(log_scratch_space, log_level_error)
+      call log_event(log_scratch_space, LOG_LEVEL_ERROR)
       return
     end if
 

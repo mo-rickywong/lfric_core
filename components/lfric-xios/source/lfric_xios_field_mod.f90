@@ -16,7 +16,7 @@ module lfric_xios_field_mod
   use field_real64_mod,     only: field_real64_type
   use field_parent_mod,     only: field_parent_type
   use function_space_mod,   only: function_space_type
-  use fs_continuity_mod,    only: W0, W1, W2, W3, Wtheta, W2H, W2V, &
+  use fs_continuity_mod,    only: W0, W1, W2, W3, Wtheta, W2h, W2v, &
                                   name_from_functionspace
   use integer_field_mod,    only: integer_field_type
   use log_mod,              only: log_event, log_level_trace, log_level_error
@@ -154,10 +154,10 @@ subroutine register(self)
   case (W0)
     domain_id="node"
     axis_id  ="vert_axis_full_levels"
-  case (W2H)
+  case (W2h)
     domain_id="edge"
     axis_id  ="vert_axis_half_levels"
-  case (W2V)
+  case (W2v)
     domain_id="face"
     axis_id  ="vert_axis_full_levels"
   case (Wtheta)

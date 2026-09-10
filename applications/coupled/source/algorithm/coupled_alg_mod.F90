@@ -20,8 +20,8 @@ module coupled_alg_mod
   use field_parent_mod,               only: field_parent_type
   use log_mod,                        only: log_event,         &
                                             log_scratch_space, &
-                                            LOG_LEVEL_INFO,    &
-                                            LOG_LEVEL_ERROR
+                                            log_level_info,    &
+                                            log_level_error
   use sci_field_minmax_alg_mod,       only: get_field_minmax
   implicit none
 
@@ -57,7 +57,7 @@ contains
     real(r_def)                            :: field_min, field_max
 #endif
 
-    call log_event( "coupled: Running algorithm", LOG_LEVEL_INFO )
+    call log_event( "coupled: Running algorithm", log_level_info )
 
 #ifdef MCT
 
@@ -75,7 +75,7 @@ contains
       write(log_scratch_space, &
         '("Sent field (field_1) min= ",f8.3,", max=",f8.3)' ) &
         field_min, field_max
-      call log_event( log_scratch_space, LOG_LEVEL_INFO )
+      call log_event( log_scratch_space, log_level_info )
 
       call iter%initialise(cpl_snd_2d)
       do
@@ -91,7 +91,7 @@ contains
         class default
           write(log_scratch_space, '(2A)' ) "PROBLEM: coupled_alg: field ", &
                 trim(field%get_name())//" is NOT field_type"
-          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+          call log_event( log_scratch_space, log_level_error )
         end select
       end do
     end if
@@ -113,7 +113,7 @@ contains
         class default
           write(log_scratch_space, '(2A)' ) "PROBLEM: coupled_alg: field ", &
                 trim(field%get_name())//" is NOT field_type"
-          call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+          call log_event( log_scratch_space, log_level_error )
         end select
       end do
       call cpl_rcv_2d%get_field("field_2",  field_2)
@@ -121,11 +121,11 @@ contains
       write(log_scratch_space, &
         '("Received field (field_2) min= ",f8.3,", max=",f8.3)' ) &
         field_min, field_max
-      call log_event( log_scratch_space, LOG_LEVEL_INFO )
+      call log_event( log_scratch_space, log_level_info )
     end if
 #endif
 
-    call log_event( "coupled: finished algorithm", LOG_LEVEL_INFO )
+    call log_event( "coupled: finished algorithm", log_level_info )
 
   end subroutine coupled_alg
 

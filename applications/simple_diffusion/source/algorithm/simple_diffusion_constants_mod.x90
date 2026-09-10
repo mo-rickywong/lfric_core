@@ -22,11 +22,11 @@ module simple_diffusion_constants_mod
   use fs_continuity_mod,                  only: W2
   use function_space_collection_mod,      only: function_space_collection
   use function_space_mod,                 only: function_space_type
-  use log_mod,                            only: log_event, LOG_LEVEL_TRACE, &
-                                                LOG_LEVEL_ERROR
+  use log_mod,                            only: log_event, log_level_trace, &
+                                                log_level_error
   use mesh_mod,                           only: mesh_type
   use timing_mod,                         only: start_timing, stop_timing, &
-                                                tik, LPROF
+                                                tik, lprof
 
   ! Kernels
   use sci_calc_da_at_w2_kernel_mod,       only: calc_dA_at_w2_kernel_type
@@ -64,18 +64,18 @@ contains
 
     integer(tik) :: id
 
-    if ( LPROF ) call start_timing( id, 'simple_diffusion_constants_alg' )
-    call log_event( "simple_diffusion: creating runtime constants", LOG_LEVEL_TRACE )
+    if ( lprof ) call start_timing( id, 'simple_diffusion_constants_alg' )
+    call log_event( "simple_diffusion: creating runtime constants", log_level_trace )
 
     !============================= dx_at_w2 setup =============================!
 
     call dx_at_w2_collection%initialise(name="dx_at_w2_collection", table_len=100)
     call add_dx_at_w2( mesh, chi, panel_id )
-    call log_event( "simple_diffusion: runtime constants created", LOG_LEVEL_TRACE )
+    call log_event( "simple_diffusion: runtime constants created", log_level_trace )
 
 
-    if ( LPROF ) call stop_timing( id, 'simple_diffusion_constants_alg' )
-    call log_event( "simple_diffusion: created FEM constants", LOG_LEVEL_TRACE )
+    if ( lprof ) call stop_timing( id, 'simple_diffusion_constants_alg' )
+    call log_event( "simple_diffusion: created FEM constants", log_level_trace )
 
   end subroutine create_simple_diffusion_constants
 
@@ -98,7 +98,7 @@ contains
     type(field_type)                        :: dA_at_w2, detj_at_w2, &
                                                dx_at_w2, nodal_multiplicity_w2
 
-    call log_event( "simple_diffusion: adding field to dx_at_w2", LOG_LEVEL_TRACE )
+    call log_event( "simple_diffusion: adding field to dx_at_w2", log_level_trace )
 
     mesh_id = mesh%get_id()
     write(mesh_number, '(I8)') mesh_id
@@ -124,7 +124,7 @@ contains
 
     call dx_at_w2_collection%add_field(dx_at_w2)
 
-    call log_event( "simple_diffusion: dx_at_w2 field added", LOG_LEVEL_TRACE )
+    call log_event( "simple_diffusion: dx_at_w2 field added", log_level_trace )
 
   end subroutine add_dx_at_w2
 
@@ -140,7 +140,7 @@ contains
     character(len=str_def)               :: field_name
     type(field_type), pointer            :: dx_at_w2
 
-    call log_event( "simple_diffusion: getting field dx_at_w2", LOG_LEVEL_TRACE )
+    call log_event( "simple_diffusion: getting field dx_at_w2", log_level_trace )
 
     mesh_id = mesh%get_id()
     write(mesh_number, '(I8)') mesh_id
@@ -149,10 +149,10 @@ contains
     call dx_at_w2_collection%get_field(field_name, dx_at_w2)
 
     if (.not. dx_at_w2%is_initialised()) then
-      call log_event("dx_at_w2 field not initialised", LOG_LEVEL_ERROR)
+      call log_event("dx_at_w2 field not initialised", log_level_error)
     end if
 
-    call log_event( "simple_diffusion: dx_at_w2 field obtained", LOG_LEVEL_TRACE )
+    call log_event( "simple_diffusion: dx_at_w2 field obtained", log_level_trace )
 
   end function get_dx_at_w2
 

@@ -23,7 +23,7 @@ use argument_mod,          only: arg_type, func_type,       &
                                  ANY_DISCONTINUOUS_SPACE_3, &
                                  CELL_COLUMN,               &
                                  GH_QUADRATURE_XYoZ
-use constants_mod,         only: i_def, r_def, IMDI
+use constants_mod,         only: i_def, r_def, imdi
 use kernel_mod,            only: kernel_type
 use matrix_invert_mod,     only: matrix_invert_plu
 use reference_element_mod, only: W, S, E, N, B, T
@@ -235,7 +235,7 @@ contains
     ! coordinates of the cell in the local embedding. It returns an index in
     ! the range 1 and ndf_coarse.
     !
-    ! Dofs which are not used are set to IMDI, which is large enough to trigger
+    ! Dofs which are not used are set to imdi, which is large enough to trigger
     ! a segmentation fault when weights_matrix is indexed with it.
     j = 1
     do y_idx = 1, ncell_fine_per_coarse_y
@@ -244,11 +244,11 @@ contains
           if (df_f == E .and. x_idx /= ncell_fine_per_coarse_x) then
             ! East, internal dof. Will be counted by the West dof of the next
             ! cell in the x-direction.
-            map_idx(df_f, x_idx, y_idx) = IMDI
+            map_idx(df_f, x_idx, y_idx) = imdi
           else if (df_f == N .and. y_idx /= 1) then
             ! North, internal dof. Will be counted by the South dof of the
             ! next cell in the y-direction.
-            map_idx(df_f, x_idx, y_idx) = IMDI
+            map_idx(df_f, x_idx, y_idx) = imdi
           else
             map_idx(df_f, x_idx, y_idx) = j
             j = j + 1

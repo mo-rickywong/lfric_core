@@ -18,7 +18,7 @@ module create_mesh_mod_test
                                          local_mesh_collection
   use mesh_mod,                   only : mesh_type
   use extrusion_mod,              only : extrusion_type, &
-                                         PRIME_EXTRUSION
+                                         prime_extrusion
   use create_mesh_mod,            only : create_extrusion, &
                                          create_mesh
   use panel_decomposition_mod,    only : custom_decomposition_type
@@ -161,7 +161,7 @@ contains
                                                   100.0_r_def,      &
                                                   10000.0_r_def,    &
                                                   10_i_def,         &
-                                                  PRIME_EXTRUSION ) )
+                                                  prime_extrusion ) )
 
     ! Check that exactly one mesh is added to the collection
     @assertEqual( mesh_collection%n_meshes(), 0 )

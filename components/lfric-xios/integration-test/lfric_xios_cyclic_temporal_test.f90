@@ -12,11 +12,11 @@ program lfric_xios_cyclic_temporal_test
   use event_mod,              only: event_action
   use event_actor_mod,        only: event_actor_type
   use field_mod,              only: field_type, field_proxy_type
-  use file_mod,               only: FILE_MODE_READ, FILE_MODE_WRITE
+  use file_mod,               only: file_mode_read, file_mode_write
   use lfric_xios_action_mod,  only: advance
   use lfric_xios_context_mod, only: lfric_xios_context_type
   use lfric_xios_driver_mod,  only: lfric_xios_initialise, lfric_xios_finalise
-  use lfric_xios_file_mod,    only: lfric_xios_file_type, OPERATION_TIMESERIES
+  use lfric_xios_file_mod,    only: lfric_xios_file_type, operation_timeseries
   use linked_list_mod,        only: linked_list_type
   use log_mod,                only: log_event, log_level_info
   use test_db_mod,            only: test_db_type
@@ -49,15 +49,15 @@ program lfric_xios_cyclic_temporal_test
   file_list => io_context%get_filelist()
   call file_list%insert_item( lfric_xios_file_type( "lfric_xios_cyclic_input",           &
                                                     xios_id="lfric_xios_cyclic_input",   &
-                                                    io_mode=FILE_MODE_READ,              &
-                                                    operation=OPERATION_TIMESERIES,      &
+                                                    io_mode=file_mode_read,              &
+                                                    operation=operation_timeseries,      &
                                                     freq=file_freq,                      &
                                                     cyclic=.true.,                       &
                                                     fields_in_file=test_db%temporal_fields ) )
   call file_list%insert_item( lfric_xios_file_type( "lfric_xios_cyclic_output",           &
                                                     xios_id="lfric_xios_cyclic_output",   &
-                                                    io_mode=FILE_MODE_WRITE,              &
-                                                    operation=OPERATION_TIMESERIES,       &
+                                                    io_mode=file_mode_write,              &
+                                                    operation=operation_timeseries,       &
                                                     freq=1,                               &
                                                     fields_in_file=test_db%temporal_fields ) )
 

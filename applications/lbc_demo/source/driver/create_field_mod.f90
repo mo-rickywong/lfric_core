@@ -15,7 +15,7 @@ module create_field_mod
   use field_collection_mod,          only: field_collection_type
   use function_space_mod,            only: function_space_type
   use function_space_collection_mod, only: function_space_collection
-  use fs_continuity_mod,             only: W0, W2H, W2V, Wtheta, W3
+  use fs_continuity_mod,             only: W0, W2h, W2v, Wtheta, W3
   use mesh_mod,                      only: mesh_type
 
   ! I/O methods

@@ -8,9 +8,9 @@
 module lfric_ncdf_file_mod
 
   use constants_mod, only: i_def, str_max_filename
-  use file_mod,      only: FILE_MODE_READ, FILE_MODE_WRITE, &
+  use file_mod,      only: file_mode_read, file_mode_write, &
                            FILE_OP_CREATE, FILE_OP_OPEN
-  use log_mod,       only: log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod,       only: log_event, log_scratch_space, log_level_error
   use netcdf,        only: nf90_open, nf90_create, nf90_close,           &
                            nf90_write, nf90_nowrite, nf90_clobber,       &
                            nf90_strerror, nf90_noerr, nf90_64bit_offset, &
@@ -67,16 +67,16 @@ contains
     self%name = trim(name)
 
     select case (io_mode)
-      case (FILE_MODE_READ)
+      case (file_mode_read)
         self%mode = nf90_nowrite
 
-      case (FILE_MODE_WRITE)
+      case (file_mode_write)
         self%mode = nf90_write
 
       case default
         call log_event( "[lfric_ncdf_file_mod] - Invalid option for ncdf " // &
                         "file IO mode in lfric_ncdf_file_type constructor",   &
-                        LOG_LEVEL_ERROR )
+                        log_level_error )
     end select
 
     select case (open_mode)
@@ -89,7 +89,7 @@ contains
     case default
       call log_event( "[lfric_ncdf_file_mod] - Invalid option for ncdf " //    &
                       "file opening mode in lfric_ncdf_file_type constructor", &
-                      LOG_LEVEL_ERROR )
+                      log_level_error )
     end select
 
     return
@@ -297,7 +297,7 @@ contains
       write(log_scratch_space,*) "Error in lfric_ncdf_file_mod ['"//routine// &
                                  "'] for file '"//trim(filename)//"': "//     &
                                  trim(nf90_strerror(ierr))
-      call log_event( trim(log_scratch_space), LOG_LEVEL_ERROR )
+      call log_event( trim(log_scratch_space), log_level_error )
     end if
 
     return

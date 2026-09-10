@@ -142,7 +142,7 @@ contains
     allocate ( dz(nlayers), STAT = alloc_error )
     if ( alloc_error /= 0 ) then
       call log_event( " assign_coordinate_field: Unable to allocate "// &
-                      "local array dz(nlayers) ", LOG_LEVEL_ERROR )
+                      "local array dz(nlayers) ", log_level_error )
     end if
 
     call mesh%get_dz(dz)
@@ -299,7 +299,7 @@ contains
       end do
 
     else
-      call log_event('This coordinate system has not been implemented yet', LOG_LEVEL_ERROR)
+      call log_event('This coordinate system has not been implemented yet', log_level_error)
     end if
 
     ! As we have correctly set the chi fields into their full halos,

@@ -17,7 +17,7 @@ module mesh_collection_mod
   use local_mesh_collection_mod, only: local_mesh_collection
   use local_mesh_mod,            only: local_mesh_type
   use log_mod,                   only: log_event, log_scratch_space, &
-                                       LOG_LEVEL_WARNING, LOG_LEVEL_TRACE
+                                       log_level_warning, log_level_trace
   use linked_list_mod,           only: linked_list_type, &
                                        linked_list_item_type
 
@@ -102,7 +102,7 @@ function add_new_mesh( self, mesh ) result( mesh_id )
     write(log_scratch_space,'(A)')  &
         'Mesh '//trim(mesh_name)//  &
         ' already present in collection.'
-    call log_event(log_scratch_space, LOG_LEVEL_WARNING)
+    call log_event(log_scratch_space, log_level_warning)
     return
   end if
 

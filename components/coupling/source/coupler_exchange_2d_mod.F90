@@ -29,9 +29,9 @@ module coupler_exchange_2d_mod
   use function_space_mod,       only: function_space_type
   use lfric_mpi_mod,            only: global_mpi
   use log_mod,                  only: log_event,       &
-                                      LOG_LEVEL_DEBUG, &
-                                      LOG_LEVEL_INFO,  &
-                                      LOG_LEVEL_ERROR, &
+                                      log_level_debug, &
+                                      log_level_info,  &
+                                      log_level_error, &
                                       log_scratch_space
   use model_clock_mod,          only: model_clock_type
 
@@ -153,12 +153,12 @@ end type  coupler_exchange_2d_type
       write(log_scratch_space, '(3A, 2E12.3)' ) "coupler_send_2d: field ", &
                   trim(name)," sent with min,max = ",                      &
                   minval(sorted_data), maxval(sorted_data)
-      call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+      call log_event( log_scratch_space, log_level_debug )
     else
       ierror = 1
       write(log_scratch_space, '(3A)' ) "Error: coupler_send_2d: Field: ", &
                                         trim(name), " - cpl_id NOT set"
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     endif
 
   enddo
@@ -169,7 +169,7 @@ end type  coupler_exchange_2d_type
   if( present(return_code) ) return_code = 1
   write(log_scratch_space, '(A)' ) &
                  "coupler_send_2d: to use OASIS cpp directive MCT must be set"
-  call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+  call log_event( log_scratch_space, log_level_error )
 
 #endif
 
@@ -233,17 +233,17 @@ end type  coupler_exchange_2d_type
         enddo
         write(log_scratch_space, '(3A)' ) "cpl_field_receive: field ", &
                            trim(name), " received"
-        call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+        call log_event( log_scratch_space, log_level_debug )
       else
         ierror = 1
         write(log_scratch_space, '(3A)' ) "cpl_field_receive: field ", &
                            trim(name), " NOT exchanged on this timestep"
-        call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
+        call log_event( log_scratch_space, log_level_debug )
       endif
     else
       write(log_scratch_space, '(3A)' ) "PROBLEM cpl_field_receive: field ", &
                                          trim(name), " cpl_id NOT set"
-      call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+      call log_event( log_scratch_space, log_level_error )
     endif
   enddo
 
@@ -255,7 +255,7 @@ end type  coupler_exchange_2d_type
   if( present(return_code) ) return_code = 1
   write(log_scratch_space, '(A)' ) &
                "cpl_field_receive: to use OASIS cpp directive MCT must be set"
-  call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+  call log_event( log_scratch_space, log_level_error )
 
 #endif
   end subroutine coupler_receive_2d
@@ -316,7 +316,7 @@ end type  coupler_exchange_2d_type
 #else
   write(log_scratch_space, '(A)' ) &
                "is_coupling_time: to use OASIS cpp directive MCT must be set"
-  call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+  call log_event( log_scratch_space, log_level_error )
 
 #endif
 
@@ -351,7 +351,7 @@ end type  coupler_exchange_2d_type
 #else
   write(log_scratch_space, '(A)' ) &
                "is_coupling_time_next: to use OASIS cpp directive MCT must be set"
-  call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+  call log_event( log_scratch_space, log_level_error )
 
 #endif
 

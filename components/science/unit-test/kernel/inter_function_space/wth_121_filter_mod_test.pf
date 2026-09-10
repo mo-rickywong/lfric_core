@@ -61,7 +61,7 @@ module wth_121_filter_mod_test
     ! Mesh
     this%nlayers = 0
 
-    ! Setup WTHETA fields
+    ! Setup Wtheta fields
     call get_wtheta_m3x3_q3x3x3_size(this%ndf_wth, this%undf_wth, this%ncells, &
                                      dim_space, dim_space_diff,                &
                                      nqp_h, nqp_v,                             &
@@ -115,7 +115,7 @@ module wth_121_filter_mod_test
 
     integer(kind=r_def) :: cell
 
-    ! Test smoothing from WTHETA to W0
+    ! Test smoothing from Wtheta to W0
     this%field_wth(:) = 0.0_r_def
     this%field_wth(5) = 16.0_r_def
     this%field_w0(:) = 0.0_r_def
@@ -161,7 +161,7 @@ module wth_121_filter_mod_test
 
     integer(kind=r_def) :: cell
 
-    ! Test smoothing from W0 to WTHETA
+    ! Test smoothing from W0 to Wtheta
     this%field_wth(:) = 0.0_r_def
 
     this%field_w0(:) = 0.0_r_def

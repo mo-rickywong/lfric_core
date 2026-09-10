@@ -10,7 +10,7 @@ module lfric_ncdf_field_group_mod
   use constants_mod,       only: i_def, str_def
   use lfric_ncdf_dims_mod, only: lfric_ncdf_dims_type
   use lfric_ncdf_file_mod, only: lfric_ncdf_file_type
-  use log_mod,             only: log_event, log_scratch_space, LOG_LEVEL_ERROR
+  use log_mod,             only: log_event, log_scratch_space, log_level_error
   use netcdf,              only: nf90_inquire_variable, nf90_get_att, nf90_put_att
 
   implicit none
