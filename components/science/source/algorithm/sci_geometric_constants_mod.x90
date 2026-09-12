@@ -453,8 +453,6 @@ contains
     type(function_space_type), pointer :: w2_k0_fs
     integer(tik)                       :: id
 
-    integer(kind=i_def) :: geometry
-    integer(kind=i_def) :: topology
     integer(kind=i_def) :: coord_system
     real(kind=r_def)    :: scaled_radius
 
@@ -470,8 +468,6 @@ contains
       chi => get_coordinates(mesh)
       panel_id => get_panel_id(mesh)
 
-      geometry = mesh%geometry()
-      topology = mesh%topology()
       coord_system  = config%finite_element%coord_system()
       scaled_radius = config%planet%scaled_radius()
 
@@ -482,7 +478,8 @@ contains
 
       call invoke( setval_c(dA_at_w2, 0.0_r_def),                     &
                    calc_dA_at_w2_kernel_type(dA_at_w2, chi, panel_id, &
-                                             geometry, topology,      &
+                                             mesh%geometry(),         &
+                                             mesh%topology(),         &
                                              coord_system, scaled_radius) )
 
       if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
@@ -707,13 +704,8 @@ contains
 
     integer(kind=i_def) :: element_order_h, element_order_v
 
-    integer(i_def) :: geometry
-    integer(i_def) :: topology
     integer(i_def) :: coord_system
     real(r_def)    :: scaled_radius
-
-    geometry = mesh%geometry()
-    topology = mesh%topology()
 
     element_order_h = config%finite_element%element_order_h()
     element_order_v = config%finite_element%element_order_v()
@@ -722,7 +714,7 @@ contains
 
     ! If running at lowest order, use finite volume
     if (element_order_h == 0 .and. element_order_v == 0) then
-      detj_at_w2 => get_detj_at_w2_fv(mesh)
+      detj_at_w2 => get_detj_at_w2_fv(config, mesh)
       return
     end if
 
@@ -750,12 +742,13 @@ contains
 
       ! @TODO #4487: a small optimisation here is to multiply by rmultiplicity,
       ! rather than computing and dividing by mulitplicity
-      call invoke( setval_c(detj_at_w2, 0.0_r_def),                            &
-                   calc_detj_at_w2_kernel_type(detj_at_w2, chi, panel_id,      &
-                                               geometry, topology,             &
-                                               coord_system, scaled_radius),   &
-                   setval_c(multiplicity_w2, 0.0_r_def),                       &
-                   multiplicity_kernel_type(multiplicity_w2),                  &
+      call invoke( setval_c(detj_at_w2, 0.0_r_def),                          &
+                   calc_detj_at_w2_kernel_type(detj_at_w2, chi, panel_id,    &
+                                               mesh%geometry(),              &
+                                               mesh%topology(),              &
+                                               coord_system, scaled_radius), &
+                   setval_c(multiplicity_w2, 0.0_r_def),                     &
+                   multiplicity_kernel_type(multiplicity_w2),                &
                    inc_X_divideby_Y(detj_at_w2, multiplicity_w2) )
       if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
@@ -787,13 +780,8 @@ contains
     type(function_space_type),    pointer :: w2_fs
     integer(tik)                          :: id
 
-    integer(i_def) :: geometry
-    integer(i_def) :: topology
     integer(i_def) :: coord_system
     real(r_def)    :: scaled_radius
-
-    geometry = mesh%geometry()
-    topology = mesh%topology()
 
     coord_system  = config%finite_element%coord_system()
     scaled_radius = config%planet%scaled_radius()
@@ -819,12 +807,13 @@ contains
 
       ! @TODO #4487: a small optimisation here is to multiply by rmultiplicity,
       ! rather than computing and dividing by mulitplicity
-      call invoke( setval_c(detj_at_w2, 0.0_r_def),                            &
-                   calc_detj_at_w2_kernel_type(detj_at_w2, chi, panel_id,      &
-                                               geometry, topology,             &
-                                               coord_system, scaled_radius),   &
-                   setval_c(multiplicity_w2, 0.0_r_def),                       &
-                   multiplicity_kernel_type(multiplicity_w2),                  &
+      call invoke( setval_c(detj_at_w2, 0.0_r_def),                          &
+                   calc_detj_at_w2_kernel_type(detj_at_w2, chi, panel_id,    &
+                                               mesh%geometry(),              &
+                                               mesh%topology(),              &
+                                               coord_system, scaled_radius), &
+                   setval_c(multiplicity_w2, 0.0_r_def),                     &
+                   multiplicity_kernel_type(multiplicity_w2),                &
                    inc_X_divideby_Y(detj_at_w2, multiplicity_w2) )
       if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
@@ -881,16 +870,18 @@ contains
   end function get_dz_w3
 
   !> @brief Returns the delta_at_wtheta values at Wtheta DoF locations
-  !> @param[in]  mesh  Mesh to get the object for
+  !> @param[in]  config  Application configuration object
+  !> @param[in]  mesh    Mesh to get the object for
   !> @return The delta_at_wtheta field
-  function get_delta_at_wtheta(mesh) result(delta_at_wtheta)
+  function get_delta_at_wtheta(config, mesh) result(delta_at_wtheta)
 
     use sci_calc_delta_at_wtheta_kernel_mod, &
                                        only: calc_delta_at_wtheta_kernel_type
 
     implicit none
 
-    type(mesh_type), intent(in) :: mesh
+    type(config_type), intent(in) :: config
+    type(mesh_type),   intent(in) :: mesh
 
     logical(kind=l_def)                   :: constant_exists
     type(field_type),             pointer :: dx_at_w2
@@ -908,7 +899,7 @@ contains
     ! Create constant if it doesn't already exist
     if (.not. constant_exists) then
       wt_k0_fs => function_space_collection%get_fs(mesh, 0, 0, Wtheta)
-      dx_at_w2 => get_dx_at_w2(mesh)
+      dx_at_w2 => get_dx_at_w2(config, mesh)
 
       if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
 
@@ -925,13 +916,15 @@ contains
   end function get_delta_at_wtheta
 
   !> @brief Returns the dx_at_w2 values at W2 DoF locations
+  !> @param[in]  config  Application configuration object
   !> @param[in]  mesh    Mesh to get the object for
   !> @return The dx_at_w2 field
-  function get_dx_at_w2(mesh) result(dx_at_w2)
+  function get_dx_at_w2(config, mesh) result(dx_at_w2)
 
     implicit none
 
-    type(mesh_type), intent(in) :: mesh
+    type(config_type), intent(in) :: config
+    type(mesh_type),   intent(in) :: mesh
 
     logical(kind=l_def)          :: constant_exists
     type(field_type),    pointer :: dx_at_w2
@@ -951,7 +944,7 @@ contains
     ! Create constant if it doesn't already exist
     if (.not. constant_exists) then
       w2_fs => function_space_collection%get_fs(mesh, 0, 0, W2)
-      detj_at_w2 => get_detj_at_w2_fv(mesh)
+      detj_at_w2 => get_detj_at_w2_fv(config, mesh)
       dA_at_w2 => get_dA_at_w2(config, mesh)
 
       if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
@@ -1048,7 +1041,6 @@ contains
     type(function_space_type),    pointer :: fs
     integer(tik)                          :: id
 
-    integer(kind=i_def) :: geometry
     real(kind=r_def)    :: planet_radius
     real(kind=r_def)    :: domain_height
 
@@ -1056,8 +1048,6 @@ contains
     if (.not. dA_msl_proj_inventory%is_initialised()) then
       call dA_msl_proj_inventory%initialise(name="dA_msl_proj")
     end if
-
-    geometry = mesh%geometry()
 
     planet_radius = config%extrusion%planet_radius()
     domain_height = config%extrusion%domain_height()
@@ -1071,14 +1061,15 @@ contains
       prime_mesh => mesh_collection%get_mesh(mesh, PRIME_EXTRUSION)
       twod_mesh => mesh_collection%get_mesh(mesh, TWOD)
       fs => function_space_collection%get_fs(twod_mesh, 0, 0, W3)
-      dA_at_w2 => get_dA_at_w2(prime_mesh)
+      dA_at_w2 => get_dA_at_w2(config, prime_mesh)
 
       if ( LPROF ) call start_timing( id, 'runtime_constants.geometric' )
 
       call dA_msl_proj_inventory%add_field(dA_msl_proj, fs, local_mesh)
-      call invoke( calc_da_msl_proj_kernel_type(dA_at_w2, dA_msl_proj,         &
-                                                planet_radius, domain_height,  &
-                                                geometry, geometry_spherical) )
+      call invoke( calc_da_msl_proj_kernel_type(dA_at_w2, dA_msl_proj,        &
+                                                planet_radius, domain_height, &
+                                                mesh%geometry(),              &
+                                                geometry_spherical) )
 
       if ( LPROF ) call stop_timing( id, 'runtime_constants.geometric' )
     end if
