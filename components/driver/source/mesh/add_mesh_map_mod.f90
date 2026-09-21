@@ -15,9 +15,8 @@ module add_mesh_map_mod
   use constants_mod, only: i_def, str_def, cmdi
   use log_mod,       only: log_event,         &
                            log_scratch_space, &
-                           LOG_LEVEL_ERROR,   &
-                           LOG_LEVEL_INFO
-
+                           log_level_error,   &
+                           log_level_debug
 
   use extrusion_mod,       only: extrusion_type,           &
                                  uniform_extrusion_type,   &
@@ -43,7 +42,7 @@ subroutine assign_mesh_maps( mesh_names )
 
   implicit none
 
-  character(str_def), intent(in) :: mesh_names(:)
+  character(*), intent(in) :: mesh_names(:)
 
   character(str_def) :: local_mesh_name
   character(str_def) :: mesh_name_A, mesh_name_B
@@ -165,7 +164,7 @@ subroutine add_mesh_map( source_mesh, target_mesh )
       'Adding intergrid map "'//          &
        trim(source_mesh%get_mesh_name())//'"-->"'//  &
        trim(target_mesh%get_mesh_name())//'"'
-  call log_event( log_scratch_space, log_level_info )
+  call log_event( log_scratch_space, log_level_debug )
 
   return
 end subroutine add_mesh_map

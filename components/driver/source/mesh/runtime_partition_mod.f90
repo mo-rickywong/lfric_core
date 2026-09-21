@@ -159,6 +159,19 @@ subroutine create_local_mesh( mesh_names,              &
     enforce_constraints_choice = .true.
   end if
 
+  if (size(mapping_factors) /= size(mesh_names)) then
+    !> @todo: Co-indexed arrays issue.
+    !>        This is not ideal as it relies on the
+    !>        matching size and ordering of the
+    !>        mesh_names/mapping_factors arguments.
+    !>        Relocated as it was too low in the code.
+    !>        Will require further work to refactor.
+    write(log_scratch_space,'(A)')                       &
+          'mesh_names/mapping_factors arguments need ' //&
+          'to match in size/ordering.'
+    call log_event(log_scratch_space, log_level_error)
+  end if
+
   do i=1, size(mesh_names)
 
     global_mesh_ptr => global_mesh_collection%get_global_mesh( mesh_names(i) )
@@ -283,7 +296,9 @@ end subroutine create_local_mesh_maps_from_file
 !!           mesh object.
 !!
 !!           This routine extracts the correct mesh map by querying
-!!           the origin name/file of the source_local_mesh.
+!!           the name of the source local mesh at it origin, i.e. The mesh
+!!           name as described in the file from which it was loaded
+!!           into memory (origin_file)/file.
 !> @param[in]  source_local_mesh  Source mesh to add intergrid maps to.
 subroutine create_local_mesh_maps_from_object( source_local_mesh )
 
@@ -358,7 +373,6 @@ subroutine create_local_mesh_maps_from_object( source_local_mesh )
 
   end if ! test if the source has any targets listed
 
-  return
 end subroutine create_local_mesh_maps_from_object
 
 !> @brief    Private routine to load assign intergrid mesh maps to local meshes

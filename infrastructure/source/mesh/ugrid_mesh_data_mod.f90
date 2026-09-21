@@ -30,9 +30,9 @@ module ugrid_mesh_data_mod
 
     !> Name of ugrid mesh topology.
     character(str_def) :: global_mesh_name = cmdi
-    !> Source file containing original data
+    !> Source file containing the mesh.
     character(str_max_filename) :: origin_file = cmdi
-    !> Original mesh name referenced in source file
+    !> Mesh name as it was referenced in source file
     character(str_def) :: origin_name = cmdi
     !> Enumeration indicating whether the mesh extends across
     !> the global model on across a local partition.

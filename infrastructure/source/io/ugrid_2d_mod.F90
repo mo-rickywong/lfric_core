@@ -1691,7 +1691,7 @@ function is_local(self) result(answer)
 end function is_local
 
 !------------------------------------------------------------------------------
-!> @brief  Returns original mesh name as referenced in the original source file.
+!> @brief  Returns mesh name as referenced in the source file.
 !> @return origin_name  Tag name of mesh that identifies it in the
 !>                      UGRID file that it was read in from.
 !
@@ -1708,7 +1708,7 @@ function get_origin_name( self ) result ( origin_name )
 end function get_origin_name
 
 !---------------------------------------------------------------------------
-!> @brief  Returns name of source file from which the mesh data was read.
+!> @brief  Returns source file from which the mesh data was read.
 !> @return origin_file  Filename of UGRID file that mesh data was read from.
 !
 function get_origin_file( self ) result ( origin_file )

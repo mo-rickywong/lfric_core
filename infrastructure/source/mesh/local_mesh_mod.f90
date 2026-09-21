@@ -52,9 +52,9 @@ module local_mesh_mod
   !====================================
   ! Tag name of mesh.
     character(str_def) :: mesh_name = cmdi
-  ! Source file containing original data
+  ! Source file containing the mesh originated from
     character(str_max_filename) :: origin_file = cmdi
-  ! Original mesh name referenced in source file
+  ! Mesh name as referenced in source file
     character(str_def) :: origin_name = cmdi
   ! Domain surface geometry.
     integer(i_def)     :: geometry = emdi

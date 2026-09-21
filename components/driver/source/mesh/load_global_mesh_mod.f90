@@ -6,12 +6,13 @@
 !> @brief Load global mesh object data from file.
 module load_global_mesh_mod
 
-  use constants_mod,       only: i_def, str_def, &
-                                 str_max_filename
+  use constants_mod,       only: i_def, str_def !, &
+!                                 str_max_filename
   use global_mesh_mod,     only: global_mesh_type
   use log_mod,             only: log_event,         &
                                  log_scratch_space, &
-                                 LOG_LEVEL_INFO
+                                 log_level_debug,&
+                                 log_level_error
   use ugrid_mesh_data_mod, only: ugrid_mesh_data_type
 
   use global_mesh_collection_mod, only: global_mesh_collection_type, &
@@ -29,7 +30,6 @@ module load_global_mesh_mod
 
 contains
 
-
 !> @brief Loads multiple global mesh objetc data from a UGRID file.
 !>        and adds them to the global_mesh_collection object.
 !> @param[in] input_mesh_file  UGRID file containing data to
@@ -43,17 +43,16 @@ subroutine load_global_mesh_multiple( input_mesh_file, &
                                       mesh_names,      &
                                       rename_to )
 
-
   implicit none
 
-  character(str_max_filename),  intent(in) :: input_mesh_file
-  character(str_def),           intent(in) :: mesh_names(:)
-  character(str_def), optional, intent(in) :: rename_to(:)
+  character(*), intent(in) :: input_mesh_file
+  character(*), intent(in) :: mesh_names(:)
 
-  character(str_def), allocatable :: names(:)
+  character(*), intent(in), optional :: rename_to(:)
+
+  character(:), allocatable :: names(:)
 
   integer(i_def) :: i
-
 
   allocate(names, source=mesh_names)
 
@@ -61,6 +60,18 @@ subroutine load_global_mesh_multiple( input_mesh_file, &
     if (size(rename_to) == size(mesh_names)) then
       deallocate(names)
       allocate(names, source=rename_to)
+    else
+      !> @todo: Co-indexed arrays issue.
+      !>        This is not ideal as it relies on the
+      !         matching size and ordering of the
+      !         mesh_names/rename_to arguments. It could
+      !         possibly be resolved in future by the use
+      !         multiple instances of a mesh configuation
+      !         namelist.
+      write(log_scratch_space,'(A)')                      &
+          'Optional rename_to argument needs to match '// &
+          'length/order of mesh_names argument'
+      call log_event(log_scratch_space, log_level_error)
     end if
   end if
 
@@ -94,7 +105,7 @@ subroutine load_global_mesh_single( input_mesh_file, &
   type(ugrid_mesh_data_type) :: ugrid_mesh_data
   type(global_mesh_type)     :: global_mesh
 
-  character(str_def) :: name
+  character(:), allocatable :: name
 
 
   if ( present(rename_to) ) then
@@ -107,7 +118,7 @@ subroutine load_global_mesh_single( input_mesh_file, &
 
     write(log_scratch_space,'(A)') &
         'Reading global mesh: "'//trim(mesh_name)//'"'
-    call log_event(log_scratch_space, LOG_LEVEL_INFO)
+    call log_event(log_scratch_space, log_level_debug)
 
     ! Load mesh data into global_mesh
     call ugrid_mesh_data%read_from_file( trim(input_mesh_file), &

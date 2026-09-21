@@ -52,8 +52,8 @@ module global_mesh_mod
   ! Source file containing original data
     character(str_max_filename) :: origin_file = cmdi
 
-  ! Original mesh name referenced in source file
-    character(str_def) :: origin_name = cmdi
+  ! Mesh name as it was referenced in source file
+  character(str_def) :: origin_name = cmdi
 
   ! Flag to indicate if this a mesh represents coverage
   ! of a global model.
@@ -930,7 +930,7 @@ contains
 
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !> @brief  Returns original mesh name as referenced in the original source file.
+  !> @brief  Returns mesh name as referenced in the file it was loaded from.
   !> @return origin_name  Tag name of mesh that identifies it in the
   !>                      UGRID file that it was read in from.
   !>
