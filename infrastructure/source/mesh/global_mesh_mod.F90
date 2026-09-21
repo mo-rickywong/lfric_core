@@ -275,7 +275,7 @@ contains
     implicit none
 
     type(ugrid_mesh_data_type),   intent(in) :: ugrid_mesh_data
-    character(str_def), optional, intent(in) :: rename_to
+    character(*),       optional, intent(in) :: rename_to
 
     type(global_mesh_type) :: self
 

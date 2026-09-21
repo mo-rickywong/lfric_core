@@ -116,8 +116,9 @@ subroutine load_global_mesh_single( input_mesh_file, &
 
   if (.not. global_mesh_collection%check_for(name)) then
 
-    write(log_scratch_space,'(A)') &
-        'Reading global mesh: "'//trim(mesh_name)//'"'
+    write(log_scratch_space,'(A)')                  &
+        'Reading global mesh: "'//trim(mesh_name)// &
+        '" as "'//trim(name)
     call log_event(log_scratch_space, log_level_debug)
 
     ! Load mesh data into global_mesh
