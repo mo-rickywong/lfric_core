@@ -118,6 +118,7 @@ subroutine init_chi_transforms( geometry, topology, &
   ! -------------------------------------------------------------------------- !
   ! Extract stretching and rotation information from mesh
   ! -------------------------------------------------------------------------- !
+  nullify(mesh, local_mesh)
 
   ! Begin by assuming no stretching and no rotation
   to_stretch = .false.

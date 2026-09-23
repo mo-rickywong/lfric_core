@@ -6,8 +6,7 @@
 !> @brief Load global mesh object data from file.
 module load_global_mesh_mod
 
-  use constants_mod,       only: i_def, str_def !, &
-!                                 str_max_filename
+  use constants_mod,       only: i_def, str_def
   use global_mesh_mod,     only: global_mesh_type
   use log_mod,             only: log_event,         &
                                  log_scratch_space, &
@@ -107,12 +106,8 @@ subroutine load_global_mesh_single( input_mesh_file, &
 
   character(:), allocatable :: name
 
-
-  if ( present(rename_to) ) then
-    name=rename_to
-  else
-    name=mesh_name
-  end if
+  name = mesh_name
+  if ( present(rename_to) ) name = rename_to
 
   if (.not. global_mesh_collection%check_for(name)) then
 
