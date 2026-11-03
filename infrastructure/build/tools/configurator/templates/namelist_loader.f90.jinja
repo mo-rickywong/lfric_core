@@ -503,7 +503,11 @@ contains
 {%-   set parameter = parameters[name] %}
 {%-   if parameter.is_arbitrary_size() %}
     do index_{{name}}=ubound({{name}}, 1), 1, -1
+{%-     if parameter.fortran_type.intrinsic_type == "logical" %}
+      if ({{name}}(index_{{name}}) .neqv. {{parameter.content.missing_data_indicator}}) exit
+{%-     else %}
       if ({{name}}(index_{{name}}) /= {{parameter.content.missing_data_indicator}}) exit
+{%-     endif %}
     end do
     array_size = index_{{name}}
 {%-   endif %}
