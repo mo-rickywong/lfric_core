@@ -43,6 +43,8 @@ type, extends(abstract_external_field_type), public :: coupler_exchange_2d_type
   private
   ! Time of coupling in seconds from start of the run
   integer(i_def) :: coupling_time
+  ! Time of next timestep coupling in seconds from start of the run
+  integer(i_def) :: coupling_time_next
   !> Size  of the coupling send and receive fields
   integer(i_def) :: coupling_size
   !> Index used to sort data passed through the coupler
@@ -59,6 +61,8 @@ contains
   procedure, public :: set_time
   !> Checks if the currently set time is scheduled for a coupling operation
   procedure, public :: is_coupling_time
+  !> Checks if the time at next time step is scheduled for a coupling operation
+  procedure, public :: is_coupling_time_next
   !> Manually tidies up
   procedure, public :: clear
   !> Tidies up on destruction
@@ -82,6 +86,7 @@ end type  coupler_exchange_2d_type
   call self%abstract_external_field_initialiser(lfric_field_ptr)
 
   self%coupling_time = 0
+  self%coupling_time_next = 0
   self%coupling_size = size(sorting_index)
   allocate(self%sorting_index, source=sorting_index)
 
@@ -140,7 +145,7 @@ end type  coupler_exchange_2d_type
       do i = 1, self%coupling_size
         sorted_data(i) = &
             field_proxy%data((self%sorting_index(i)-1)*ndata+nmulti)
-      enddo
+      end do
 
       ! Send the data to the coupler
       call oasis_put(var_id, self%coupling_time, sorted_data(:), kinfo)
@@ -154,9 +159,9 @@ end type  coupler_exchange_2d_type
       write(log_scratch_space, '(3A)' ) "Error: coupler_send_2d: Field: ", &
                                         trim(name), " - cpl_id NOT set"
       call log_event( log_scratch_space, LOG_LEVEL_ERROR )
-    endif
+    end if
 
-  enddo
+  end do
 
   if( present(return_code) ) return_code = ierror
 
@@ -225,7 +230,7 @@ end type  coupler_exchange_2d_type
         do i = 1, self%coupling_size
           field_proxy%data((self%sorting_index(i)-1)*ndata+nmulti) = &
                                                                  sorted_data(i)
-        enddo
+        end do
         write(log_scratch_space, '(3A)' ) "cpl_field_receive: field ", &
                            trim(name), " received"
         call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
@@ -234,13 +239,13 @@ end type  coupler_exchange_2d_type
         write(log_scratch_space, '(3A)' ) "cpl_field_receive: field ", &
                            trim(name), " NOT exchanged on this timestep"
         call log_event( log_scratch_space, LOG_LEVEL_DEBUG )
-      endif
+      end if
     else
       write(log_scratch_space, '(3A)' ) "PROBLEM cpl_field_receive: field ", &
                                          trim(name), " cpl_id NOT set"
       call log_event( log_scratch_space, LOG_LEVEL_ERROR )
-    endif
-  enddo
+    end if
+  end do
 
   call field_proxy%set_dirty()
 
@@ -269,6 +274,12 @@ end type  coupler_exchange_2d_type
        int( model_clock%seconds_from_steps(model_clock%get_step())          &
             - model_clock%seconds_from_steps(model_clock%get_first_step()), &
             i_def)
+  ! Store time of coupling in seconds from start of the run for next timestep
+  self%coupling_time_next = &
+       int( model_clock%seconds_from_steps(model_clock%get_step()+1_i_def) &
+            - model_clock%seconds_from_steps(model_clock%get_first_step()),  &
+            i_def)
+
 
   end subroutine set_time
 
@@ -310,6 +321,42 @@ end type  coupler_exchange_2d_type
 #endif
 
   end function is_coupling_time
+
+  function is_coupling_time_next(self) result(is_coupling_next)
+  implicit none
+  class(coupler_exchange_2d_type), intent(inout) :: self
+
+  logical(l_def)                    :: is_coupling_next
+#ifdef MCT
+  ! Field from which the data will be sent
+  class(field_parent_type), pointer :: field
+  ! Oasis id for variable or data level being sent
+  integer(i_def)                    :: var_id
+  ! Oasis error code
+  integer(i_def)                    :: kinfo
+
+  field => self%get_lfric_field_ptr()
+  select type (field)
+  class is (field_type)
+    var_id = field%get_cpl_id(1)
+  class default
+    call log_event("Unexpected field type", log_level_error)
+  end select
+
+  is_coupling_next = .false.
+  call oasis_put_inquire(var_id, self%coupling_time_next, kinfo)
+  if (kinfo == oasis_sent .or. kinfo == oasis_sentout) then
+    is_coupling_next = .true.
+  end if
+#else
+  write(log_scratch_space, '(A)' ) &
+               "is_coupling_time_next: to use OASIS cpp directive MCT must be set"
+  call log_event( log_scratch_space, LOG_LEVEL_ERROR )
+
+#endif
+
+  end function is_coupling_time_next
+
 
   ! Finaliser/Clear
   !

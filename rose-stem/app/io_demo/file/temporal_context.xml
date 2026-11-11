@@ -1,8 +1,8 @@
 
 <context id="temporal_context">
 
-   <axis_definition src="$METADATA/axis_dictionary.xml"/>
-   <grid_definition src="$METADATA/grid_dictionary.xml"/>
+   <axis_definition src="metadata/axis_dictionary.xml"/>
+   <grid_definition src="metadata/grid_dictionary.xml"/>
 
   <file_definition
     type="one_file"
@@ -10,7 +10,7 @@
     convention="UGRID">
 
   <file id="monthly_ancil" mode="read" output_freq="1mo" cyclic="true" enabled=".FALSE.">
-    <field id="monthly_field__monthly_ancil_fields" name="mass_fraction_of_ozone_in_air"/>
+    <field id="monthly_field__monthly_ancil_field_group" name="mass_fraction_of_ozone_in_air"/>
   </file>
 
   </file_definition>

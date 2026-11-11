@@ -64,7 +64,9 @@ program JediBones
   call init_config( S2_nml_file, JediBones_S2_namelists, config=modeldb_s2%config )
   call init_config( S1_nml_file, JediBones_S1_namelists, config=modeldb_s1%config )
 
-  call init_logger( modeldb_s1%mpi%get_comm(), program_name )
+  call init_logger( modeldb_s1%config, &
+                    modeldb_s1%mpi%get_comm(), &
+                    program_name )
 
   write(log_scratch_space,'(A)')                          &
       'Application built with '// trim(precision_real) // &

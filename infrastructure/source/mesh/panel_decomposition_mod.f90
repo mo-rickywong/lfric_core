@@ -10,9 +10,9 @@ module panel_decomposition_mod
 
   use global_mesh_mod, only: global_mesh_type
   use global_mesh_collection_mod, only: global_mesh_collection_type
-  use constants_mod, only: i_def, l_def, r_def
+  use constants_mod, only: i_def, l_def, r_def, str_def
   use log_mod, only: log_event, log_scratch_space, &
-                     LOG_LEVEL_ERROR, LOG_LEVEL_INFO, LOG_LEVEL_DEBUG
+                     LOG_LEVEL_ERROR, LOG_LEVEL_DEBUG
 
   implicit none
 
@@ -125,6 +125,12 @@ module panel_decomposition_mod
 
   end interface
 
+  ! Overload call to calculation of mapping factor
+  interface calc_mapping_factor
+    module procedure calc_mapping_factor_multiple
+    module procedure calc_mapping_factor_single
+  end interface calc_mapping_factor
+
 contains
 
   !> @brief Partition the panel into a given number of x and y processes
@@ -166,7 +172,7 @@ contains
 
     integer(i_def) :: num_xprocs, num_yprocs
 
-    call log_event("Using custom decomposition", LOG_LEVEL_INFO)
+    call log_event("Using custom decomposition", LOG_LEVEL_DEBUG)
 
     num_xprocs = self%num_xprocs
     num_yprocs = self%num_yprocs
@@ -279,7 +285,7 @@ contains
     integer(i_def) :: start_xprocs, start_width, i
     logical :: found_partition
 
-    call log_event("Using auto decomposition", LOG_LEVEL_INFO)
+    call log_event("Using auto decomposition", LOG_LEVEL_DEBUG)
 
     ! For automatic partitioning, try to partition into the squarest
     ! possible partitions.
@@ -421,7 +427,7 @@ contains
 
     integer(i_def) :: num_xprocs, num_yprocs
 
-    call log_event("Using row decomposition", LOG_LEVEL_INFO)
+    call log_event("Using row decomposition", LOG_LEVEL_DEBUG)
 
     num_xprocs = panel_ranks
     num_yprocs = 1_i_def
@@ -510,7 +516,7 @@ contains
 
     integer(i_def) :: num_xprocs, num_yprocs
 
-    call log_event("Using column decomposiiton", LOG_LEVEL_INFO)
+    call log_event("Using column decomposiiton", LOG_LEVEL_DEBUG)
 
     num_xprocs = 1_i_def
     num_yprocs = panel_ranks
@@ -601,7 +607,7 @@ contains
     integer(i_def) :: start_xprocs, start_width, i
     logical ::found_factors
 
-    call log_event("Using auto_nonuniform decomposition", LOG_LEVEL_INFO)
+    call log_event("Using auto_nonuniform decomposition", LOG_LEVEL_DEBUG)
 
     mp_num_cells_x = num_cells_x / mapping_factor
     mp_num_cells_y = num_cells_y / mapping_factor
@@ -716,7 +722,7 @@ contains
 
     integer(i_def) :: num_xprocs
 
-    call log_event("Using guided_nonuniform decomposition", LOG_LEVEL_INFO)
+    call log_event("Using guided_nonuniform decomposition", LOG_LEVEL_DEBUG)
 
     num_xprocs = self%num_xprocs
 
@@ -981,54 +987,99 @@ contains
   end subroutine nonuniform_decomposition
 
 
-  !> @brief Calculate the ratio in resolution between this and the coarsest mesh
-  !>        to align partitions for mapped grids
-  !> @param[in] global-mesh_collection The global mesh collection
-  !> @param[in] global_mesh            The global mesh to calculate the factor for
-  function calc_mapping_factor( global_mesh_collection, global_mesh ) result(mp)
+  !> @brief Calculate the ratio in resolution between a given global mesh and
+  !>        all meshes in a given global_mesh_collection to align partitions
+  !>        for mapped grids
+  !> @param[in] global_mesh            Global mesh to calculate the factor for
+  !> @param[in] global_mesh_collection Global mesh collection with reference meshes.
+  function calc_mapping_factor_multiple( global_mesh, &
+                                         global_mesh_collection ) result(mp)
+
     implicit none
 
-    type(global_mesh_collection_type), intent(in) :: global_mesh_collection
-    type(global_mesh_type), intent(in), pointer :: global_mesh
+    type(global_mesh_type), intent(in) :: global_mesh
+    type(global_mesh_collection_type), &
+                            intent(in) :: global_mesh_collection
 
     integer(i_def) :: mp
 
-    type(global_mesh_type), pointer :: comparison_global_mesh
-    integer(i_def) :: this_panel_width, shortest_panel_width, n_meshes, i
+    type(global_mesh_type), pointer :: reference_global_mesh
 
-    this_panel_width = calc_panel_width(global_mesh)
+    integer(i_def) :: panel_width, shortest_panel_width
+    integer(i_def) :: reference_panel_width
+    integer(i_def) :: i
 
-    n_meshes = global_mesh_collection%n_meshes()
+    character(str_def), allocatable :: mesh_names(:)
 
     shortest_panel_width = huge(0_i_def)
 
-    do i = 1, n_meshes
-      comparison_global_mesh => global_mesh_collection%get_mesh_by_id(i)
-      if ( associated(comparison_global_mesh) ) then
-        shortest_panel_width = min( shortest_panel_width, &
-                                    calc_panel_width(comparison_global_mesh))
+    panel_width = calc_panel_width(global_mesh)
+    mesh_names  = global_mesh_collection%get_mesh_names()
+
+    do i=1, size(mesh_names)
+
+      reference_global_mesh => global_mesh_collection%get_global_mesh(mesh_names(i))
+
+      if ( associated(reference_global_mesh) ) then
+        reference_panel_width = calc_panel_width(reference_global_mesh)
+        shortest_panel_width  = min( shortest_panel_width, reference_panel_width )
       end if
+
     end do
 
-    ! If no meshes were found, or if this_panel_width < shortest_panel_width, then return 1.
+    ! If no meshes were found, or
+    ! if this_panel_width < shortest_panel_width, then return 1.
     if ( shortest_panel_width < huge(0_i_def) ) then
-      mp = max(1, this_panel_width / shortest_panel_width)
+      mp = max(1, panel_width / shortest_panel_width)
     else
       mp = 1
     end if
 
-  end function calc_mapping_factor
+  end function calc_mapping_factor_multiple
+
+
+  !> @brief Calculate the ratio in resolution between a global mesh object and
+  !>        another used as reference to align partitions for mapped grids.
+  !> @param[in] global_mesh            Global mesh to calculate the factor for
+  !> @param[in] reference_global_mesh  Reference global mesh object
+  function calc_mapping_factor_single( global_mesh, reference_global_mesh ) result(mp)
+
+    implicit none
+
+    type(global_mesh_type), intent(in) :: global_mesh
+    type(global_mesh_type), intent(in) :: reference_global_mesh
+
+    integer(i_def) :: mp
+
+    integer(i_def) :: reference_panel_width
+    integer(i_def) :: panel_width
+    integer(i_def) :: shortest_panel_width
+
+    shortest_panel_width  = huge(0_i_def)
+    reference_panel_width = calc_panel_width(reference_global_mesh)
+    panel_width           = calc_panel_width(global_mesh)
+
+    shortest_panel_width = min( reference_panel_width, panel_width )
+
+    if ( shortest_panel_width < huge(0_i_def) ) then
+      mp = max(1, panel_width / shortest_panel_width)
+    else
+      mp = 1
+    end if
+
+  end function calc_mapping_factor_single
 
 
   !> @brief Calculate the width of the mesh panel. On a spherical mesh this is
   !>        the C number.
   !> @param[in] gloabl_mesh The mesh to calculate the panel width of
   function calc_panel_width( global_mesh ) result(panel_edge_ncells_x)
+
     use reference_element_mod, only : W, E
 
     implicit none
 
-    type(global_mesh_type), intent(in), pointer :: global_mesh
+    type(global_mesh_type), intent(in) :: global_mesh
 
     integer(i_def) :: void_cell    ! Cell id that marks the cell as a cell
                                    ! outside of the partition.

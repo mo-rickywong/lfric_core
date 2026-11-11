@@ -13,6 +13,8 @@ planet_radius=6371229.0,
 domain_height=1000.0,
 method='uniform',
 number_of_layers=1,
+stretching_height=0.0,
+stretching_method='linear'
 /
 
 &finite_element

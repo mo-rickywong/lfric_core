@@ -40,6 +40,12 @@ class MockSiteConfig:
         """
         return ["default-profile"]
 
+    def update_repos(self, dep_info):
+        """
+        This method is called by the main script to allow each site to
+        replace the URLs of repos with e.g. local mirrors.
+        """
+
     def update_toolbox(self, build_config: BuildConfig) -> None:
         """
         Dummy function where the tool box could be modified
@@ -51,12 +57,6 @@ class MockSiteConfig:
         """
         self.args = args
 
-    def get_path_flags(self, _build_config: BuildConfig) -> List[str]:
-        """
-        :returns: list of path-specific flags.
-        """
-        return []
-
 
 @pytest.fixture(name="stub_fortran_compiler", scope='function')
 def stub_fortran_compiler_init() -> FortranCompiler:
@@ -64,8 +64,9 @@ def stub_fortran_compiler_init() -> FortranCompiler:
     Provides a minimal Fortran compiler.
     """
     compiler = FortranCompiler('some Fortran compiler', 'sfc', 'stub',
-                               r'([\d.]+)', openmp_flag='-omp',
-                               module_folder_flag='-mods')
+                               r'([\d.]+)')
+    compiler["openmp"] = '-omp'
+    compiler["module-out-folder"] = '-mods'
     return compiler
 
 
@@ -75,16 +76,18 @@ def stub_c_compiler_init() -> CCompiler:
     Provides a minimal C compiler.
     """
     compiler = CCompiler("some C compiler", "scc", "stub",
-                         version_regex=r"([\d.]+)", openmp_flag='-omp')
+                         version_regex=r"([\d.]+)")
+    compiler["openmp"] = '-omp'
     return compiler
 
 
 @pytest.fixture(name="stub_linker", scope='function')
-def stub_linker_init(stub_c_compiler) -> Linker:
+def stub_linker_init(stub_fortran_compiler) -> Linker:
     """
     Provides a minimal linker.
     """
-    linker = Linker(stub_c_compiler, None, 'sln')
+    linker = Linker(stub_fortran_compiler, None, 'sln')
+    linker.add_lib_flags("netcdf", ["-L", "/netcdf"])
     return linker
 
 
@@ -138,8 +141,11 @@ def setup_tool_repository(stub_fortran_compiler, stub_c_compiler,
         tr[category] = []
 
     # Add compilers and linkers, and mark them all as available,
-    # as well as supporting MPI and OpenMP
-    for tool in [stub_c_compiler, stub_fortran_compiler, stub_linker]:
+    # as well as supporting MPI and OpenMP. It is important to
+    # add the linker first (since for each compiler a corresponding
+    # linker will be created, and only the stub linker specified NetCDF
+    # settings, without which LFRicBase will abort).
+    for tool in [stub_linker, stub_c_compiler, stub_fortran_compiler]:
         tool._mpi = True
         tool._openmp_flag = "-some-openmp-flag"
         tool._is_available = True
@@ -159,18 +165,20 @@ def test_constructor(monkeypatch) -> None:
     Tests constructor.
     '''
     monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
-    lfric_base = LFRicBase(name="test_name")
+    lfric_base = LFRicBase(name="test_name", app_dir=Path("."))
 
     # Check root symbol defaults to name if not specified
     assert lfric_base.root_symbol == ["test_name"]
 
     # Check root symbol can be specified
     lfric_base = LFRicBase(name="test_name",
+                           app_dir=Path("."),
                            root_symbol="root1")
     assert lfric_base.root_symbol == ["root1"]
 
     # Check root symbol list
     lfric_base = LFRicBase(name="test_name",
+                           app_dir=Path("."),
                            root_symbol=["root1", "root2"])
     assert lfric_base.root_symbol == ["root1", "root2"]
 
@@ -220,11 +228,70 @@ def test_get_directory(monkeypatch, tmp_path) -> None:
     ]
     monkeypatch.setattr('inspect.stack', lambda: mock_stack)
     monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
+    psyclone_control = mock_base_dir / "psyclone_control.yaml"
+    psyclone_control.write_text("phases:", encoding='utf-8')
 
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=tmp_path / "app_dir")
 
     # Verify core root is set correctly
     assert lfric_base.lfric_core_root == mock_core
+    assert lfric_base.app_dir == tmp_path / "app_dir"
+
+
+def test_python_search_path(monkeypatch):
+    '''
+    Test that new paths can be added to the Python search path.
+    '''
+    monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
+    lfric_base = LFRicBase(name="test_name", app_dir=Path("."))
+    tools_path = str(lfric_base.lfric_core_root / "infrastructure" / "build" /
+                     "psyclone")
+    # pylint: disable=protected-access
+    assert lfric_base._add_python_paths == [tools_path]
+    lfric_base.add_python_search_path("/special_path")
+    assert lfric_base._add_python_paths == [tools_path, "/special_path"]
+
+
+def test_require_openmp(monkeypatch, caplog) -> None:
+    '''
+    Tests that using `-no-openmp` will abort with correct
+    error message.
+    '''
+    monkeypatch.setattr(sys, "argv", ["lfric_base.py",
+                                      "--no-openmp"])
+
+    with pytest.raises(SystemExit):
+        LFRicBase(name="test", app_dir=Path("."))
+
+    assert len(caplog.records) == 2
+
+    assert caplog.records[0].levelname == "INFO"
+    # Check for the details about site-specific config that is
+    # being imported.
+    assert "Imported '" in caplog.text
+    assert "site_specific/default/config.py" in caplog.text
+
+    assert caplog.records[1].levelname == "ERROR"
+    assert ("LFRic requires OpenMP in order to compile and link. Remove "
+            "the '-no-omp' flag from the command line." in caplog.text)
+
+
+def test_netcdf_required(monkeypatch):
+    """
+    Test that the class aborts if the linker does not have NetCDF defined.
+    """
+
+    tr = ToolRepository()
+    linker = tr.get_tool(Category.LINKER, "sln")
+    # The dummy linker includes netcdf - remove it:
+    monkeypatch.setattr(linker, "_lib_flags", {})
+
+    # Required, otherwise it would take pytest's command line as sys.argv
+    monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
+    with pytest.raises(RuntimeError) as err:
+        LFRicBase(name="test", app_dir=Path("."))
+    assert ("LFRic needs NetCDF, but the linker 'sln' has no NetCDF library "
+            "setting defined." in str(err))
 
 
 def test_precision_definition_without_default(monkeypatch) -> None:
@@ -239,7 +306,7 @@ def test_precision_definition_without_default(monkeypatch) -> None:
                                       "--precision_other", "32"])
     monkeypatch.setattr(os, 'environ', {"R_BL_PRECISION": "64"})
 
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
     lfric_base.define_preprocessor_flags_step()
     flags = lfric_base.preprocess_flags_common
 
@@ -260,7 +327,7 @@ def test_preprocessor_flags(monkeypatch, no_xios, mpi) -> None:
     Tests setting of preprocessor flags, and also that we get
     the expected defaults for the precision variables.
     """
-    argv = ["fab_script", "--no-openmp"]
+    argv = ["fab_script"]
     if no_xios:
         argv.append("--no-xios")
     if not mpi:
@@ -272,7 +339,7 @@ def test_preprocessor_flags(monkeypatch, no_xios, mpi) -> None:
     fc = tr.get_tool(Category.FORTRAN_COMPILER, "sfc")
     monkeypatch.setattr(fc, "_mpi", mpi)
 
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
     lfric_base.define_preprocessor_flags_step()
 
     expected_flags = [
@@ -293,7 +360,7 @@ def test_setup_site_specific_location(monkeypatch) -> None:
     Tests site specific path setup for LFRicBase.
     '''
     monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
 
     old_path = sys.path.copy()
     lfric_base.setup_site_specific_location()
@@ -301,7 +368,6 @@ def test_setup_site_specific_location(monkeypatch) -> None:
     # Check paths added correctly
     base_dir = Path(inspect.getfile(LFRicBase)).parent
     assert str(base_dir) in sys.path
-    assert str(base_dir / "site_specific") in sys.path
 
     # Restore path
     sys.path = old_path
@@ -313,7 +379,7 @@ def test_get_linker_flags(monkeypatch) -> None:
     '''
     monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
 
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
     flags = lfric_base.get_linker_flags()
 
     expected_libs = ['yaxt', 'xios', 'netcdf', 'hdf5']
@@ -331,15 +397,15 @@ def test_grab_files_step(monkeypatch) -> None:
     mock_core = Path("/mock/core")
 
     # Setup mocks
-    monkeypatch.setattr('lfric_base.grab_folder', mock_grab)
+    monkeypatch.setattr('lfric_base.grab_files', mock_grab)
 
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
     monkeypatch.setattr(lfric_base, '_lfric_core_root', mock_core)
 
     # Call method under test
     lfric_base.grab_files_step()
 
-    # Verify grab_folder called for all required directories
+    # Verify grab_files called for all required directories
     expected_calls = [
         # Source directories
         mock.call(lfric_base.config,
@@ -360,7 +426,7 @@ def test_grab_files_step(monkeypatch) -> None:
         # PSyclone config directory
         mock.call(lfric_base.config,
                   src=mock_core/'etc',
-                  dst_label='psyclone_config')
+                  dst_label='psyclone_config'),
     ]
 
     # Check both number of calls and call arguments
@@ -377,13 +443,11 @@ def test_find_source_files_step(monkeypatch) -> None:
     # Create mocks
     with (mock.patch('lfric_base.FabBase.find_source_files_step') as find_step,
           mock.patch('lfric_base.LFRicBase.templaterator_step') as temp_step,
-          mock.patch('lfric_base.LFRicBase.configurator_step') as conf_step,
-          mock.patch('lfric_base.Exclude') as mock_exclude):
-        lfric_base = LFRicBase(name="test")
+          mock.patch('lfric_base.LFRicBase.configurator_step') as conf_step):
+        lfric_base = LFRicBase(name="test", app_dir=Path("."))
         lfric_base.find_source_files_step()
 
-        # Verify exclusion filter added and super called
-        mock_exclude.assert_called_once_with('unit-test', '/test/')
+        # Verify super called
         find_step.assert_called_once()
         # Verify configurator and templaterator called
         conf_step.assert_called_once()
@@ -403,7 +467,7 @@ def test_configurator_step(monkeypatch) -> None:
     # Set up mocks using monkeypatch
     monkeypatch.setattr('lfric_base.configurator', mock_config)
 
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
     monkeypatch.setattr(lfric_base, 'get_rose_meta', mock_meta)
 
     with pytest.warns(match="_metric_send_conn not set, cannot send metrics"):
@@ -455,7 +519,7 @@ def test_templaterator_step(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr('lfric_base.SuffixFilter', lambda *args: mock_filter)
 
     # Create LFRicBase instance
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
     monkeypatch.setattr(lfric_base, '_lfric_core_root', tmp_path)
 
     # Run templaterator step
@@ -510,94 +574,110 @@ def test_get_rose_meta(monkeypatch) -> None:
     '''
     monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
 
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
     assert lfric_base.get_rose_meta() is None
 
 
-def test_analyse_step(monkeypatch) -> None:
-    '''Tests analysis step configuration and execution'''
+class TestFullSetup():
 
-    # Test case 1: No ignore_dependencies argument specified
-    monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
+    def setup(self, monkeypatch, argv: Optional[list[str]] = None) -> None:
+        """
+        """
+        self.mpatch = monkeypatch
+        if not argv:
+            argv = ["lfric_base.py"]
+        self.mpatch.setattr(sys, "argv", argv)
 
-    # Create mocks
-    mock_analyse = mock.MagicMock()
-    mock_preprocess = mock.MagicMock()
-    mock_psyclone = mock.MagicMock()
+        # Create and setup mocks
+        self.mock_analyse = mock.MagicMock()
+        self.mpatch.setattr('fab.fab_base.fab_base.FabBase.analyse_step',
+                            self.mock_analyse)
 
-    # Setup mocks
-    monkeypatch.setattr('fab.fab_base.fab_base.FabBase.analyse_step',
-                        mock_analyse)
+        self.mock_preprocess = mock.MagicMock()
+        self.mpatch.setattr('lfric_base.preprocess_x90', self.mock_preprocess)
 
-    lfric_base = LFRicBase(name="test")
+        self.mock_psyclone_step = mock.MagicMock()
+        self.mpatch.setattr('lfric_base.LFRicBase.psyclone_step',
+                            self.mock_psyclone_step)
 
-    # Mock instance methods
-    monkeypatch.setattr(lfric_base, 'preprocess_x90_step', mock_preprocess)
-    monkeypatch.setattr(lfric_base, 'psyclone_step', mock_psyclone)
+        # Set up monkeypatch for module level import
+        self.mock_psyclone = mock.MagicMock()
+        monkeypatch.setattr('lfric_base.psyclone', self.mock_psyclone)
 
-    # The PSyclone step will modify sys.path (to allow import of
-    # psyclone_tools by PSyclone scripts). Make sure sys.path is unchanged:
-    old_sys_path = sys.path[:]
-    # Call analyse_step (which calls PSyclone)
-    lfric_base.analyse_step()
-    assert sys.path == old_sys_path
+        self.lfric_base = LFRicBase(name="test", app_dir=Path("."))
 
-    # Verify method calls
-    mock_preprocess.assert_called_once()
-    mock_psyclone.assert_called_once()
+        self.mock_psyclone_config = "/mock/psyclone.cfg"
+        # Patch instance methods. Return a copy to avoid that
+        # PSyclone modified these lists in the lambdas when it modifies
+        # the list
+        monkeypatch.setattr(self.lfric_base, 'get_psyclone_config',
+                            lambda: self.mock_psyclone_config)
 
-    # Verify analyse called with correct default ignore_dependencies
-    expected_ignore = ['netcdf', 'mpi', 'mpi_f08', 'yaxt',
-                       'xios', 'icontext', 'mod_wait']
-    mock_analyse.assert_called_once_with(
-        ignore_dependencies=expected_ignore,
-        find_programs=False
-    )
+    def test_analyse_no_ignore(self, monkeypatch) -> None:
+        """
+        Tests analysis step configuration and execution,
+        if not additional dependencies are specified.
+        """
 
-    # Test case 2: Custom ignore_dependencies arguments specified
-    custom_ignore = ['custom_dep1', 'custom_dep2']
-    mock_analyse.reset_mock()
-    mock_preprocess.reset_mock()
-    mock_psyclone.reset_mock()
+        self.setup(monkeypatch)
 
-    lfric_base = LFRicBase(name="test")
-    monkeypatch.setattr(lfric_base, 'preprocess_x90_step', mock_preprocess)
-    monkeypatch.setattr(lfric_base, 'psyclone_step', mock_psyclone)
+        # The PSyclone step will modify sys.path (to allow import of
+        # psyclone_tools by PSyclone scripts). Make sure sys.path is unchanged:
+        old_sys_path = sys.path[:]
+        # Call analyse_step (which calls PSyclone)
+        self.lfric_base.analyse_step()
+        assert sys.path == old_sys_path
 
-    # Call analyse_step
-    lfric_base.analyse_step(ignore_dependencies=custom_ignore)
+        # Verify method calls
+        self.mock_preprocess.assert_called_once()
+        self.mock_psyclone_step.assert_called_once()
 
-    # Verify methods still called
-    mock_preprocess.assert_called_once()
-    mock_psyclone.assert_called_once()
+        # Verify analyse called with correct default ignore_dependencies
+        expected_ignore = ['netcdf', 'mpi', 'mpi_f08', 'yaxt',
+                           'xios', 'icontext', 'mod_wait']
+        self.mock_analyse.assert_called_once_with(
+            ignore_dependencies=expected_ignore,
+            find_programs=False
+        )
 
-    # Verify analyse called with custom_ignore added to ignore list
-    expected_ignore = ['custom_dep1', 'custom_dep2', 'netcdf', 'mpi',
-                       'mpi_f08', 'yaxt', 'xios', 'icontext',
-                       'mod_wait']
-    mock_analyse.assert_called_once_with(
-        ignore_dependencies=expected_ignore,
-        find_programs=False
-    )
+    def test_analyse_ignore_dependency(self, monkeypatch) -> None:
+        """
+        Tests analysis step configuration and execution when
+        additional dependencies are specified.
+        """
 
+        self.setup(monkeypatch)
 
-def test_preprocess_x90_step(monkeypatch) -> None:
-    '''
-    Tests preprocessing of X90 files.
-    '''
-    monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
+        # Call analyse_step (which calls PSyclone)
+        custom_ignore = ['custom_dep1', 'custom_dep2']
+        self.lfric_base.analyse_step(ignore_dependencies=custom_ignore)
 
-    mock_preproc = mock.MagicMock()
-    monkeypatch.setattr('lfric_base.preprocess_x90', mock_preproc)
+        # Verify method calls
+        self.mock_preprocess.assert_called_once()
+        self.mock_psyclone_step.assert_called_once()
 
-    lfric_base = LFRicBase(name="test")
-    lfric_base.add_preprocessor_flags(["-flag1", "-flag2"])
-    lfric_base.preprocess_x90_step()
+        # Verify analyse called with correct default ignore_dependencies
+        expected_ignore = ['custom_dep1', 'custom_dep2', 'netcdf', 'mpi',
+                           'mpi_f08', 'yaxt', 'xios', 'icontext',
+                           'mod_wait']
+        self.mock_analyse.assert_called_once_with(
+            ignore_dependencies=expected_ignore,
+            find_programs=False
+        )
 
-    mock_preproc.assert_called_once_with(
-        lfric_base.config,
-        common_flags=["-flag1", "-flag2"]
-    )
+    def test_preprocess_x90_step(self, monkeypatch) -> None:
+        '''
+        Tests preprocessing of X90 files.
+        '''
+        self.setup(monkeypatch)
+
+        self.lfric_base.add_preprocessor_flags(["-flag1", "-flag2"])
+        self.lfric_base.preprocess_x90_step()
+
+        self.mock_preprocess.assert_called_once_with(
+            self.lfric_base.config,
+            common_flags=["-flag1", "-flag2"]
+        )
 
 
 def test_psyclone_step(monkeypatch) -> None:
@@ -613,7 +693,7 @@ def test_psyclone_step(monkeypatch) -> None:
     # Set up monkeypatch for module level import
     monkeypatch.setattr('lfric_base.psyclone', mock_psy)
 
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
 
     # Patch instance methods. Return a copy to avoid that
     # PSyclone modified these lists in the lambdas when it modifies the list
@@ -640,11 +720,11 @@ def test_get_psyclone_config(monkeypatch) -> None:
     '''
     monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
 
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
     config_args = lfric_base.get_psyclone_config()
 
     assert config_args == str(lfric_base.config.source_root /
-                              'psyclone_config/psyclone.cfg')
+                              'psyclone_config' / 'psyclone.cfg')
 
 
 def test_get_transformation_script(monkeypatch, tmp_path) -> None:
@@ -654,49 +734,72 @@ def test_get_transformation_script(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(sys, "argv", ["lfric_base.py"])
 
     # Create LFRicBase instance with mocked site/platform
-    lfric_base = LFRicBase(name="test")
+    lfric_base = LFRicBase(name="test", app_dir=Path("."))
 
-    # Create mock config
+    # Create mock config, and insert it into the lfric base instance
+    # (to mock the paths used here)
     config = mock.MagicMock()
     config.source_root = tmp_path
-    config.build_output = tmp_path / "build"
+    config._build_output = tmp_path / "build"
     config.build_output.mkdir()
+    lfric_base._config = config
 
-    # Create x90 test source file
-    source_path = tmp_path / "some/path"
-    source_path.mkdir(parents=True)
-    test_file = source_path / "file.x90"
-    test_file.touch()
-
-    # Test case 1: x90 file not in source or build directories
-    outside_file = tmp_path.parent / "outside.x90"
-    assert lfric_base.get_transformation_script(outside_file, config) is None
-
-    # Test case 2: No optimisation directory, no transformation script
-    assert lfric_base.get_transformation_script(test_file, config) is None
-
-    # Test case 3: No PSykal but optimisation directory
     optimisation_folder_path = (tmp_path / "optimisation" / "default-default" /
                                 "psykal")
+
+    # Set a current psyclone phase in the object, so the correct rule
+    # (for dsl) is picked:
+    psy_info = lfric_base._psyclone_control.get_info("dsl")
+    psy_info._opt_path = optimisation_folder_path
+    # Set tmp_path as the base_paths (which is used to detect
+    # the relative path when checking for file-specific scripts).
+    psy_info._base_paths = [tmp_path]
+    lfric_base._current_psyclone_info = psy_info
+
+    # Create x90 test source file
+    source_path = tmp_path / "some" / "path"
+    source_path.mkdir(parents=True)
+
+    # Test case 1: No optimisation directory, no transformation script
+    test_file = source_path / "file.x90"
+    test_file.touch()
+    with pytest.raises(FileNotFoundError) as err:
+        lfric_base.get_transformation_script(test_file, config)
+
+    # Test case 2: No PSykal but optimisation directory
     global_script = optimisation_folder_path / "global.py"
     global_script.parent.mkdir(parents=True)
     global_script.touch()
 
     # No file-specific transformation script, use global script
-    other_file = tmp_path / "other/path/test.x90"
+    other_file = tmp_path / "other" / "path" / "test.x90"
     other_file.parent.mkdir(parents=True)
     other_file.touch()
     assert (lfric_base.get_transformation_script(other_file, config) ==
             global_script)
 
-    # Test case 4: Psykal directory exists
-    psykal_path = tmp_path / "optimisation/default-default/psykal"
+    # Test case 3: Psykal directory exists
+    psykal_path = tmp_path / "optimisation" / "default-default" / "psykal"
 
     # Create specific transformation script in psykal dir
-    specific_script = psykal_path / "some/path/file.py"
+    specific_script = psykal_path / "some" / "path" / "file.py"
     specific_script.parent.mkdir(parents=True)
     specific_script.touch()
 
     # Use specific script in psykal directory
     assert lfric_base.get_transformation_script(test_file, config) == \
         specific_script
+
+    # Test case 4: Return exclude (which should not happen, the function
+    # should only be called for files that have a script)
+    psy_info._rules = []
+    with pytest.raises(ValueError) as err:
+        lfric_base.get_transformation_script(test_file, config)
+    assert ("PSyclone transformation script returned "
+            "'PsycloneInfo.RESULT_EXCLUDE', which should not happen."
+            in str(err))
+
+    # Test case 5: Return None if the PSyclone control file explicitly
+    # requests to run PSyclone without a script.
+    psy_info._rules = [(psy_info.NO_SCRIPT, "*")]
+    assert lfric_base.get_transformation_script(test_file, config) is None

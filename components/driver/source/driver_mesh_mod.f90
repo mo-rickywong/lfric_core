@@ -40,7 +40,8 @@ module driver_mesh_mod
                                         log_scratch_space, &
                                         log_level_debug,   &
                                         log_level_error
-  use panel_decomposition_mod,    only: panel_decomposition_type
+  use panel_decomposition_mod,    only: panel_decomposition_type, &
+                                        calc_mapping_factor
   use partition_mod,              only: partitioner_interface
 
   use runtime_partition_lfric_mod, only: get_partition_parameters
@@ -51,11 +52,16 @@ module driver_mesh_mod
 
   use global_mesh_collection_mod, only: global_mesh_collection
   use local_mesh_collection_mod,  only: local_mesh_collection
+  use mesh_mod,                   only: geometry_spherical, &
+                                        topology_periodic
 
   ! Configuration modules
   use finite_element_config_mod, only: cellshape_quadrilateral
-  use base_mesh_config_mod,      only: geometry_spherical, &
-                                       topology_fully_periodic
+  use timing_mod,                only: start_timing, stop_timing, &
+                                       tik, LPROF
+  use ugrid_2d_mod,              only: ugrid_2d_type
+  use ugrid_file_mod,            only: ugrid_file_type
+  use ncdf_quad_mod,             only: ncdf_quad_type
 
   implicit none
 
@@ -79,6 +85,8 @@ contains
 !> @param[in] total_ranks       Total number of MPI ranks in this job.
 !> @param[in] mesh_names        Mesh names to load from the mesh input file(s).
 !> @param[in] extrusion         Extrusion object to be applied to meshes.
+!> @param[in] inner_halo_tiles  Apply tiling to inner halos.
+!> @param[in] tile_size         Tile sizes to apply to inner halos if applicable.
 !> @param[in] stencil_depths_in Required stencil depth for each mesh for
 !!                              the application. If this array is of size 1 then
 !!                              the single value is applied to all meshes.
@@ -94,6 +102,8 @@ contains
 subroutine init_mesh( config,                  &
                       local_rank, total_ranks, &
                       mesh_names, extrusion,   &
+                      inner_halo_tiles,        &
+                      tile_size,               &
                       stencil_depths_in,       &
                       check_partitions,        &
                       alt_names )
@@ -107,8 +117,10 @@ subroutine init_mesh( config,                  &
   character(str_def),    intent(in) :: mesh_names(:)
   class(extrusion_type), intent(in) :: extrusion
 
-  integer(i_def),    intent(in) :: stencil_depths_in(:)
-  logical(l_def),    intent(in) :: check_partitions
+  logical(l_def), intent(in) :: inner_halo_tiles
+  integer(i_def), intent(in) :: tile_size(:,:)
+  integer(i_def), intent(in) :: stencil_depths_in(:)
+  logical(l_def), intent(in) :: check_partitions
 
   character(str_def), optional, intent(in) :: alt_names(:)
 
@@ -132,13 +144,25 @@ subroutine init_mesh( config,                  &
   character(str_def), allocatable :: tmp_mesh_names(:)
   character(str_max_filename)     :: input_mesh_file
   integer(i_def),     allocatable :: stencil_depths(:)
+  integer(i_def),     allocatable :: mapping_factors(:)
+
+  type(global_mesh_type), pointer :: global_mesh
 
   procedure(partitioner_interface), pointer :: partitioner_ptr
 
   class(panel_decomposition_type), allocatable :: decomposition
 
-  integer(i_def)     :: i, n_digit
   character(str_def) :: fmt_str, number_str
+
+  integer(i_def) :: i, n_digit
+  integer(tik) :: timing_id
+  type(ugrid_2d_type) :: ugrid_2d
+
+  class(ugrid_file_type), allocatable :: file_handler
+
+  if ( LPROF ) call start_timing(timing_id, 'driver.init_mesh')
+  nullify(global_mesh)
+  nullify(partitioner_ptr)
 
   !============================================================================
   ! Extract configuration variables
@@ -183,7 +207,7 @@ subroutine init_mesh( config,                  &
   end do
 
   ! Currently only quad elements are fully functional
-  if (cellshape /= CELLSHAPE_QUADRILATERAL) then
+  if (cellshape /= cellshape_quadrilateral) then
     call log_event( "Reference_element must be QUAD for now...", &
                     LOG_LEVEL_ERROR )
   end if
@@ -204,7 +228,6 @@ subroutine init_mesh( config,                  &
   else
     allocate(names, source=mesh_names)
   end if
-
 
   !===========================================================================
   ! Create local mesh objects:
@@ -238,6 +261,18 @@ subroutine init_mesh( config,                  &
     write(number_str, fmt_str) local_rank
     write(input_mesh_file, '(A, "_", A, "-", I0, ".nc")') &
         trim(file_prefix), trim(number_str), total_ranks
+    !====
+    ! Open mesh file
+    ! Once!
+    !====
+    write(log_scratch_space, '(A)')                   &
+                    'opening file: "'// trim(input_mesh_file) // &
+                    '" with MPI-IO for shared access'
+    call log_event(log_scratch_space, LOG_LEVEL_debug)
+
+    allocate( ncdf_quad_type :: file_handler )
+    call ugrid_2d%set_file_handler( file_handler )
+    call ugrid_2d%file_handler_open(trim(input_mesh_file))
 
     call log_event( 'Using pre-partitioned mesh file:', log_level_debug )
     call log_event( '   '//trim(input_mesh_file), log_level_debug )
@@ -249,7 +284,7 @@ subroutine init_mesh( config,                  &
     !===========================================================
     ! Each partitioned mesh file will contain meshes of the
     ! same name as all other partitions.
-    call load_local_mesh( input_mesh_file, mesh_names )
+    call load_local_mesh( input_mesh_file, mesh_names, ugrid_2d )
 
     ! Apply configuration related checks to ensure that these
     ! meshes are suitable for the supplied application
@@ -266,7 +301,7 @@ subroutine init_mesh( config,                  &
     ! need to be loaded after the relevant local meshes have
     ! been loaded.
     tmp_mesh_names = local_mesh_collection%get_mesh_names()
-    call load_local_mesh_maps( input_mesh_file, tmp_mesh_names )
+    call load_local_mesh_maps( input_mesh_file, tmp_mesh_names, ugrid_2d )
     if (allocated(tmp_mesh_names)) deallocate(tmp_mesh_names)
 
   else
@@ -280,7 +315,7 @@ subroutine init_mesh( config,                  &
     generate_inner_halos = config%partitioning%generate_inner_halos()
 
     if ( geometry == geometry_spherical .and. &
-         topology == topology_fully_periodic ) then
+         topology == topology_periodic ) then
       mesh_selection = mesh_cubedsphere
       call log_event( "Setting up cubed-sphere partition mesh(es)", &
                       log_level_debug )
@@ -291,6 +326,19 @@ subroutine init_mesh( config,                  &
     end if
     write(input_mesh_file,'(A)') trim(file_prefix) // '.nc'
 
+    !====
+    ! Open mesh file
+    ! Once!
+    !====
+    write(log_scratch_space, '(A)')                   &
+                    'opening file: "'// trim(input_mesh_file) // &
+                    '" with MPI-IO for shared access'
+    call log_event(log_scratch_space, LOG_LEVEL_debug)
+
+    allocate( ncdf_quad_type :: file_handler )
+    call ugrid_2d%set_file_handler( file_handler )
+    call ugrid_2d%file_handler_open(trim(input_mesh_file))
+
     ! 2.2a Set constants that will control partitioning.
     !===========================================================
     call get_partition_parameters( config%partitioning, mesh_selection, &
@@ -299,13 +347,20 @@ subroutine init_mesh( config,                  &
 
     ! 2.2b Read in all global meshes from input file
     !===========================================================
-    call load_global_mesh( input_mesh_file, mesh_names )
+    call load_global_mesh( input_mesh_file, mesh_names, ugrid_2d )
 
     ! 2.2c Apply configuration related checks to ensure that these
     !      meshes are suitable for the supplied application
     !      configuration.
     !===========================================================
     call check_global_mesh( config, mesh_names )
+
+    allocate(mapping_factors(size(mesh_names)))
+    do i=1, size(mesh_names)
+      global_mesh => global_mesh_collection%get_global_mesh(mesh_names(i))
+      mapping_factors(i) = calc_mapping_factor(global_mesh, &
+                                               global_mesh_collection)
+    end do
 
     ! 2.2e Partition the global meshes
     !===========================================================
@@ -315,25 +370,31 @@ subroutine init_mesh( config,                  &
                             stencil_depths,          &
                             generate_inner_halos,    &
                             partitioner_ptr,         &
+                            mapping_factors,         &
                             enforce_constraints=check_partitions )
 
 
     ! 2.2f Read in the global intergrid mesh mappings,
     !      then create the associated local mesh maps
     !===========================================================
-    call create_local_mesh_maps( input_mesh_file )
+    call create_local_mesh_maps( input_mesh_file, ugrid_2d )
 
     ! Clear the global mesh
     call global_mesh_collection%clear()
 
   end if  ! prepartitioned
 
+  call ugrid_2d%file_handler_close()
+  if (allocated(file_handler)) deallocate( file_handler )
+
 
   !============================================================================
   ! 3.0 Extrude the specified meshes from local mesh objects into
   !     mesh objects on the given extrusion.
   !============================================================================
-  call create_mesh( mesh_names, extrusion, alt_name=names )
+  call create_mesh( mesh_names, extrusion,       &
+                    inner_halo_tiles, tile_size, &
+                    alt_name=names )
 
 
   !============================================================================
@@ -342,6 +403,7 @@ subroutine init_mesh( config,                  &
   call assign_mesh_maps(mesh_names)
 
   deallocate(stencil_depths)
+  if ( LPROF ) call stop_timing(timing_id, 'driver.init_mesh')
 
 end subroutine init_mesh
 
