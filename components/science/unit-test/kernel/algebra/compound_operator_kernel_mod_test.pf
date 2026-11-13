@@ -16,44 +16,14 @@ module compound_operator_kernel_mod_test
   private
   public :: test_all
 
-  @TestCase
-  type, extends(TestCase), public :: compound_operator_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type compound_operator_test_type
-
 contains
-
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    implicit none
-
-    class(compound_operator_test_type), intent(inout) :: this
-
-  end subroutine setUp
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    implicit none
-
-    class(compound_operator_test_type), intent(inout) :: this
-
-  end subroutine tearDown
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use sci_compound_operator_kernel_mod, only : compound_operator_kernel_code
 
     implicit none
-
-    class(compound_operator_test_type), intent(inout) :: this
 
     real(r_solver), parameter :: tol = 1.0e-12_r_solver
     real(r_solver), parameter :: tau = 0.5_r_solver

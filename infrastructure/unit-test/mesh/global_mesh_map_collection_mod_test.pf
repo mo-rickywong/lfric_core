@@ -17,16 +17,7 @@ module global_mesh_map_collection_mod_test
   implicit none
 
   private
-  public :: test_all
-
-  @TestCase
-  type, extends(TestCase), public :: global_mesh_map_collection_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type global_mesh_map_collection_test_type
+  public :: set_up, test_all
 
   integer(i_def), parameter :: source_id     = 1
   integer(i_def), parameter :: target_id     = 2
@@ -41,11 +32,10 @@ module global_mesh_map_collection_mod_test
 contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
+  @before
+  subroutine set_up()
 
     implicit none
-
-    class(global_mesh_map_collection_test_type), intent(inout) :: this
 
     SourceToTarget_gid_map =      &
       reshape([  1,  2,  5,  6,   &! Map for Source Gid Cell 1
@@ -56,24 +46,13 @@ contains
                   cell_factor_y_SourceToTarget, &
                   ncells_source ] )
 
-  end subroutine setUp
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    implicit none
-
-    class(global_mesh_map_collection_test_type), intent(inout) :: this
-
-  end subroutine tearDown
+  end subroutine set_up
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   @test
-  subroutine test_all( this )
+  subroutine test_all()
 
     implicit none
-
-    class(global_mesh_map_collection_test_type), intent(inout) :: this
 
     type(global_mesh_map_collection_type) :: global_mesh_map_collection
     type(global_mesh_map_type), pointer :: test_global_mesh_map => null()

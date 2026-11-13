@@ -15,44 +15,14 @@ module dg_matrix_vector_mod_test
   private
   public :: test_real64, test_real32
 
-  @TestCase
-  type, extends(TestCase), public :: dg_matrix_vector_mod_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_real64
-    procedure test_real32
-  end type dg_matrix_vector_mod_test_type
-
 contains
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    implicit none
-    class(dg_matrix_vector_mod_test_type), intent(inout) :: this
-
-  end subroutine setUp
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    implicit none
-
-    class(dg_matrix_vector_mod_test_type), intent(inout) :: this
-
-  end subroutine tearDown
-
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! TEST REAL64 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   @test
-  subroutine test_real64( this )
+  subroutine test_real64()
 
     use dg_matrix_vector_kernel_mod, only : dg_matrix_vector_code
 
     implicit none
-
-    class(dg_matrix_vector_mod_test_type), intent(inout) :: this
 
     real(kind=r_double) :: d(1,4,2), x(2), y(4), answer(4)
     real(kind=r_double) :: tol
@@ -90,13 +60,11 @@ contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! TEST REAL32 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   @test
-  subroutine test_real32( this )
+  subroutine test_real32()
 
     use dg_matrix_vector_kernel_mod, only : dg_matrix_vector_code
 
     implicit none
-
-    class(dg_matrix_vector_mod_test_type), intent(inout) :: this
 
     real(kind=r_single) :: d(1,4,2), x(2), y(4), answer(4)
     real(kind=r_single) :: tol

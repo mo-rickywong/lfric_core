@@ -6,6 +6,7 @@
 !> Test the tri_matrix_vector kernel
 !>
 module tri_matrix_vector_kernel_mod_test
+
   use constants_mod,         only : i_def, r_def
   use funit
 
@@ -13,51 +14,16 @@ module tri_matrix_vector_kernel_mod_test
 
   private
 
-  public :: tri_matrix_vector_kernel_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: tri_matrix_vector_kernel_test_type
-    private
-
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-
-  end type tri_matrix_vector_kernel_test_type
+  public :: test_all
 
 contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    implicit none
-
-    class(tri_matrix_vector_kernel_test_type), intent(inout) :: this
-
-  end subroutine setUp
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    use config_loader_mod, only: final_configuration
-
-    implicit none
-
-    class(tri_matrix_vector_kernel_test_type), intent(inout) :: this
-
-    call final_configuration()
-
-  end subroutine tearDown
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
   @Test
-  subroutine test_all( this )
+  subroutine test_all()
 
     use sci_tri_matrix_vector_kernel_mod, only : tri_matrix_vector_code
 
     implicit none
-
-    class(tri_matrix_vector_kernel_test_type), intent(inout) :: this
 
     real(kind=r_def), parameter :: tol = 1.0e-12_r_def
 

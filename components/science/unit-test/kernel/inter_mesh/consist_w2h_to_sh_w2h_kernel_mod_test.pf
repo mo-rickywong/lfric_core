@@ -16,58 +16,24 @@ module consist_w2h_to_sh_w2h_kernel_mod_test
   implicit none
 
   private
-  public :: consist_w2h_to_sh_w2h_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: consist_w2h_to_sh_w2h_test_type
-    private
-  contains
-
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-
-  end type consist_w2h_to_sh_w2h_test_type
+  public :: test_all
 
 contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    implicit none
-
-    class(consist_w2h_to_sh_w2h_test_type), intent(inout) :: this
-
-  end subroutine setUp
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    use config_loader_mod, only: final_configuration
-
-    implicit none
-
-    class(consist_w2h_to_sh_w2h_test_type), intent(inout) :: this
-
-    call final_configuration()
-
-  end subroutine tearDown
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use sci_consist_w2h_to_sh_w2h_kernel_mod, only : consist_w2h_to_sh_w2h_code
 
     implicit none
 
-    class(consist_w2h_to_sh_w2h_test_type), intent(inout) :: this
-
-    real(kind=r_double), parameter ::  tol = 1.0e-12_r_double
-    real(kind=r_double), parameter ::   dx = 5.0_r_double
-    real(kind=r_double), parameter ::   dy = 4.0_r_double
-    real(kind=r_double), parameter ::   u_W = 7.0_r_double
-    real(kind=r_double), parameter ::   u_E = 11.0_r_double
-    real(kind=r_double), parameter ::   u_N = 3.0_r_double
-    real(kind=r_double), parameter ::   u_S = 4.0_r_double
+    real(kind=r_double), parameter :: tol = 1.0e-12_r_double
+    real(kind=r_double), parameter :: dx = 5.0_r_double
+    real(kind=r_double), parameter :: dy = 4.0_r_double
+    real(kind=r_double), parameter :: u_W = 7.0_r_double
+    real(kind=r_double), parameter :: u_E = 11.0_r_double
+    real(kind=r_double), parameter :: u_N = 3.0_r_double
+    real(kind=r_double), parameter :: u_S = 4.0_r_double
 
     ! Fields
     real(kind=r_double), allocatable :: u_sh_field(:)

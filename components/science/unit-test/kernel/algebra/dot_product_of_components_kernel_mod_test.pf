@@ -16,53 +16,17 @@ module dot_product_of_components_kernel_mod_test
   implicit none
 
   private
-  public :: dot_product_of_components_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: dot_product_of_components_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type dot_product_of_components_test_type
+  public :: test_all
 
 contains
-
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-
-
-    implicit none
-
-    class(dot_product_of_components_test_type), intent(inout) :: this
-
-  end subroutine setUp
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    use config_loader_mod, only: final_configuration
-
-    implicit none
-
-    class(dot_product_of_components_test_type), intent(inout) :: this
-
-    call final_configuration()
-
-  end subroutine tearDown
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use, intrinsic :: iso_fortran_env, only : real64
     use sci_dot_product_of_components_kernel_mod, only : dot_product_of_components_code
 
     implicit none
-
-    class(dot_product_of_components_test_type), intent(inout) :: this
 
     real(r_def), parameter :: tol    = 1.0e-9_r_def   ! r_def 64bit
     real(r_def), parameter :: tol32  = 1.0e-6_r_def   ! r_def 32bit

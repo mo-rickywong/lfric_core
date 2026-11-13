@@ -14,48 +14,15 @@ module compute_trace_operator_kernel_mod_test
   implicit none
 
   private
-  public :: setUp, tearDown, test_all
-
-  @TestCase
-  type, extends(TestCase), public :: compute_trace_operator_test_type
-     private
-
-   contains
-     procedure setUp
-     procedure tearDown
-     procedure test_all
-  end type compute_trace_operator_test_type
+  public :: test_all
 
   integer(kind=i_def), parameter :: element_order_h = 0
   integer(kind=i_def), parameter :: element_order_v = 0
 
 contains
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    implicit none
-
-    class(compute_trace_operator_test_type), intent(inout) :: this
-
-  end subroutine setUp
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    use config_loader_mod, only: final_configuration
-
-    implicit none
-
-    class(compute_trace_operator_test_type), intent(inout) :: this
-
-    call final_configuration()
-
-  end subroutine tearDown
-
-  ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  @Test
-  subroutine test_all( this )
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  @test
+  subroutine test_all()
 
     use sci_compute_trace_operator_kernel_mod, only : compute_trace_operator_code
 
@@ -74,8 +41,6 @@ contains
                                                    get_w2trace_m3x3_q3x3x3_size
 
     implicit none
-
-    class(compute_trace_operator_test_type), intent(inout) :: this
 
     real(kind=r_def), parameter   :: tol = 1.0e-6_r_def
     real(kind=r_def)              :: answer(6, 6)

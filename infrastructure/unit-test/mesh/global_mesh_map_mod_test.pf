@@ -15,16 +15,7 @@ module global_mesh_map_mod_test
   implicit none
 
   private
-  public test_global_mesh_map, setUp, tearDown
-
-  @testCase
-  type, public, extends( TestCase ) :: global_mesh_map_test_type
-
-  contains
-    procedure :: setUp
-    procedure :: tearDown
-    procedure :: test_global_mesh_map
-  end type global_mesh_map_test_type
+  public set_up, test_global_mesh_map
 
   integer(i_def), parameter :: source_id  = 1
   integer(i_def), parameter :: target_id  = 2
@@ -41,11 +32,10 @@ module global_mesh_map_mod_test
 
 contains
 
-  subroutine setup( this )
+  @before
+  subroutine set_up()
 
     implicit none
-
-    class( global_mesh_map_test_type ), intent( inout ) :: this
 
     SourceToTarget_gid_map =      &
       reshape([  1,  2,  5,  6,   &! Map for Source Gid Cell 1
@@ -65,25 +55,15 @@ contains
                   cell_ratio_TargetToSource, &
                   ncells_target ] )
 
-  end subroutine setup
-
-  subroutine teardown( this )
-
-    implicit none
-
-    class( global_mesh_map_test_type ), intent( inout ) :: this
-
-  end subroutine teardown
+  end subroutine set_up
 
   !> Test global_mesh module functionality
   !>
   @test
-  subroutine test_global_mesh_map( this )
+  subroutine test_global_mesh_map()
 
 
     implicit none
-
-    class( global_mesh_map_test_type ), intent( inout ) :: this
 
     type(global_mesh_map_type) :: tmp_map
     type(global_mesh_map_type) :: CoarseToFine_map
@@ -91,8 +71,6 @@ contains
 
     integer(i_def), allocatable :: tmp_cell_list(:), tmp_gid_map(:,:,:)
     integer(i_def) :: i
-
-
 
     !---------------------------------------
     ! Test construction of a global mesh map

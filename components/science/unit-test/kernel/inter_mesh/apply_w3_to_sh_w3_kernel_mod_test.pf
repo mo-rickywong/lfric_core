@@ -14,48 +14,16 @@ module apply_w3_to_sh_w3_kernel_mod_test
   implicit none
 
   private
-  public :: apply_w3_to_sh_w3_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: apply_w3_to_sh_w3_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type apply_w3_to_sh_w3_test_type
+  public :: test_all
 
 contains
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    implicit none
-
-    class(apply_w3_to_sh_w3_test_type), intent(inout) :: this
-
-  end subroutine setUp
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    use config_loader_mod, only: final_configuration
-
-    implicit none
-
-    class(apply_w3_to_sh_w3_test_type), intent(inout) :: this
-
-  end subroutine tearDown
-
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   @Test
-  subroutine test_all( this )
+  subroutine test_all()
 
     use sci_apply_w3_to_sh_w3_kernel_mod, only : apply_w3_to_sh_w3_code
 
-   implicit none
-
-    class(apply_w3_to_sh_w3_test_type), intent(inout) :: this
+    implicit none
 
     real(kind=r_def),      parameter :: tol = 1.0e-12_r_def
     real(kind=r_def),      parameter :: dx = 5.0_r_def

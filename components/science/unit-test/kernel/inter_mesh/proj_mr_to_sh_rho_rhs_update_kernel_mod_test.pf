@@ -6,6 +6,7 @@
 !> Test the proj_mr_to_sh_rho_rhs_update kernel
 !>
 module proj_mr_to_sh_rho_rhs_update_kernel_mod_test
+
   use constants_mod, only : i_def, r_def
   use funit
 
@@ -13,52 +14,16 @@ module proj_mr_to_sh_rho_rhs_update_kernel_mod_test
 
   private
 
-  public :: proj_mr_to_sh_rho_rhs_update_kernel_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: proj_mr_to_sh_rho_rhs_update_kernel_test_type
-    private
-
-  contains
-
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-
-  end type proj_mr_to_sh_rho_rhs_update_kernel_test_type
+  public :: test_all
 
 contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    implicit none
-
-    class(proj_mr_to_sh_rho_rhs_update_kernel_test_type), intent(inout) :: this
-
-  end subroutine setUp
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    use config_loader_mod, only: final_configuration
-
-    implicit none
-
-    class(proj_mr_to_sh_rho_rhs_update_kernel_test_type), intent(inout) :: this
-
-    call final_configuration()
-
-  end subroutine tearDown
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
   @Test
-  subroutine test_all( this )
+  subroutine test_all()
 
     use sci_proj_mr_to_sh_rho_rhs_update_kernel_mod, only : proj_mr_to_sh_rho_rhs_update_code
 
     implicit none
-
-    class(proj_mr_to_sh_rho_rhs_update_kernel_test_type), intent(inout) :: this
 
     real(kind=r_def), parameter :: tol = 1.0e-12_r_def
 

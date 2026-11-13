@@ -20,46 +20,16 @@ module split_vector_field_kernel_mod_test
 
   public :: test_all
 
-  @TestCase
-  type, public, extends(TestCase) :: split_vector_field_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-  end type split_vector_field_test_type
-
 contains
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    implicit none
-
-    class(split_vector_field_test_type), intent(inout) :: this
-
-  end subroutine setUp
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    implicit none
-
-    class(split_vector_field_test_type), intent(inout) :: this
-
-  end subroutine tearDown
-
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   @test
-  subroutine test_all( this )
+  subroutine test_all()
 
     use sci_split_vector_field_kernel_mod, only : split_vector_field_code
 
     implicit none
 
-    class(split_vector_field_test_type), intent(inout) :: this
-
-    real(r_def),    parameter :: tol    = 1.0e-15_r_def
+    real(r_def),    parameter :: tol = 1.0e-15_r_def
 
     integer(i_def), parameter :: nlayers = 1
     integer(i_def), parameter :: ndf_w2  = 6

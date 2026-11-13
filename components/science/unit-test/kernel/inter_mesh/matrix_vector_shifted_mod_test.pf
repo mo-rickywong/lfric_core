@@ -14,51 +14,16 @@ module matrix_vector_shifted_mod_test
 
   private
 
-  public :: matrix_vector_shifted_kernel_test_type, test_all
-
-  @TestCase
-  type, extends(TestCase) :: matrix_vector_shifted_kernel_test_type
-    private
-
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_all
-
-  end type matrix_vector_shifted_kernel_test_type
+  public :: test_all
 
 contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    implicit none
-
-    class(matrix_vector_shifted_kernel_test_type), intent(inout) :: this
-
-  end subroutine setUp
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    use config_loader_mod, only: final_configuration
-
-    implicit none
-
-    class(matrix_vector_shifted_kernel_test_type), intent(inout) :: this
-
-    call final_configuration()
-
-  end subroutine tearDown
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  @Test
-  subroutine test_all( this )
+  @test
+  subroutine test_all()
 
     use sci_matrix_vector_shifted_kernel_mod, only : matrix_vector_shifted_code
 
     implicit none
-
-    class(matrix_vector_shifted_kernel_test_type), intent(inout) :: this
 
     integer(kind=i_def) :: nlayers
     integer(kind=i_def) :: nlayers_sh

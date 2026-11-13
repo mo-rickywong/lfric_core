@@ -27,7 +27,6 @@ module skeleton_test
   ! The test case type, containing procedures to setup, run
   ! and clean up after a test.
   ! It can also contain data.
-
   @TestCase
   type, extends(TestCase), public :: skeleton_test_type
     private
@@ -36,7 +35,6 @@ module skeleton_test
     procedure tearDown
     procedure example_test
   end type skeleton_test_type
-
 
 contains
 

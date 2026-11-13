@@ -15,17 +15,7 @@ module remove_duplicates_mod_test
 
   private
   public :: test_get_unique_str_array, &
-            test_get_unique_int_array, &
-            setUp, tearDown
-
-  @testCase
-  type, public, extends( TestCase ) :: remove_duplicates_test_type
-  contains
-    procedure :: setUp
-    procedure :: tearDown
-    procedure :: test_get_unique_str_array
-    procedure :: test_get_unique_int_array
-  end type remove_duplicates_test_type
+            test_get_unique_int_array
 
   character(str_def), parameter :: str_array(9) = [ 'The    ', &
                                                     'tinker ', &
@@ -40,33 +30,12 @@ module remove_duplicates_mod_test
       [ 1, 1, 2, 3, 2, 3, 5, 3, 5, 8, 7, 3, 5, 12 ]
 
 contains
-
-  subroutine setup( this )
-
-    implicit none
-
-    class( remove_duplicates_test_type ), intent( inout ) :: this
-
-    return
-  end subroutine setup
-
-  subroutine teardown( this )
-
-    implicit none
-
-    class( remove_duplicates_test_type ), intent( inout ) :: this
-
-    return
-  end subroutine teardown
-
   !> Test get unique array module functionality for characters arrays
   !>
   @test
-  subroutine test_get_unique_str_array( this )
+  subroutine test_get_unique_str_array()
 
     implicit none
-
-    class( remove_duplicates_test_type ), intent( inout ) :: this
 
     character(str_def), allocatable :: test_unique_str_arr(:)
     character(str_def), parameter   :: unique_str_arr(7) =                   &
@@ -90,11 +59,9 @@ contains
   !> Test get unique array module functionality for integer arrays
   !>
   @test
-  subroutine test_get_unique_int_array( this )
+  subroutine test_get_unique_int_array()
 
     implicit none
-
-    class( remove_duplicates_test_type ), intent( inout ) :: this
 
     integer(i_def), allocatable :: test_unique_int_arr(:)
     integer(i_def), parameter :: unique_int_arr(7) =     &

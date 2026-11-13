@@ -18,48 +18,16 @@ module operator_algebra_kernel_mod_test
   public :: test_setval_c
   public :: test_setval_x
 
-  @TestCase
-  type, extends(TestCase), public :: operator_algebra_test_type
-    private
-  contains
-    procedure setUp
-    procedure tearDown
-    procedure test_x_plus_ay
-    procedure test_setval_c
-    procedure test_setval_x
-  end type operator_algebra_test_type
-
 contains
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine setUp( this )
-
-    implicit none
-
-    class(operator_algebra_test_type), intent(inout) :: this
-
-  end subroutine setUp
-
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine tearDown( this )
-
-    implicit none
-
-    class(operator_algebra_test_type), intent(inout) :: this
-
-  end subroutine tearDown
-
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  @Test( )
-  subroutine test_x_plus_ay( this )
+  @test
+  subroutine test_x_plus_ay()
 
     use, intrinsic :: iso_fortran_env, only: real64
     use sci_operator_algebra_kernel_mod, only : operator_x_plus_ay_kernel_code
 
     implicit none
-
-    class(operator_algebra_test_type), intent(inout) :: this
 
     real(kind=r_def), parameter :: tol = 1.0e-12_r_def   ! r_def 64bit
     real(kind=r_def)            :: use_tol
@@ -111,15 +79,13 @@ contains
 
   end subroutine test_x_plus_ay
 
-  @Test( )
-  subroutine test_setval_c( this )
+  @test
+  subroutine test_setval_c()
 
     use, intrinsic :: iso_fortran_env, only: real64
     use sci_operator_algebra_kernel_mod, only : operator_setval_c_kernel_code
 
     implicit none
-
-    class(operator_algebra_test_type), intent(inout) :: this
 
     real(kind=r_def), parameter :: tol = 1.0e-12_r_def   ! r_def 64bit
     real(kind=r_def)            :: use_tol
@@ -158,15 +124,13 @@ contains
 
   end subroutine test_setval_c
 
-  @Test( )
-  subroutine test_setval_x( this )
+  @test
+  subroutine test_setval_x()
 
     use, intrinsic :: iso_fortran_env, only: real64
     use sci_operator_algebra_kernel_mod, only : operator_setval_x_kernel_code
 
     implicit none
-
-    class(operator_algebra_test_type), intent(inout) :: this
 
     real(kind=r_def), parameter :: tol = 1.0e-12_r_def   ! r_def 64bit
     real(kind=r_def)            :: use_tol
